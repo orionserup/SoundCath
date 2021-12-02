@@ -1,0 +1,65 @@
+____________________________________________________________________
+|                                                                   |
+|            Channel Switcher User Guide Document                   |
+|                                                                   |
+---------------------------------------------------------------------
+
+1. Wiring and Setup:
+
+    The wiring is as follows for now:
+
+    Pin 4: ChannelSelect[0]
+    Pin 5: ChannelSelect[1]
+    Pin 6: ChannelSelect[2]
+    Pin 7: ChannelSelect[3]
+    Pin 8: ChannelSelect[4]
+    Pin 9: ChannelSelect[5]
+    Pin 10: ChannelSelect[6]
+
+    To connect to the board, use the application in the bin folder, it will connect to the Arduino
+    assuming that it is using the default parameters for connection (it should)
+
+    -- If there is an error message then you need to make sure the cables are fully plugged in 
+    -- There is a driver that may need to be downloaded if it does not immediately connect
+    -- Downloading Arduino IDE will auto install these drivers and allow for programming as well
+
+    -- https://www.arduino.cc/en/software
+
+2. How it Works
+
+    - PC Side
+        The program is very simple: it opens a serial port with the Arduino and sends the channel it wants to ChannelSelect
+        over the serial port in the form of raw binary e.g. 0x10 for channel 16
+    
+    - Arduino Side
+        The Arduino configures the GPIO pins corresponding to the channel select to be output pins and then waits for
+        Serial data to come in. If it finds that it has been sent something, it sets the pins according to the channel 
+        value sent by the PC
+
+3. Modifying Software
+
+    - PC Software
+        The source code is written in Python and is in the src folder. Modifiable values that would be desirable to modify 
+        are on the top of the file. Values such as sampling period, waveform width, etc
+
+    - Arduino 
+        Using the Arduino IDE, open the source file in the src folder titled main.ino and modify the values at the top 
+        
+4. Running the Software
+
+    To run the software there is one dependency: Python: install that before you do anything:
+    -- https://www.python.org/downloads/
+
+    You can also find Python in the Windows store
+
+    ::: Make Sure to Select "Add Python to PATH" during install :::
+
+    Download and install the latest version and restart your computer 
+
+    To run the software, on the first run you must run install.bat in the bin folder
+    after the install is done you can either run SoundCath.bat or run SoundCath.py in src
+    
+    :: Do Not Disorder The Files or SoundCath.bat will not work ::
+
+    The software will automatically probe for scopes and Arduinos and if there are no issues the 
+    GUI will show up and you can run the app like normal
