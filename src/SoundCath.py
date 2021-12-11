@@ -23,7 +23,7 @@ class TesterFrontEnd:  # a GUI front end for the test
 
         self.haspassed = False
 
-        #self.backend = tb.CatheterTester()
+        self.backend = tb.CatheterTester()
 
         self.window = ttk.Frame(self.root)  # All widget elements
         self.upbutton = ttk.Button(self.root, text = "Up", command = self.IncChannel)
