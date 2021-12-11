@@ -1,128 +1,10 @@
-
-import pyvisa as visa
-import csv
 from tkinter import StringVar, ttk, Tk, IntVar
-import serial
-from serial.tools.list_ports import comports
 import time
+#from .TesterBackend import CatheterTester
 
-max_channel = 64  # max number of addressable channels on the chip
-scope_interval_us = 3 # how long of a waveform to capture
-scope_sample_interval_ns = 1 # sampling period of oscilloscope
 channel_switch_interval = .5 # when running all channels the time between channels
-oscilloscope_channel = 3 # oscilloscope channel
-
-class CatheterTester:
-
-    def __init__(self):
-        
-        self.Arduino = self.ConnectToArduino()
-        self.Oscilloscope = self.ConnectToScope()
-
-        # if self.Arduino == None:  # if could not connect to the arduino
-        #     print("Could Not Connect To the Arduino, Exiting")
-        #     input("Press Any Key To Exit")
-        #     exit() # leave the program
-                
-    def ImpedanceTest(self, channel: int, duration: float, filename: str) -> None:
-        pass
-
-    def PulseEchoTest(self, channel: int, duration: float, filename: str) -> None:
-        pass
-
-    def ConnectToArduino(self) -> serial.Serial:
-
-        all_ports = comports()
-        print("Listing Serial Ports: ")
-        ports = set()
-        
-        for port, _, _ in all_ports: # for every detected port add it to a set of port names
-            ports |= {port}
-            print(str(port))
-
-        for port in ports:  # for every port in the set try to connect to it
-
-            try:
-                dev = serial.Serial(str(port), timeout = .2)
-            except serial.SerialException: # if there is an issue with the port go onto the next one
-                continue
-
-            dev.write((10).to_bytes(1, 'big')) # send an echo test
-            if dev.read(1) == (10).to_bytes(1, 'big'): # if the echo tests passes return that port
-                print("Connected To Arduino on Port:  " + str(port))
-                return dev
-
-        print("Could Not Connect To A Valid Arduino Serial Port")
-        return None
-
-    def ConnectToScope(self) -> visa.Resource:
-        
-        rm = visa.ResourceManager() # create a VISA device manager
-        devlist = rm.list_resources()  # print out all of the possible VISA Devices
-        print("Listing VISA Devices: {}".format(devlist))
-        
-        for dev in devlist:
-            try:
-                scope = rm.open_resource(dev) # open the device for use
-                scope.query("*IDN?")
-                
-            except visa.VisaIOError:
-                scope = None
-                continue
-            
-            if scope != None:
-                print("Connected To a Scope: {}".format(dev))
-                print("Scope ID: " + scope.query("*IDN?"))
-                return scope
-
-        print("Did Not Find A Valid Scope")
-        return None
-
-    def SetChannel(self, channel: int):
-
-        self.Arduino.write(channel.to_bytes(1, 'big'))
-
-    def GetScopeData(self, channel: int, filename: str):
-
-        self.scope.write("HEADER OFF")
-        self.scope.write("DATa:SOURCe ch{}".format(channel))
-        self.scope.write("DATa:ENCdg RIBBINARY")
-        self.scope.write("DATA WIDTH 1")
-        self.scope.write("ACQUIRE:STATE OFF")
-        self.scope.write("ACQUIRE:MODE NORMALSAMPLE")
-        self.scope.write("ACQUIRE:STOPAFTER SEQUENCE")
-        self.scope.write("ACQUIRE:STATE RUN")
-        
-        while self.scope.query("BUSY?") == "1":
-            pass
-
-        num_samples = self.scope.query("HORIZONTAL:RECORD?")
-        self.scope.write("DATA:START 1")
-        
-        inc = self.scope.query("WFMOUTPRE:XINCR?")
-        yunit = self.scope.query('WFMOUTPRE:YUNIT?')
-        ymult = self.scope.query('WFMOUTPRE:YMULT?')
-        yoff = self.scope.query('WFMOUTPRE:YOFF?')
-        yzero = self.scope.query('WFMOUTPRE:YZERO?')
-
-        inc_us = float(inc) * 1000000
-        stop = int(float(scope_interval_us)/float(inc_us))
-
-        self.scope.write("DATA:STOP {}".format(num_samples if stop > num_samples else stop))
-
-        values = self.scope.query_binary_values("CURVE?", datatype = "b", )
-
-        time = [i * float(inc) for i in range(stop)]
-        voltage = [float(ymult)*(values[i] - float(yoff)) - float(yzero) for i in range(stop)]
-        
-        writer = csv.writer(open(filename, "w"))
-     
-        writer.writerow(["Time", "Voltage"])
-        for i in range(stop):
-            writer.writerow([time[i], voltage[i]])
-
+max_channel = 64
 class TesterFrontEnd:  # a GUI front end for the test
-   
     def __init__(self):
 
         self.root = Tk() # setup the GUI base
@@ -139,9 +21,10 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.allchannels = IntVar(self.root, 0)
         self.pulseechotest = IntVar(self.root, 0)
         self.text = StringVar(self.root, "Channel " + str(self.channel))
-        self.backend = CatheterTester()
 
-        self.window = ttk.Frame(self.root)  # All widget elemets
+        #self.backend = CatheterTester()
+
+        self.window = ttk.Frame(self.root)  # All widget elements
         self.upbutton = ttk.Button(self.root, text = "Up", command = self.IncChannel, style = "Orion.TButton")
         self.downbutton = ttk.Button(self.root, text = "Down", command = self.DecChannel, style = "Orion.TButton")
         self.label = ttk.Label(self.root, textvariable = self.text, width = 11, style = "Orion.TLabel")
@@ -150,9 +33,9 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.impedancetestbutton = ttk.Checkbutton(self.root, variable = self.impedancetest, text = "Impedance Test", style = "Orion.TCheckbutton")
         self.allchannelsbutton  = ttk.Checkbutton(self.root, variable = self.allchannels,  text = "Run All Channels" , style = "Orion.TCheckbutton")
         self.pulseechotestbutton = ttk.Checkbutton(self.root, variable = self.pulseechotest, text = "Pulse Echo", style = "Orion.TCheckbutton")
-        
+
         self.runbutton = ttk.Button(self.root, text = "Run Tests", command = self.RunTests, style = "Orion.TButton")
-        self.filename = ttk.Entry(self.root, text = "File Name", style = "Orion.TEntry" )
+        self.filename = ttk.Entry(self.root, text = "File Name", style = "Orion.TEntry")
 
     def Draw(self): # positions and draws all of the widgets in the frame
 
@@ -170,51 +53,62 @@ class TesterFrontEnd:  # a GUI front end for the test
 
         self.window.mainloop()
 
+    def DisplayPassWindow(self) -> str:
+        PassWindow = Tk()
+        PassWindow.geometry('100x200')
+        passbutton = ttk.Button(PassWindow, text = "Pass", style = "Orion.TButton", command = lambda: PassWindow.destroy())
+        failbutton = ttk.Button(PassWindow, text = "Fail", style = "Orion.TButton", command = lambda: PassWindow.destroy())
+        passbutton.place(x = 0, y = 0, height = 100, width = 100)
+        failbutton.place(x = 0, y = 100, height = 100, width = 100)
+
+        PassWindow.mainloop()
+
+
     def RunTests(self): # run the tests according to the parameters
-
-        if self.allchannels.get():
-
+        self.DisplayPassWindow()
+        if self.allchannels.get() != 0:
             for i in range(max_channel):
                 
                 self.backend.SetChannel(i)
-
                 if self.pulseecho.get():
                     self.RunPulseEchoTest()
-            
                 if self.impedance.get():
                     self.RunImpedanceTest()
-
+                self.DisplayPassWindow()
                 time.sleep(channel_switch_interval)
-
         else: 
-
             if self.pulseecho.get():
                 self.RunPulseEchoTest()
-            
             if self.impedance.get():
                 self.RunImpedanceTest()
-            
-    def RunImpedanceTest(self):
 
+            self.DisplayPassWindow()
+
+    def RunImpedanceTest(self):
         self.backend.ImpedanceTest()
 
-    def RunPulseEchoTest(self):
-
-        pass
+    def RunPulseEchoTest(self):    
+        self.backend.PulseEchoTest()
 
     def IncChannel(self):
-
         if(self.channel < max_channel):
             self.channel += 1
             self.text.set("Channel " + str(self.channel))
             self.backend.SetChannel(self.channel)
 
     def DecChannel(self):
-        
         if(self.channel > 0):
             self.channel -= 1
             self.text.set("Channel " + str(self.channel))
             self.backend.SetChannel(self.channel)
+
+    def MarkPass(self) -> None:
+        self.PassWindow.destroy()
+        pass
+
+    def MarkFail(self) -> None:
+        self.PassWindow.destroy()
+        pass
 
     
 if __name__ == "__main__":
