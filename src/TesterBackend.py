@@ -25,11 +25,10 @@ class CatheterTester:
         pass
 
 def SetChannel(self, channel: int):
-    self.Arduino.write(channel.to_bytes(1, 'big'))
+    self.Arduino.Write(channel.to_bytes(1, 'big'))
 
-def WriteDataToFile(self, data: dict(str, list(np.double)), filename: str) -> None:    
+def WriteDataToFile(self, data: dict[str, list], filename: str) -> None:    
     writer = csv.writer(open(filename, "w"))
-     
     writer.writerow(data.keys())
     for i in len(data.items[0]):
         writer.writerow(data.items()[j][i] for j in range(len(data.keys())))
@@ -40,8 +39,8 @@ class Oscilloscope:
         rm = visa.ResourceManager() # create a VISA device manager
         devlist = rm.list_resources()  # print out all of the possible VISA Devices
         print("Listing VISA Devices: {}".format(devlist))
-        self.Waveform = []
-        self.fft = []
+        self.Waveform = {}
+        self.fft = {}
         
         for dev in devlist:
             try:
@@ -62,7 +61,7 @@ class Oscilloscope:
     def IsConnected(self) -> bool:
         return self.scope != None
 
-    def CaptureWaveform(self, channel: int, interval_us: int) -> dict(str, list(np.double)):
+    def CaptureWaveform(self, channel: int, interval_us: int) -> dict[str, list]:
         self.Oscilloscope.write("HEADER OFF")
         self.Oscilloscope.write("DATa:SOURCe ch{}".format(channel))
         self.Oscilloscope.write("DATa:ENCdg RIBBINARY")
@@ -95,7 +94,7 @@ class Oscilloscope:
         self.Waveform = {"Time": time, "Voltage": voltage}
         return self.Waveform
 
-    def WindowWaveform(self, initial_us: np.double, window_size_us: np.double) -> dict(str, list(np.double)):
+    def WindowWaveform(self, initial_us: np.double, window_size_us: np.double) -> dict[str, list]:
         deltat = self.Waveform["Time"][1] - self.Waveform["Time"][0]
         n = int(initial_us/(deltat*1000000))
         d = int(window_size_us/(deltat*1000000))
@@ -103,21 +102,21 @@ class Oscilloscope:
         self.Waveform = { "Time": self.Waveform["Time"][n: n+d], 'Voltage': self.Waveform["Voltage"][n: n+d] }
         return self.Waveform
 
-    def GetWaveform(self) -> dict(str, list(np.double)):
+    def GetWaveform(self) -> dict[str, list]:
         return self.Waveform
 
-    def CalculateFFT(self) -> dict(str, list(np.double)):
+    def CalculateFFT(self) -> dict[str, list]:
         amp = np.abs(rfft(self.Waveform["Voltage"]))  # run the fft on the voltage values get the magnitude of the amplitude
         freq = rfftfreq(len(self.Waveform["Time"]), self.Waveform["Time"][1]- self.Waveform["Time"][0])  # scale the axis to the sampling period
         
         self.fft = {"Frequency": freq, "Amplitude": amp}
         return self.fft
 
-    def GetFFT(self) -> dict(str, list(np.double)):
+    def GetFFT(self) -> dict[str, list]:
         return self.fft
 
 class Arduino:
-    def ConnectToArduino(self):
+    def __init__(self):
         all_ports = comports()
         print("Listing Serial Ports: ")
         ports = set()
