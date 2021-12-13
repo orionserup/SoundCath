@@ -29,7 +29,7 @@ ____________________________________________________________________
 
     - PC Side
         The program is very simple: it opens a serial port with the Arduino and sends the channel it wants to ChannelSelect
-        over the serial port in the form of raw binary e.g. 0x10 for channel 16
+        over the serial port in the form of an integer string e.g. "16" for channel 16
     
     - Arduino Side
         The Arduino configures the GPIO pins corresponding to the channel select to be output pins and then waits for
