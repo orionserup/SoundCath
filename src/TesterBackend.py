@@ -26,7 +26,7 @@ class CatheterTester:
         pass
 
     def SetChannel(self, channel: int):
-        self.Arduino.Write(channel.to_bytes(1, 'big'))
+        self.Arduino.Write(bytes(str(channel), 'utf-8'))
 
 def WriteDataToFile(self, data: dict[str, list], filename: str) -> None:    
     writer = csv.writer(open(filename, "w"))
