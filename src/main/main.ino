@@ -20,7 +20,8 @@ void reset_trigger(const uint8_t trigger);
 
 void setup() {
 
-  Serial.begin(9600);
+  Serial.begin(115200);
+  Serial.setTimeout(1);
 
   for (uint8_t i = 0; i < sizeof(sel); i++)
     pinMode(sel[i], OUTPUT);
@@ -28,23 +29,18 @@ void setup() {
   for (uint8_t i = 0; i < sizeof(trig); i++)
     pinMode(trig[i], OUTPUT);
 
-  while(!Serial.available())
-    Serial.print('c');
-
 }
 
 void loop() {
 
-  if (Serial.available() > 0) {
+  while(!Serial.available());
 
-    int value = Serial.read();
-    uint8_t channel = abs(value) & 0x3f;
+  int value = Serial.readString().toInt();
+  uint8_t channel = abs(value) & 0x3f;
 
-    Serial.println(value, DEC);
+  Serial.println(value);
 
-    set_channel(channel);
-
-  }
+  set_channel(channel);
 
 }
 

@@ -4,6 +4,7 @@ import serial
 from serial.tools.list_ports import comports
 from scipy.fft import rfft, rfftfreq
 import numpy as np
+import time
 
 scope_sample_interval_ns = 1 # sampling period of oscilloscope
 
@@ -127,15 +128,14 @@ class Arduino:
 
         for port in ports:  # for every port in the set try to connect to it
             try:
-                dev = serial.Serial(port = str(port), baudrate = 9600, timeout = .5)
+                dev = serial.Serial(port = str(port), baudrate = 115200, timeout = 1)
             except serial.SerialException: # if there is an issue with the port go onto the next one
                 continue
             
-            data = (1).to_bytes(1, 'big')
-            dev.write(data) # send an echo test
-            
-            ret = dev.read(2)
-            print(f"Sent {data}, Recieved: {ret}\n")
+            dev.write(b'67') # send an echo test
+            ret = dev.readline()
+
+            print(ret)
             if ret != b'': # if the echo tests passes return that port
                 print("Connected To Arduino on Port:  " + str(port))
                 self.port = dev

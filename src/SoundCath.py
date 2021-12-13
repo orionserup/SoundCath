@@ -116,8 +116,16 @@ if __name__ == "__main__":
     gui.Draw()
 
     # import serial
+    # import time
 
-    # dev = serial.Serial(port = 'COM6', timeout = .5)
+    # dev = serial.Serial(port = 'COM6', baudrate = 115200, timeout = 1)
 
-    # print(dev.read())
-    # dev.write((1).to_bytes(1, 'big'))
+    # dev.write(bytes('61', 'utf-8'))
+    # print(dev.readline())
+
+    # time.sleep(1)
+
+    # dev.write(bytes("64", 'utf-8'))
+    # print(dev.readline())
+    
+    
