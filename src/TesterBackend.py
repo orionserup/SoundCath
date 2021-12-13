@@ -128,18 +128,25 @@ class Arduino:
 
         for port in ports:  # for every port in the set try to connect to it
             try:
-                dev = serial.Serial(port = str(port), baudrate = 115200, timeout = 1)
+                dev = serial.Serial(port = port, baudrate = 115200, timeout = .5)
+
+                time.sleep(.1)
+                dev.write(bytes("60", 'utf-8'))
+                dev.readline()
+
+                dev.write(bytes("32", 'utf-8'))
+                ret = dev.readline()
+
+                if ret != b'': # if the echo tests passes return that port
+                    print("Connected To Arduino on Port:  " + str(port))
+                    self.port = dev
+                    return
+
+                else:
+                    dev.close()
+
             except serial.SerialException: # if there is an issue with the port go onto the next one
                 continue
-            
-            dev.write(b'67') # send an echo test
-            ret = dev.readline()
-
-            print(ret)
-            if ret != b'': # if the echo tests passes return that port
-                print("Connected To Arduino on Port:  " + str(port))
-                self.port = dev
-                return
 
         print("Could Not Connect To A Valid Arduino Serial Port") # if we couldn't find a working Arduino then print this message
         self.port = None
@@ -149,6 +156,7 @@ class Arduino:
 
     def Write(self, data: bytes) -> int:
         if self.port is not None:
+            time.sleep(.1)
             self.port.write(data)
             return len(data)
 

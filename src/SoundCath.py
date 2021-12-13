@@ -120,7 +120,7 @@ if __name__ == "__main__":
 
     # dev = serial.Serial(port = 'COM6', baudrate = 115200, timeout = 1)
 
-    # dev.write(bytes('61', 'utf-8'))
+    # dev.write(bytes("61", 'utf-8'))
     # print(dev.readline())
 
     # time.sleep(1)
