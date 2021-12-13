@@ -120,10 +120,8 @@ class Arduino:
     def __init__(self):
         all_ports = comports()
         print("Listing Serial Ports: ")
-        ports = set()
         
-        for port , info, _ in all_ports: # for every detected port add it to a set of port names
-            ports |= {str(info)}
+        for port, info, _ in all_ports: # for every detected port add it to a set of port names
             print(str(info))
 
             if "Arduino" in str(info):
