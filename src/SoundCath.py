@@ -102,15 +102,22 @@ class TesterFrontEnd:  # a GUI front end for the test
         if(self.channel < max_channel):
             self.channel += 1
             self.text.set("Channel " + str(self.channel))
-            tb.SetChannel(self.channel)
+            self.backend.SetChannel(self.channel)
 
     def DecChannel(self):
         if(self.channel > 0):
             self.channel -= 1
             self.text.set("Channel " + str(self.channel))
-            tb.SetChannel(self.channel)
+            self.backend.SetChannel(self.channel)
 
 if __name__ == "__main__":
 
     gui = TesterFrontEnd()
     gui.Draw()
+
+    # import serial
+
+    # dev = serial.Serial(port = 'COM6', timeout = .5)
+
+    # print(dev.read())
+    # dev.write((1).to_bytes(1, 'big'))

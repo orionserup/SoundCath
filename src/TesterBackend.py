@@ -24,8 +24,8 @@ class CatheterTester:
     def PulseEchoTest(self, channel: int, duration: np.double, filename: str) -> bool:
         pass
 
-def SetChannel(self, channel: int):
-    self.Arduino.Write(channel.to_bytes(1, 'big'))
+    def SetChannel(self, channel: int):
+        self.Arduino.Write(channel.to_bytes(1, 'big'))
 
 def WriteDataToFile(self, data: dict[str, list], filename: str) -> None:    
     writer = csv.writer(open(filename, "w"))
@@ -127,12 +127,16 @@ class Arduino:
 
         for port in ports:  # for every port in the set try to connect to it
             try:
-                dev = serial.Serial(str(port), timeout = .2)
+                dev = serial.Serial(port = str(port), baudrate = 9600, timeout = .5)
             except serial.SerialException: # if there is an issue with the port go onto the next one
                 continue
-
-            dev.write((10).to_bytes(1, 'big')) # send an echo test
-            if dev.read(1) == (10).to_bytes(1, 'big'): # if the echo tests passes return that port
+            
+            data = (1).to_bytes(1, 'big')
+            dev.write(data) # send an echo test
+            
+            ret = dev.read(2)
+            print(f"Sent {data}, Recieved: {ret}\n")
+            if ret != b'': # if the echo tests passes return that port
                 print("Connected To Arduino on Port:  " + str(port))
                 self.port = dev
                 return
