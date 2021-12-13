@@ -13,10 +13,10 @@ class CatheterTester:
         self.Oscilloscope = Oscilloscope()
         self.VNA = VNA()
 
-        if not self.Arduino.IsConnected():  # if could not connect to the arduino
+        """ if not self.Arduino.IsConnected():  # if could not connect to the arduino
             print("Could Not Connect To the Arduino, Exiting")
             input("Press Any Key To Exit")
-            exit() # leave the program
+            exit() # leave the program"""
                 
     def ImpedanceTest(self, channel: int, duration: np.double, filename: str) -> bool:
         pass
