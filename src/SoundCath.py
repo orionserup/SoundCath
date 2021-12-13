@@ -115,17 +115,5 @@ if __name__ == "__main__":
     gui = TesterFrontEnd()
     gui.Draw()
 
-    # import serial
-    # import time
-
-    # dev = serial.Serial(port = 'COM6', baudrate = 115200, timeout = 1)
-
-    # dev.write(bytes("61", 'utf-8'))
-    # print(dev.readline())
-
-    # time.sleep(1)
-
-    # dev.write(bytes("64", 'utf-8'))
-    # print(dev.readline())
     
     

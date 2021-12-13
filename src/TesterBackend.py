@@ -39,7 +39,7 @@ class Oscilloscope:
     def __init__(self):
         rm = visa.ResourceManager() # create a VISA device manager
         devlist = rm.list_resources()  # print out all of the possible VISA Devices
-        print("Listing VISA Devices: {}".format(devlist))
+        print(f"Listing VISA Devices: {devlist}")
         self.Waveform = {}
         self.fft = {}
         
@@ -48,15 +48,15 @@ class Oscilloscope:
                 self.scope = rm.open_resource(dev) # open the device for use
                 self.scope.query("*IDN?")
                 
+                if self.scope != None:
+                    print("Connected To a Scope: {}".format(dev))
+                    print("Scope ID: " + self.scope.query("*IDN?"))
+                    return                
+            
             except visa.VisaIOError:
                 self.scope = None
                 continue
             
-            if self.scope != None:
-                print("Connected To a Scope: {}".format(dev))
-                print("Scope ID: " + self.scope.query("*IDN?"))
-                return
-
         print("Did Not Find A Valid Scope")
 
     def IsConnected(self) -> bool:
@@ -100,7 +100,7 @@ class Oscilloscope:
         n = int(initial_us/(deltat*1000000))
         d = int(window_size_us/(deltat*1000000))
 
-        self.Waveform = { "Time": self.Waveform["Time"][n: n+d], 'Voltage': self.Waveform["Voltage"][n: n+d] }
+        self.Waveform = { "Time": self.Waveform["Time"][n: n + d], 'Voltage': self.Waveform["Voltage"][n: n + d] }
         return self.Waveform
 
     def GetWaveform(self) -> dict[str, list]:
@@ -151,3 +151,6 @@ class VNA:
     def __init__(self):
         pass
     
+
+if __name__ == "__main__":
+    test = CatheterTester()
