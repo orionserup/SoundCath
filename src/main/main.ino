@@ -40,7 +40,7 @@ void loop() {
   int value = Serial.read();
   uint8_t channel = abs(value) & 0x3f;
 
-  Serial.println(value);
+  Serial.println(channel);
 
   set_channel(channel);
 

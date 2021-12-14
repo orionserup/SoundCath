@@ -22,7 +22,7 @@ class CatheterTester:
     def ImpedanceTest(self, channel: int, duration: np.double, filename: str) -> bool:
         pass
 
-    def PulseEchoTest(self, channel: int, duration: np.double, filename: str) -> bool:
+    def PulseEchoTest(self, channel: int = 1, duration_us: np.double = 6, filename: str = "cath.csv") -> bool:
         pass
 
     def SetChannel(self, channel: int):

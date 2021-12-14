@@ -21,7 +21,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.pulseechotest = IntVar(self.root, 0)
         self.text = StringVar(self.root, "Channel " + str(self.channel))
 
-        self.haspassed = False
+        self.passmap = {}
 
         self.backend = tb.CatheterTester()
 
@@ -36,6 +36,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.pulseechotestbutton = ttk.Checkbutton(self.root, variable = self.pulseechotest, text = "Pulse Echo")
 
         self.runbutton = ttk.Button(self.root, text = "Run Tests", command = self.RunTests)
+        self.results = ttk.Button(self.root, text = "Results", command = self.DisplayPassMap )
         self.filename = ttk.Entry(self.root, text = "File Name")
 
     def Draw(self): # positions and draws all of the widgets in the frame
@@ -48,6 +49,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.allchannelsbutton.place(x = 400, y = 100)
 
         self.runbutton.place(x = 400, y = 300)
+        self.results.place(x = 200, y = 300)
         self.filenamelabel.place(x = 50, y = 200)
         self.filename.place(x = 300, y = 200, height = 50, width = 250)
 
@@ -58,11 +60,11 @@ class TesterFrontEnd:  # a GUI front end for the test
         PassWindow.geometry('100x200')
 
         def Pass():
-            self.haspassed = True
+            self.passmap[self.channel] = "Pass"
             PassWindow.destroy()
 
         def Fail():
-            self.haspassed = False
+            self.passmap[self.channel] = "Fail"
             PassWindow.destroy()
 
         passbutton = ttk.Button(PassWindow, text = "Pass", command = Pass)
@@ -72,8 +74,16 @@ class TesterFrontEnd:  # a GUI front end for the test
 
         PassWindow.mainloop()
 
+    def DisplayPassMap(self) -> None:
+        Window = Tk()
+        Label = ttk.Label(Window, style = "TLabel", text = f"{self.passmap}")
+        Button = ttk.Button(Window, text = "Ok", command = lambda: Window.destroy())
+
+        Label.pack()
+        Button.pack()
+        Window.mainloop()
+
     def RunTests(self): # run the tests according to the parameters
-        print(self.haspassed)
         if self.allchannels.get() != 0:
             for i in range(max_channel):
                 
