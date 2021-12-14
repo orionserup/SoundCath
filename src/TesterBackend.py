@@ -26,7 +26,7 @@ class CatheterTester:
         pass
 
     def SetChannel(self, channel: int):
-        self.Arduino.Write(bytes(str(channel), 'utf-8'))
+        self.Arduino.Write(channel.to_bytes(1, 'big'))
 
 def WriteDataToFile(self, data: dict[str, list], filename: str) -> None:    
     writer = csv.writer(open(filename, "w"))
@@ -37,7 +37,7 @@ def WriteDataToFile(self, data: dict[str, list], filename: str) -> None:
 # Oscilloscope Class Wrapper for VISA operations
 class Oscilloscope:
     def __init__(self):
-        rm = visa.ResourceManager() # create a VISA device manager
+        rm = visa.ResourceManager('@py') # create a VISA device manager
         devlist = rm.list_resources()  # print out all of the possible VISA Devices
         print(f"Listing VISA Devices: {devlist}")
         self.Waveform = {}
@@ -54,6 +54,10 @@ class Oscilloscope:
                     return                
             
             except visa.VisaIOError:
+                self.scope = None
+                continue
+
+            except serial.SerialException:
                 self.scope = None
                 continue
             
@@ -146,6 +150,10 @@ class Arduino:
     def Read(self, size: int) -> bytes:
         if self.port is not None:
             return self.port.read(size)
+
+    def ReadLine(self) -> bytes:
+        if self.port is not None:
+            return self.port.readline()
 
 class VNA:
     def __init__(self):

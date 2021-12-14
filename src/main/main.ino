@@ -29,13 +29,15 @@ void setup() {
   for (uint8_t i = 0; i < sizeof(trig); i++)
     pinMode(trig[i], OUTPUT);
 
+  set_channel(0);
+
 }
 
 void loop() {
 
   while(!Serial.available());
 
-  int value = Serial.readString().toInt();
+  int value = Serial.read();
   uint8_t channel = abs(value) & 0x3f;
 
   Serial.println(value);
