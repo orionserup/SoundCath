@@ -124,8 +124,14 @@ class TesterFrontEnd:  # a GUI front end for the test
 
 if __name__ == "__main__":
 
-    gui = TesterFrontEnd()
-    gui.Draw()
+    vna = tb.VNA()
+    vna.Sweep()
+
+    import glob
+
+    files = glob.glob("*.s1p")
+    for f in files:
+        tb.ConvertS1PToCSV(f)
 
     
     

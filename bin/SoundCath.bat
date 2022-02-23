@@ -1,1 +1,2 @@
-python3 ../src/SoundCath.py
+cd ..\\src
+py SoundCath.py

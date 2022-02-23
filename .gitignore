@@ -112,3 +112,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+*.scr
+*.s2p
+*.s1p
+*.csv
