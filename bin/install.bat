@@ -5,4 +5,3 @@ pip install matplotlib
 pip install pyserial
 pip install scipy
 pip install pyvisa-py
-pip install serial
