@@ -125,7 +125,7 @@ class TesterFrontEnd:  # a GUI front end for the test
 if __name__ == "__main__":
 
     gui = TesterFrontEnd()
-    gui.draw()
+    gui.Draw()
 
     
     

@@ -45,11 +45,13 @@ class Oscilloscope:
         print(f"Listing VISA Devices: {devlist}")
         self.Waveform = {}
         self.fft = {}
+        self.scope = None
         
         for dev in devlist:
             try:
-                self.scope = rm.open_resource(dev) # open the device for use
-                self.scope.query("*IDN?")
+                if not "ASRL" in dev:
+                    self.scope = rm.open_resource(dev) # open the device for use
+                    self.scope.query("*IDN?")
                 
                 if self.scope != None:
                     print("Connected To a Scope: {}".format(dev))
@@ -57,45 +59,41 @@ class Oscilloscope:
                     return                
             
             except visa.VisaIOError:
-                self.scope = None
-                continue
-
-            except serial.SerialException:
-                self.scope = None
+                self.Oscilloscope = None
                 continue
             
         print("Did Not Find A Valid Scope")
 
     def IsConnected(self) -> bool:
-        return self.scope != None
+        return self.Oscilloscope != None
 
     def CaptureWaveform(self, channel: int, interval_us: int) -> dict[str, list]:
-        self.Oscilloscope.write("HEADER OFF")
-        self.Oscilloscope.write("DATa:SOURCe ch{}".format(channel))
-        self.Oscilloscope.write("DATa:ENCdg RIBBINARY")
-        self.Oscilloscope.write("DATA WIDTH 1")
-        self.Oscilloscope.write("ACQUIRE:STATE OFF")
-        self.Oscilloscope.write("ACQUIRE:MODE NORMALSAMPLE")
-        self.Oscilloscope.write("ACQUIRE:STOPAFTER SEQUENCE")
-        self.Oscilloscope.write("ACQUIRE:STATE RUN")
+        self.scope.write("HEADER OFF")
+        self.scope.write("DATa:SOURCe ch{}".format(channel))
+        self.scope.write("DATa:ENCdg RIBBINARY")
+        self.scope.write("DATA WIDTH 1")
+        self.scope.write("ACQUIRE:STATE OFF")
+        self.scope.write("ACQUIRE:MODE NORMALSAMPLE")
+        self.scope.write("ACQUIRE:STOPAFTER SEQUENCE")
+        self.scope.write("ACQUIRE:STATE RUN")
         
-        while self.Oscilloscope.query("BUSY?") == "1":
+        while self.scope.query("BUSY?") == "1":
             pass
 
-        num_samples = self.Oscilloscope.query("HORIZONTAL:RECORD?")
-        self.Oscilloscope.write("DATA:START 1")
+        num_samples = self.scope.query("HORIZONTAL:RECORD?")
+        self.scope.write("DATA:START 1")
         
-        inc = self.Oscilloscope.query("WFMOUTPRE:XINCR?")
-        ymult = self.Oscilloscope.query('WFMOUTPRE:YMULT?')
-        yoff = self.Oscilloscope.query('WFMOUTPRE:YOFF?')
-        yzero = self.Oscilloscope.query('WFMOUTPRE:YZERO?')
+        inc = self.scope.query("WFMOUTPRE:XINCR?")
+        ymult = self.scope.query('WFMOUTPRE:YMULT?')
+        yoff = self.scope.query('WFMOUTPRE:YOFF?')
+        yzero = self.scope.query('WFMOUTPRE:YZERO?')
 
         inc_us = np.double(inc) * 1000000
         stop = int(np.double(interval_us)/np.double(inc_us))
 
-        self.Oscilloscope.write("DATA:STOP {}".format(num_samples if stop > num_samples else stop))
+        self.scope.write("DATA:STOP {}".format(num_samples if stop > num_samples else stop))
 
-        values = self.Oscilloscope.query_binary_values("CURVE?", datatype = "b")
+        values = self.scope.query_binary_values("CURVE?", datatype = "b")
         time = [i * np.double(inc) for i in range(stop)]
         voltage = [np.double(ymult)*(values[i] - np.double(yoff)) - np.double(yzero) for i in range(stop)]
 
