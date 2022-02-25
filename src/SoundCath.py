@@ -96,7 +96,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         if(self.impedancetest.get() != 0):
             channel |= vnachanneloffset
         else:
-            channel &= ~vnachanneloffset
+            channel &= vnachanneloffset
 
         if self.allchannels.get() != 0:
             for i in range(max_channel):
