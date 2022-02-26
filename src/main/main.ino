@@ -6,12 +6,14 @@
 #define SEL3 7
 #define SEL4 8
 #define SEL5 9
+
 #define SEL6 10
+#define SEL7 11
 
-#define TRIG0 11
-#define TRIG1 12
+#define TRIG0 12
+#define TRIG1 13
 
-const uint8_t sel[7] = { SEL0, SEL1, SEL2, SEL3, SEL4, SEL5, SEL6 };
+const uint8_t sel[7] = { SEL0, SEL1, SEL2, SEL3, SEL4, SEL5, SEL6, SEL7 };
 const uint8_t trig[2] = { TRIG0, TRIG1 };
 
 void set_channel(const uint8_t channel);

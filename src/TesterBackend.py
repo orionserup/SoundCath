@@ -9,6 +9,9 @@ import numpy as np
 import time
 import os
 
+vnachanneloffset = 1 << 6
+scopechanneloffset = 1 << 7
+
 scope_sample_interval_ns = 1 # sampling period of oscilloscope
 
 class CatheterTester:

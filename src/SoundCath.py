@@ -4,6 +4,8 @@ import TesterBackend as tb
 
 channel_switch_interval = .5 # when running all channels the time between channels
 max_channel = 64
+vnachanneloffset = 1 << 6
+scopechanneloffset = 1 << 7
 class TesterFrontEnd:  # a GUI front end for the test
     def __init__(self):
         self.root = Tk() # setup the GUI base
@@ -84,10 +86,22 @@ class TesterFrontEnd:  # a GUI front end for the test
         Window.mainloop()
 
     def RunTests(self): # run the tests according to the parameters
+        
+        channel = 0
+        if(self.pulseechotest.get() != 0):
+            channel |= scopechanneloffset;
+        else:
+            channel &= ~scopechanneloffset;
+
+        if(self.impedancetest.get() != 0):
+            channel |= vnachanneloffset
+        else:
+            channel &= ~vnachanneloffset
+
         if self.allchannels.get() != 0:
             for i in range(max_channel):
                 
-                self.backend.SetChannel(i)
+                self.backend.SetChannel(channel + i)
                 if self.pulseechotest.get():
                     self.RunPulseEchoTest()
                 if self.impedancetest.get():
@@ -104,6 +118,7 @@ class TesterFrontEnd:  # a GUI front end for the test
 
     def RunImpedanceTest(self):
         self.backend.ImpedanceTest()
+        self.backend.SetChannel(self.channel)
 
     def RunPulseEchoTest(self):    
         self.backend.PulseEchoTest()
