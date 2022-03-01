@@ -6,14 +6,12 @@
 #define SEL3 7
 #define SEL4 8
 #define SEL5 9
-
 #define SEL6 10
 #define SEL7 11
 
 #define TRIG0 12
-#define TRIG1 13
 
-#define EN 14
+#define EN 13
 
 const uint8_t sel[] = { SEL0, SEL1, SEL2, SEL3, SEL4, SEL5, SEL6, SEL7 };
 const uint8_t trig[] = { TRIG0, TRIG1 };
