@@ -17,7 +17,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.style.configure("TEntry", font = ("Arial", 24))
         self.style.configure("TLabel", font = ("Arial", 18))
 
-        self.channel = -1
+        self.channel = 0
         self.impedancetest = IntVar(self.root, 0) # all private variables
         self.allchannels = IntVar(self.root, 0)
         self.pulseechotest = IntVar(self.root, 0)
@@ -127,14 +127,14 @@ class TesterFrontEnd:  # a GUI front end for the test
         if(self.channel < max_channel):
             self.channel += 1
             self.text.set("Channel " + str(self.channel))
-            self.backend.SetChannel(self.channel)
+            self.backend.SetChannel(self.channel - 1)
             print(self.backend.arduino.ReadLine())
 
     def DecChannel(self):
         if(self.channel > 0):
             self.channel -= 1
             self.text.set("Channel " + str(self.channel))
-            self.backend.SetChannel(self.channel)
+            self.backend.SetChannel(self.channel - 1)
             print(self.backend.arduino.ReadLine())
 
 if __name__ == "__main__":
