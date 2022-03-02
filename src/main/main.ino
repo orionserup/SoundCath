@@ -13,8 +13,10 @@
 
 #define EN 13
 
+#define MAX_CHANNEL 64
+
 const uint8_t sel[] = { SEL0, SEL1, SEL2, SEL3, SEL4, SEL5, SEL6, SEL7 };
-const uint8_t trig[] = { TRIG0, TRIG1 };
+const uint8_t trig[] = { TRIG0 };
 
 void set_channel(const uint8_t channel);
 void set_trigger(const uint8_t trigger);
@@ -33,8 +35,7 @@ void setup() {
 
   pinMode(EN, OUTPUT);
 
-  digitalWrite(EN, HIGH);
-  set_channel(0);
+  digitalWrite(EN, LOW);
 
 }
 
@@ -43,11 +44,15 @@ void loop() {
   while(!Serial.available());
 
   int value = Serial.read();
-  uint8_t channel = abs(value) & 0x3f;
 
-  Serial.println(channel);
+  Serial.println(value);
 
-  set_channel(channel);
+  if(value >= 0 && value < MAX_CHANNEL) {
+   
+    set_channel(value);
+    digitalWrite(EN, HIGH);
+
+  }
 
 }
 
