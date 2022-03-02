@@ -18,7 +18,7 @@ class VNA:
         self.scriptfile = os.getcwd() + "\\Script.scr"
         self.calsweep = None
         self.calsweepverbose = False
-        self.path = os.getcwd() + "/data/"
+        self.path = os.getcwd()
         
     def SetStartFreq(self, freq: int):
         self.lowfreq = freq
@@ -73,12 +73,12 @@ class VNA:
                 file.write("sweep ")
                 for param in self.parameters:
                     file.write(param + " ")
-            
-            file.write("\n")
 
-            for param in self.parameters:
-                file.write(f"writes1p {self.path + param}.s1p {param}\n")
-        
+                file.write("\n")
+            
+                for param in self.parameters:
+                    file.write(f"writes1p {self.path + param}.s1p {param}\n")
+            
             file.write("exitVNWA")
 
         os.system("{} {} -debug".format(self.executable, self.scriptfile))
