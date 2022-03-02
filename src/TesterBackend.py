@@ -5,6 +5,8 @@ import VNA
 vnachanneloffset = 1 << 6
 scopechanneloffset = 1 << 7
 
+max_channel = 64
+
 scope_sample_interval_ns = 1 # sampling period of oscilloscope
 
 class CatheterTester:
@@ -26,10 +28,23 @@ class CatheterTester:
         pass
 
     def SetChannel(self, channel: int):
+        relay_ch = channel & 0x30 >> 4 # get the two bit relay channel 
+        channel &= 0x30 # clear the bits of the relay channel
+        
+        # custom relay channel mapping, see Jesus
+        if relay_ch == 1:
+            relay_ch = 2
+        elif relay_ch == 2:
+            relay_ch = 3
+        elif relay_ch == 3:
+            relay_ch = 1
+        else:
+            relay_ch = 0
+
+        channel |= relay_ch << 4 # put the correct index in
+
         self.arduino.Write(channel.to_bytes(1, 'big'))
 
 
 if __name__ == "__main__":
-    tester
-
-
+    pass
