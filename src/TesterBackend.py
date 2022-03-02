@@ -36,11 +36,11 @@ class CatheterTester:
         channel &= ~0x30 # clear the bits of the relay channel
         
         # custom relay channel mapping, see Jesus
-        if relay_ch == 0x1:
+        if relay_ch == 0x3:
             relay_ch = 0x2
         elif relay_ch == 0x2:
             relay_ch = 0x3
-        elif relay_ch == 0x3:
+        elif relay_ch == 0x2:
             relay_ch = 0x1
         else:
             relay_ch = 0x0
