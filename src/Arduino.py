@@ -1,5 +1,6 @@
 import serial
 from serial.tools.list_ports import comports
+import time
 
 class Arduino:
     def __init__(self):

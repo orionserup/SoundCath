@@ -16,7 +16,7 @@ class CatheterTester:
         self.vna = VNA.VNA()
         self.channel = -1
 
-        if not self.Arduino.IsConnected():  # if could not connect to the arduino
+        if not self.arduino.IsConnected():  # if could not connect to the arduino
             print("Could Not Connect To the Arduino, Exiting")
             input("Press Any Key To Exit")
             exit() # leave the program
@@ -28,6 +28,10 @@ class CatheterTester:
         pass
 
     def SetChannel(self, channel: int):
+
+        if(channel < 0):
+            return
+
         relay_ch = channel & 0x30 >> 4 # get the two bit relay channel 
         channel &= 0x30 # clear the bits of the relay channel
         
