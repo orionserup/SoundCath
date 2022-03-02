@@ -128,14 +128,14 @@ class TesterFrontEnd:  # a GUI front end for the test
             self.channel += 1
             self.text.set("Channel " + str(self.channel))
             self.backend.SetChannel(self.channel)
-            print(self.backend.Arduino.ReadLine())
+            print(self.backend.arduino.ReadLine())
 
     def DecChannel(self):
         if(self.channel > 0):
             self.channel -= 1
             self.text.set("Channel " + str(self.channel))
             self.backend.SetChannel(self.channel)
-            print(self.backend.Arduino.ReadLine())
+            print(self.backend.arduino.ReadLine())
 
 if __name__ == "__main__":
 
