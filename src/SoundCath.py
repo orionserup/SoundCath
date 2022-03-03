@@ -120,8 +120,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             self.backend.SetChannel(channel)
 
     def RunImpedanceTest(self):
-        self.backend.ImpedanceTest()
-        self.backend.SetChannel(self.channel)
+        self.backend.ImpedanceTest(self.filename.get())
 
     def RunPulseEchoTest(self):    
         self.backend.PulseEchoTest()

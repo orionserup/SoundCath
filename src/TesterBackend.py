@@ -22,7 +22,7 @@ class CatheterTester:
             exit() # leave the program
                 
     def ImpedanceTest(self, filename: str) -> bool:
-        pass
+        self.vna.Sweep(filename)
 
     def PulseEchoTest(self, channel: int = 1, duration_us: float = 6.0, filename: str = "cath.csv") -> bool:
         pass
