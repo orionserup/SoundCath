@@ -36,11 +36,11 @@ class CatheterTester:
         channel &= ~0x30 # clear the bits of the relay channel
         
         # custom relay channel mapping, see Jesus
-        if relay_ch == 0x3:
+        if relay_ch == 0x1:
             relay_ch = 0x2
         elif relay_ch == 0x2:
             relay_ch = 0x3
-        elif relay_ch == 0x1:
+        elif relay_ch == 0x3:
             relay_ch = 0x1
         else:
             relay_ch = 0x0
@@ -48,6 +48,7 @@ class CatheterTester:
         channel |= relay_ch << 4 # put the correct index in
 
         self.arduino.Write(channel.to_bytes(1, 'big'))
+
 
 
 if __name__ == "__main__":
