@@ -40,7 +40,7 @@ class CatheterTester:
             relay_ch = 0x2
         elif relay_ch == 0x2:
             relay_ch = 0x3
-        elif relay_ch == 0x2:
+        elif relay_ch == 0x1:
             relay_ch = 0x1
         else:
             relay_ch = 0x0
