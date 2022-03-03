@@ -87,7 +87,7 @@ class TesterFrontEnd:  # a GUI front end for the test
 
     def RunTests(self): # run the tests according to the parameters
         
-        channel = 0
+        channel = self.channel
         if(self.pulseechotest.get() != 0):
             channel |= scopechanneloffset;
         else:
@@ -96,7 +96,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         if(self.impedancetest.get() != 0):
             channel |= vnachanneloffset
         else:
-            channel &= vnachanneloffset
+            channel &= ~vnachanneloffset
 
         if self.allchannels.get() != 0:
             for i in range(max_channel):
@@ -115,6 +115,9 @@ class TesterFrontEnd:  # a GUI front end for the test
                 self.RunImpedanceTest()
 
             self.DisplayPassWindow()
+            channel &= ~scopechanneloffset;
+            channel &= ~vnachanneloffset
+            self.backend.SetChannel(channel)
 
     def RunImpedanceTest(self):
         self.backend.ImpedanceTest()

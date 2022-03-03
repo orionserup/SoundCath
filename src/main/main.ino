@@ -5,7 +5,7 @@
 #define SEL2 6
 #define SEL3 7
 #define SEL4 8
-#define SEL5 9
+#define SEL5 14
 #define SEL6 10
 #define SEL7 11
 
@@ -47,7 +47,7 @@ void loop() {
 
   Serial.println(value);
 
-  if(value >= 0 && value < MAX_CHANNEL) {
+  if(value >= 0) {
    
     set_channel(value);
     digitalWrite(EN, HIGH);
