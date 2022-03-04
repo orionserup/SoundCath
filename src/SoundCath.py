@@ -98,6 +98,8 @@ class TesterFrontEnd:  # a GUI front end for the test
         else:
             channel &= ~vnachanneloffset
 
+        self.backend.SetChannel(channel - 1);
+
         if self.allchannels.get() != 0:
             for i in range(max_channel):
                 
