@@ -136,7 +136,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             self.RunAllChannelTests()
 
         else:
-            self.RunSingleChannelTest()
+            self.RunSingleChannelTest(self.channel)
 
     def RunImpedanceTest(self):
         self.backend.ImpedanceTest(self.filename.get())

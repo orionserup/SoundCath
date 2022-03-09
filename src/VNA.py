@@ -81,7 +81,7 @@ class VNA:
                 file.write("\n")
             
                 for param in self.parameters:
-                    file.write(f"writes1p {self.path + self.file + param}.s1p {self.file + param}\n")
+                    file.write(f"writes1p {self.path + self.file + param}.s1p {param}\n")
             
             file.write("exitVNWA")
 
