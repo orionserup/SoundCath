@@ -13,7 +13,7 @@ class VNA:
         self.scale = "log"
         self.timeperpoint = 10
         self.txpower = 4000
-        self.parameters = [ "s11", "s12" ]
+        self.parameters = [ "s11"]
         self.executable = "C:\\VNWA\\VNWA.exe"
         self.scriptfile = os.getcwd() + "\\Script.scr"
         self.calsweep = None
