@@ -117,3 +117,5 @@ dmypy.json
 *.s2p
 *.s1p
 *.csv
+
+__pycache__/

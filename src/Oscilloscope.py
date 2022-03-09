@@ -119,6 +119,6 @@ if __name__== "__main__":
         plt.plot(fft["Amplitude"], fft["Frequency"])
         plt.show()
 
-        scope.WriteDataToFile()
+        scope.WriteDataToCSVFile()
 
 

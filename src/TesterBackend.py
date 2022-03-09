@@ -36,7 +36,7 @@ class CatheterTester:
         
         self.scope.CaptureWaveform(channel, duration_us)
         self.scope.CalculateFFT()
-        self.scope.WriteDataToFile(filename + str(self.channel + 1))
+        self.scope.WriteDataToCSVFile(filename + str(self.channel + 1))
 
     def SetChannel(self, channel: int):
 

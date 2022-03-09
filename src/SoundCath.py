@@ -1,6 +1,7 @@
 from tkinter import StringVar, ttk, Tk, IntVar
 import time
 import TesterBackend as tb
+import os
 
 channel_switch_interval = .5 # when running all channels the time between channels
 max_channel = 64
@@ -139,10 +140,10 @@ class TesterFrontEnd:  # a GUI front end for the test
             self.RunSingleChannelTest(self.channel)
 
     def RunImpedanceTest(self):
-        self.backend.ImpedanceTest(self.filename.get())
+        self.backend.ImpedanceTest(os.getcwd() + "\\"  + self.filename.get())
 
     def RunPulseEchoTest(self):    
-        self.backend.PulseEchoTest(self.filename.get())
+        self.backend.PulseEchoTest(os.getcwd() + "\\" + self.filename.get())
 
     def IncChannel(self):
         if(self.channel < max_channel):

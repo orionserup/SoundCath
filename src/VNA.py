@@ -1,15 +1,19 @@
 
+from multiprocessing.sharedctypes import Value
 import os
 import glob
 import csv
+import cmath
+
+inputimpedance = 50
 
 class VNA:
     def __init__(self):
         self.lowfreq = 1000000
-        self.highfreq = 100000000
+        self.highfreq = 1300000000
         self.mastercal = None
         self.calfile = "C:\\VNWA\\VNWA.cal"
-        self.numpoints = 400
+        self.numpoints = 2000
         self.scale = "log"
         self.timeperpoint = 10
         self.txpower = 4000
@@ -38,7 +42,7 @@ class VNA:
         self.timeperpoint = tpp
 
     def SetFileName(self, filename: str) -> None:
-        self.file = filename
+        self.filename = filename
 
     def SetStopFreq(self, freq: int):
         self.highfreq = freq
@@ -81,9 +85,9 @@ class VNA:
                 file.write("\n")
             
                 for param in self.parameters:
-                    file.write(f"writes1p {self.path + self.file + param}.s1p {param}\n")
+                    file.write(f"writes1p {self.filename + param}.s1p {param}\n")
             
-            file.write("exitVNWA")
+            file.write("exitVNWA \n")
 
         os.system("{} {} -debug".format(self.executable, self.scriptfile))
 
@@ -94,21 +98,33 @@ def ConvertS1PToCSV(filename: str):
     s1pfile.readline()
     s1pfile.readline()
 
-    data = {"freq": [], "mag": [], "phase": []}
+    data = {"Frequency": [], "Value": []}
 
     for line in s1pfile:
         items = line.split("   ")
         datem = [float(item) for item in items]
         data["Frequency"].append(datem[0])
-        data["Real"].append(datem[1])
-        data["Imaginary"].append(datem[2])
+        real = datem[1]
+        imag = datem[2]
+        data["Value"].append(complex(real, imag))
+
+    if "s11" in filename: 
+        zcsvfile = open(filename.replace("s1p", "csv").replace("s11", "z"))
+        zcsvwriter = csv.writer(zcsvfile)
+
+        for i in range(len(data["Value"])):
+            data["Z"][i] = inputimpedance*(1 + data["Value"][i])/(1 - data["Value"][i])
+            zcsvwriter.writerow([ data["Frequency"][i], data["Z"][i] ])
+            
+        zcsvfile.close()
 
     csvwriter = csv.writer(csvfile)
-    for i in range(len(data["freq"])):
-        csvwriter.writerow( [ data["Frequency"][i], data["Real"][i], data["Imaginary"][i]])
+    for i in range(len(data["Frequency"])):
+        csvwriter.writerow( [ data["Frequency"][i], data["Value"][i] ])
 
     csvfile.close()
     s1pfile.close()
+
 
 if __name__ == "__main__":
     
