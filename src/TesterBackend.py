@@ -21,11 +21,22 @@ class CatheterTester:
             input("Press Any Key To Exit")
             exit() # leave the program
                 
-    def ImpedanceTest(self, filename: str) -> bool:
-        self.vna.Sweep(filename)
+    def ImpedanceTest(self, filename: str = None) -> bool:
+
+        if self.vna is None:
+            return
+
+        self.vna.SetFileName(filename)
+        self.vna.Sweep()
 
     def PulseEchoTest(self, channel: int = 1, duration_us: float = 6.0, filename: str = "cath.csv") -> bool:
-        pass
+        
+        if not self.scope.IsConnected():
+            return
+        
+        self.scope.CaptureWaveform(channel, duration_us)
+        self.scope.CalculateFFT()
+        self.scope.WriteDataToFile(filename)
 
     def SetChannel(self, channel: int):
 

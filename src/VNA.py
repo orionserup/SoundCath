@@ -19,6 +19,7 @@ class VNA:
         self.calsweep = None
         self.calsweepverbose = False
         self.path = os.getcwd()
+        self.filename = ""
         
     def SetStartFreq(self, freq: int):
         self.lowfreq = freq
@@ -35,6 +36,9 @@ class VNA:
 
     def SetTimePerPoint(self, tpp: int):
         self.timeperpoint = tpp
+
+    def SetFileName(self, filename: str) -> None:
+        self.file = filename
 
     def SetStopFreq(self, freq: int):
         self.highfreq = freq
@@ -77,7 +81,7 @@ class VNA:
                 file.write("\n")
             
                 for param in self.parameters:
-                    file.write(f"writes1p {self.path + param}.s1p {param}\n")
+                    file.write(f"writes1p {self.path + self.file + param}.s1p {self.file + param}\n")
             
             file.write("exitVNWA")
 

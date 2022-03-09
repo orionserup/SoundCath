@@ -85,9 +85,29 @@ class TesterFrontEnd:  # a GUI front end for the test
         Button.pack()
         Window.mainloop()
 
-    def RunTests(self): # run the tests according to the parameters
-        
+    def RunAllChannelTests(self):
+
         channel = self.channel
+        if(self.pulseechotest.get() != 0):
+            channel |= scopechanneloffset;
+        else:
+            channel &= ~scopechanneloffset;
+
+        if(self.impedancetest.get() != 0):
+            channel |= vnachanneloffset
+        else:
+            channel &= ~vnachanneloffset
+
+        for i in range(max_channel):
+            self.backend.SetChannel(channel + i)
+            if self.pulseechotest.get():
+                self.RunPulseEchoTest()
+            if self.impedancetest.get():
+                self.RunImpedanceTest()
+            time.sleep(channel_switch_interval)
+     
+    def RunSingleChannelTest(self, channel):
+
         if(self.pulseechotest.get() != 0):
             channel |= scopechanneloffset;
         else:
@@ -100,32 +120,29 @@ class TesterFrontEnd:  # a GUI front end for the test
 
         self.backend.SetChannel(channel - 1);
 
-        if self.allchannels.get() != 0:
-            for i in range(max_channel):
-                
-                self.backend.SetChannel(channel + i)
-                if self.pulseechotest.get():
-                    self.RunPulseEchoTest()
-                if self.impedancetest.get():
-                    self.RunImpedanceTest()
-                self.DisplayPassWindow()
-                time.sleep(channel_switch_interval)
-        else: 
-            if self.pulseechotest.get() != 0:
-                self.RunPulseEchoTest()
-            if self.impedancetest.get() != 0:
-                self.RunImpedanceTest()
+        if self.pulseechotest.get() != 0:
+            self.RunPulseEchoTest()
+        if self.impedancetest.get() != 0:
+            self.RunImpedanceTest()
 
-            self.DisplayPassWindow()
-            channel &= ~scopechanneloffset;
-            channel &= ~vnachanneloffset
-            self.backend.SetChannel(channel)
+        self.DisplayPassWindow()
+        channel &= ~scopechanneloffset;
+        channel &= ~vnachanneloffset
+        self.backend.SetChannel(channel)
+
+    def RunTests(self): # run the tests according to the parameters
+        
+        if self.allchannels.get() != 0:
+            self.RunAllChannelTests()
+
+        else:
+            self.RunSingleChannelTest()
 
     def RunImpedanceTest(self):
         self.backend.ImpedanceTest(self.filename.get())
 
     def RunPulseEchoTest(self):    
-        self.backend.PulseEchoTest()
+        self.backend.PulseEchoTest(self.filename.get())
 
     def IncChannel(self):
         if(self.channel < max_channel):

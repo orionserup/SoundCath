@@ -27,10 +27,11 @@ class Oscilloscope:
                     return                
             
             except visa.VisaIOError:
-                self.Oscilloscope = None
+                self.scope = None
                 continue
             
         print("Did Not Find A Valid Scope")
+        self.scope = None
 
     def IsConnected(self) -> bool:
         return self.scope != None
