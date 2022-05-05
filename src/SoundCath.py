@@ -3,7 +3,7 @@ import time
 import TesterBackend as tb
 import os
 
-channel_switch_interval = .5 # when running all channels the time between channels
+channel_switch_interval = 3 # when running all channels the time between channels
 max_channel = 64
 vnachanneloffset = 1 << 6
 scopechanneloffset = 1 << 7
@@ -101,10 +101,10 @@ class TesterFrontEnd:  # a GUI front end for the test
 
         for i in range(max_channel):
             self.backend.SetChannel(channel + i)
-            if self.pulseechotest.get():
-                self.RunPulseEchoTest()
-            if self.impedancetest.get():
-                self.RunImpedanceTest()
+            # if self.pulseechotest.get():
+            #     self.RunPulseEchoTest()
+            # if self.impedancetest.get():
+            #     self.RunImpedanceTest()
             time.sleep(channel_switch_interval)
      
     def RunSingleChannelTest(self, channel):
