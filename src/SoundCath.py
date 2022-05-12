@@ -1,10 +1,19 @@
 from tkinter import StringVar, ttk, Tk, IntVar
 import time
 import TesterBackend as tb
+import csv
 import os
 
 channel_switch_interval = 3 # when running all channels the time between channels
+
+dongle_thresh = 103e-12
+dongle_freq = 800e3
+
+channel_thresh = 100e-12
+channel_freq = 500e3
+
 max_channel = 64
+
 vnachanneloffset = 1 << 6
 scopechanneloffset = 1 << 7
 class TesterFrontEnd:  # a GUI front end for the test
@@ -22,10 +31,10 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.impedancetest = IntVar(self.root, 0) # all private variables
         self.allchannels = IntVar(self.root, 0)
         self.pulseechotest = IntVar(self.root, 0)
+        self.dongletest = IntVar(self.root, 0)
         self.text = StringVar(self.root, "Channel " + str(self.channel))
 
-        self.passmap = {}
-
+        self.passmap = { "Impedance": [None] * max_channel, "PulseEcho": [None] * max_channel, "Dongle": [None] * max_channel }
         self.backend = tb.CatheterTester()
 
         self.window = ttk.Frame(self.root)  # All widget elements
@@ -37,10 +46,12 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.impedancetestbutton = ttk.Checkbutton(self.root, variable = self.impedancetest, text = "Impedance Test")
         self.allchannelsbutton  = ttk.Checkbutton(self.root, variable = self.allchannels,  text = "Run All Channels")
         self.pulseechotestbutton = ttk.Checkbutton(self.root, variable = self.pulseechotest, text = "Pulse Echo")
+        self.dongletestbutton = ttk.Checkbutton(self.root, variable = self.dongletest, text = "Dongle Test")
 
         self.runbutton = ttk.Button(self.root, text = "Run Tests", command = self.RunTests)
         self.results = ttk.Button(self.root, text = "Results", command = self.DisplayPassMap )
         self.filename = ttk.Entry(self.root, text = "File Name")
+        self.reportbutton = ttk.Button(self.root, text = "Generate Report", command = self.GenerateReport)
 
     def Draw(self): # positions and draws all of the widgets in the frame
         self.upbutton.place(x = 400, y = 50)
@@ -50,13 +61,16 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.impedancetestbutton.place(x = 50, y = 100)
         self.pulseechotestbutton.place(x = 250, y = 100)
         self.allchannelsbutton.place(x = 400, y = 100)
+        self.dongletestbutton.place(x = 50, y = 150)
 
+        self.reportbutton.place(x = 50, y = 300)
         self.runbutton.place(x = 400, y = 300)
-        self.results.place(x = 200, y = 300)
+        self.results.place(x = 250, y = 300)
         self.filenamelabel.place(x = 50, y = 200)
         self.filename.place(x = 300, y = 200, height = 50, width = 250)
 
         self.window.mainloop()
+        
 
     def DisplayPassWindow(self) -> None:
         PassWindow = Tk()
@@ -79,10 +93,14 @@ class TesterFrontEnd:  # a GUI front end for the test
 
     def DisplayPassMap(self) -> None:
         Window = Tk()
-        Label = ttk.Label(Window, style = "TLabel", text = f"{self.passmap}")
+        ImpedanceLabel = ttk.Label(Window, style = "TLabel",text = f"Impendance Test Results: {self.passmap['Impedance']}")
+        PulseEchoLabel = ttk.Label(Window, style = "TLabel",  text = f"Pulse Echo Test Results: {self.passmap['PulseEcho']}")
+        DongleLabel = ttk.Label(Window, style = "TLabel", text = f"Dongle Test Results: {self.passmap['Dongle']}")
         Button = ttk.Button(Window, text = "Ok", command = lambda: Window.destroy())
 
-        Label.pack()
+        DongleLabel.pack()
+        PulseEchoLabel.pack()
+        ImpedanceLabel.pack()
         Button.pack()
         Window.mainloop()
 
@@ -100,12 +118,18 @@ class TesterFrontEnd:  # a GUI front end for the test
             channel &= ~vnachanneloffset
 
         for i in range(max_channel):
-            self.backend.SetChannel(channel + i)
-            # if self.pulseechotest.get():
-            #     self.RunPulseEchoTest()
-            # if self.impedancetest.get():
-            #     self.RunImpedanceTest()
+        
+            if self.pulseechotest.get():
+                self.passmap["PulseEcho"][i] = "Pass" if self.RunPulseEchoTest(i) else "Fail"
+   
+            if self.impedancetest.get():
+                self.passmap["Impedance"][i] = "Pass" if self.RunImpedanceTest(i) else "Fail"
+  
+            if self.dongletest.get() != 0:
+                self.passmap["Dongle"][i] = "Pass" if self.RunDongleTest(i) else "Fail"
+
             time.sleep(channel_switch_interval)
+            
      
     def RunSingleChannelTest(self, channel):
 
@@ -139,11 +163,17 @@ class TesterFrontEnd:  # a GUI front end for the test
         else:
             self.RunSingleChannelTest(self.channel)
 
-    def RunImpedanceTest(self):
-        self.backend.ImpedanceTest(os.getcwd() + "\\"  + self.filename.get())
+    def RunImpedanceTest(self, channel: int) -> bool:
+        filename = "example" if self.filename.get() == "" else self.filename.get() 
+        return self.backend.ImpedanceTest(channel, channel_freq, channel_thresh, filename)
 
-    def RunPulseEchoTest(self):    
-        self.backend.PulseEchoTest(os.getcwd() + "\\" + self.filename.get())
+    def RunPulseEchoTest(self, channel: int) -> bool:    
+        filename = "example" if self.filename.get() == "" else self.filename.get() 
+        return self.backend.PulseEchoTest(channel, 9, filename)
+        
+    def RunDongleTest(self, channel: int) -> bool:
+        filename = "example" if self.filename.get() == "" else self.filename.get() 
+        return self.backend.DongleTest(channel, dongle_freq, dongle_thresh, filename)
 
     def IncChannel(self):
         if(self.channel < max_channel):
@@ -158,6 +188,17 @@ class TesterFrontEnd:  # a GUI front end for the test
             self.text.set("Channel " + str(self.channel))
             self.backend.SetChannel(self.channel - 1)
             print(self.backend.arduino.ReadLine())
+            
+    def GenerateReport(self):
+        os.makedirs(os.path.dirname(self.filename.get() + 'report.csv'), exist_ok=True)
+        file = open(self.filename.get() + 'report.csv', 'w')
+        writer = csv.writer(file)
+        
+        writer.writerow(["Channel", "Impedance Test", "Dongle Test", "Pulse Echo Test"]);
+        for (i, val) in enumerate(zip(self.passmap["Impedance"], self.passmap["Dongle"], self.passmap["PulseEcho"])):     
+            writer.writerow(val.insert(0, i))
+            
+        file.close()
 
 if __name__ == "__main__":
 

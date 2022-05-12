@@ -2,6 +2,7 @@ import pyvisa as visa
 import numpy as np
 from scipy.fft import rfft, rfftfreq
 import csv
+import os
 
 scope_sample_interval_ns = 1 # sampling period of oscilloscope
 
@@ -91,6 +92,7 @@ class Oscilloscope:
         return self.fft
 
     def WriteDataToCSVFile(self, filename: str) -> None:    
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
         if self.fft is not None:
             writer = csv.writer(open(filename + "fft.csv", "w"))
             for i in len(self.fft["Frequency"]):

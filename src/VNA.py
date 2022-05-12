@@ -17,12 +17,11 @@ class VNA:
         self.scale = "log"
         self.timeperpoint = 10
         self.txpower = 4000
-        self.parameters = [ "s11"]
+        self.parameters = ["s11"]
         self.executable = "C:\\VNWA\\VNWA.exe"
         self.scriptfile = os.getcwd() + "\\Script.scr"
         self.calsweep = None
         self.calsweepverbose = False
-        self.path = os.getcwd()
         self.filename = ""
         
     def SetStartFreq(self, freq: int):
@@ -62,13 +61,13 @@ class VNA:
     def Sweep(self):
         with open(self.scriptfile, "w") as file:
 
-            if self.mastercal != None:
+            if self.mastercal is not None:
                 file.write(f"loadmastercal {self.mastercal}\n")
 
-            if self.calfile != None:
+            if self.calfile is not None:
                 file.write(f"loadcal {self.calfile}\n")
 
-            if self.calsweep != None:
+            if self.calsweep is not None:
                 file.write(f"calsweep {self.calsweep}")
                 file.write( "nv\n" if not self.calsweepverbose else "\n")
 
@@ -87,11 +86,12 @@ class VNA:
                 for param in self.parameters:
                     file.write(f"writes1p {self.filename + param}.s1p {param}\n")
             
-            file.write("exitVNWA \n")
+            #file.write("exitVNWA \n")
 
         os.system("{} {} -debug".format(self.executable, self.scriptfile))
 
-def ConvertS1PToCSV(filename: str):
+def ConvertS1PToCSV(filename: str) -> dict[str, complex]:
+
     csvfile = open(filename.replace("s1p", "csv"), "w")
     s1pfile = open(filename, "r")
 
@@ -112,8 +112,8 @@ def ConvertS1PToCSV(filename: str):
         zcsvfile = open(filename.replace("s1p", "csv").replace("s11", "z"))
         zcsvwriter = csv.writer(zcsvfile)
 
-        for i in range(len(data["Value"])):
-            data["Z"][i] = inputimpedance*(1 + data["Value"][i])/(1 - data["Value"][i])
+        for (i, val) in enumerate(data["Value"]):
+            data["Z"][i] = inputimpedance * (1 + val)/(1 - val)
             zcsvwriter.writerow([ data["Frequency"][i], data["Z"][i] ])
             
         zcsvfile.close()
@@ -124,6 +124,8 @@ def ConvertS1PToCSV(filename: str):
 
     csvfile.close()
     s1pfile.close()
+    
+    return data
 
 
 if __name__ == "__main__":

@@ -1,6 +1,8 @@
 import Arduino
 import Oscilloscope
 import VNA
+import math
+import glob
 
 vnachanneloffset = 1 << 6
 scopechanneloffset = 1 << 7
@@ -16,19 +18,51 @@ class CatheterTester:
         self.vna = VNA.VNA()
         self.channel = -1
 
-        if not self.arduino.IsConnected():  # if could not connect to the arduino
-            print("Could Not Connect To the Arduino, Exiting")
-            input("Press Any Key To Exit")
-            exit() # leave the program
+        # if not self.arduino.IsConnected():  # if could not connect to the arduino
+        #     print("Could Not Connect To the Arduino, Exiting")
+        #     input("Press Any Key To Exit")
+        #     #exit() # leave the program
+            
+    def DongleTest(self, channel: int, freq: float, threshold: float, filename: str = None) -> bool:
+        if self.vna is None:
+            return False
+        
+        self.SetChannel(channel);
+        
+        self.vna.SetStartFreq(500000)
+        self.vna.SetStopFreq(60000000)
+        self.vna.SetSweepParameters(["s11"])
+        if filename is not None:
+            self.vna.SetFileName(filename);
+        self.vna.Sweep()
+  
+        data = VNA.ConvertS1PToCSV(filename + ".s1p")
+        i = data["Frequency"].index(freq)
+        if i is not None:
+            if 1 / (2 * math.PI * data["Z"][i].imag * freq) < threshold: # 1 / wC = im(Z) assuming very small inductance
+                return False
                 
-    def ImpedanceTest(self, filename: str = None) -> bool:
+        return False
+        
+    def ImpedanceTest(self, channel: int, freq: int, thresh: float, filename: str = None) -> bool:
 
         if self.vna is None:
-            return
-
-        self.vna.SetFileName(filename + str(self.channel + 1))
+            return False
+        if filename is not None:
+            self.vna.SetFileName(filename + str(self.channel + 1))
+            
+        self.SetChannel(channel)
         self.vna.Sweep()
-
+        
+        data = VNA.ConvertS1PToCSV(filename + ".s1p")
+        i = data["Frequency"].index(freq)
+        if i is not None:
+            if 1 / (2 * math.PI * data["Z"][i].imag * freq) > threshold:
+                return True
+                
+        return False
+        
+        
     def PulseEchoTest(self, channel: int = 1, duration_us: float = 6.0, filename: str = "cath.csv") -> bool:
         
         if not self.scope.IsConnected():
