@@ -38,6 +38,7 @@ class Oscilloscope:
         return self.scope != None
 
     def CaptureWaveform(self, channel: int, interval_us: int) -> dict[str, list]:
+        
         self.scope.write("HEADER OFF")
         self.scope.write(f"DATa:SOURCe ch{channel}")
         self.scope.write("DATa:ENCdg RIBBINARY")
