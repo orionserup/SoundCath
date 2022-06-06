@@ -1,2 +1,2 @@
-cd ..\src
-python3 VNA.py
+
+python ..\src\VNA.py

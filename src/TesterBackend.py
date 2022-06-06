@@ -1,5 +1,6 @@
 import Arduino
 import Oscilloscope
+import os
 import VNA
 import math
 
@@ -115,7 +116,6 @@ class CatheterTester:
         channel |= relay_ch << 4 # put the correct index in
 
         self.arduino.Write(channel.to_bytes(1, 'big'))
-        
 
 
 if __name__ == "__main__":

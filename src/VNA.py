@@ -10,7 +10,7 @@ class VNA:
         self.lowfreq = 1000000 # the frequency to start at
         self.highfreq = 1300000000 # the frequency to end at
         self.mastercal = None # master calibration file
-        self.calfile = "C:\\VNWA\\VNWA.cal" # Calibration File Path
+        self.calfile = None # "C:\\VNWA\\VNWA.cal" # Calibration File Path
         self.numpoints = 2000 # The Number of Points to Test Between the Frequencies
         self.scale = "lin" # [lin / log]
         self.timeperpoint = 10 # How Long to wait before capturing the value
@@ -85,7 +85,7 @@ class VNA:
                 file.write("\n")
             
                 for param in self.parameters: # for each of the meaured parameters write the data to a file
-                    file.write(f"writes1p {self.filename + param}.s1p {param}\n")
+                    file.write(f"writes1p { self.filename + param}.s1p {param}\n")
             
             file.write("exitVNWA \n") # leave the VNA app so you can do this again
 

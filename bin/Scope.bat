@@ -1,2 +1,2 @@
-cd ..\src
-python3 Oscilloscope.py
+
+python ..\src\Oscilloscope.py

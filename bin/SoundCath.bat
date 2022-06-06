@@ -1,2 +1,2 @@
-cd ..\src
-python3 SoundCath.py
+
+python ..\src\SoundCath.py

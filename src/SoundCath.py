@@ -14,6 +14,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.root = Tk() # setup the GUI base
         self.root.title("Catheter Tester Script")
         self.root.geometry("600x400")
+
         self.style = ttk.Style()
         self.style.configure("TCheckbutton", font = ("Arial", 16))
         self.style.configure("TButton", font = ("Arial", 18))
@@ -21,7 +22,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.style.configure("TLabel", font = ("Arial", 18))
 
         # All of the Internal Variables
-        self.channel = -1 # the channel we are in
+        self.channel = 0 # the channel we are in
         self.impedancetest = IntVar(self.root, 0) # bool for if we are gonna run the impedance test
         self.allchannels = IntVar(self.root, 0) # bool if we are gonna test all channels
         self.pulseechotest = IntVar(self.root, 0) # bool if we are gonna run the pulse echo test
@@ -39,6 +40,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         
         self.label = ttk.Label(self.root, textvariable = self.text, width = 11) # Label to draw the Channel Number
         self.filenamelabel = ttk.Label(self.root, text = "File Name to Save:") # Entry box to put the filename into
+        self.filename = ttk.Entry(self.root)
 
         self.impedancetestbutton = ttk.Checkbutton(self.root, variable = self.impedancetest, text = "Impedance Test") # all of the check boxes
         self.allchannelsbutton  = ttk.Checkbutton(self.root, variable = self.allchannels,  text = "Run All Channels")
@@ -61,7 +63,7 @@ class TesterFrontEnd:  # a GUI front end for the test
 
         self.reportbutton.place(x = 50, y = 300)
         self.runbutton.place(x = 400, y = 300)
-        self.results.place(x = 250, y = 300)
+        self.results.place(x = 240, y = 300)
         self.filenamelabel.place(x = 50, y = 200)
         self.filename.place(x = 300, y = 200, height = 50, width = 250)
 
@@ -84,6 +86,19 @@ class TesterFrontEnd:  # a GUI front end for the test
         failbutton = ttk.Button(PassWindow, text = "Fail", command = Fail)
         passbutton.place(x = 0, y = 0, height = 100, width = 100)
         failbutton.place(x = 0, y = 100, height = 100, width = 100)
+
+        PassWindow.mainloop()
+
+        # Draws a Small Window with two buttons and 
+    def TriggerWindow(self) -> None:
+        PassWindow = Tk()
+        PassWindow.geometry('100x100')
+
+        def Destroy():
+            PassWindow.destroy()
+
+        passbutton = ttk.Button(PassWindow, text = "Trigger", command = Destroy)
+        passbutton.place(x = 0, y = 0, height = 100, width = 100)
 
         PassWindow.mainloop()
 
@@ -115,18 +130,18 @@ class TesterFrontEnd:  # a GUI front end for the test
         else:
             channel &= ~vnachanneloffset
 
-        for i in range(self.backend.max_channel): # going over all of the Channels
+        for i in range(tb.max_channel): # going over all of the Channels
             
             self.backend.SetChannel(i) # Connect the Channel
         
             if self.pulseechotest.get():
-                self.passmap["PulseEcho"][i] = "Pass" if self.RunPulseEchoTest(i) else "Fail" # Run the Tests and record the Results
+                self.passmap["PulseEcho"][i] = "Pass" if self.RunPulseEchoTest() else "Fail" # Run the Tests and record the Results
    
             if self.impedancetest.get():
-                self.passmap["Impedance"][i] = "Pass" if self.RunImpedanceTest(i) else "Fail"
+                self.passmap["Impedance"][i] = "Pass" if self.RunImpedanceTest() else "Fail"
   
             if self.dongletest.get() != 0:
-                self.passmap["Dongle"][i] = "Pass" if self.RunDongleTest(i) else "Fail"
+                self.passmap["Dongle"][i] = "Pass" if self.RunDongleTest() else "Fail"
 
             time.sleep(channel_switch_interval) # wait a set amount of time between channels
             
@@ -165,16 +180,16 @@ class TesterFrontEnd:  # a GUI front end for the test
 
     def RunImpedanceTest(self) -> bool:
         filename = "example" if self.filename.get() == "" else self.filename.get() # Get the Filename to save everything with, it is just the base
-        input("Press Any Key To Capture")
-        return self.backend.ImpedanceTest(filename) # run the test with the filename
+        return self.backend.ImpedanceTest(os.getcwd() + "\\" + filename) # run the test with the filename
 
     def RunPulseEchoTest(self) -> bool:    
         filename = "example" if self.filename.get() == "" else self.filename.get() 
-        return self.backend.PulseEchoTest(1, filename) # run the test on scope channel 1 with file name filename
+        self.TriggerWindow()
+        return self.backend.PulseEchoTest(1, os.getcwd() + "\\" + filename) # run the test on scope channel 1 with file name filename
         
     def RunDongleTest(self) -> bool:
         filename = "example" if self.filename.get() == "" else self.filename.get() 
-        return self.backend.DongleTest(filename) # Run the Dongle test with the Filename as its file name
+        return self.backend.DongleTest(os.cwd() + "\\" + filename) # Run the Dongle test with the Filename as its file name
 
     def IncChannel(self): # increments the channel and displays the change
         if(self.channel < tb.max_channel):
@@ -191,17 +206,20 @@ class TesterFrontEnd:  # a GUI front end for the test
             print(self.backend.arduino.ReadLine())
             
     def GenerateReport(self): # Generates a CSV Report with all of the results
-        os.makedirs(os.path.dirname(self.filename.get() + 'report.csv'), exist_ok=True)
+        os.makedirs(os.path.dirname(os.getcwd() + self.filename.get() + 'report.csv'), exist_ok=True)
         file = open(self.filename.get() + 'report.csv', 'w')
         writer = csv.writer(file)
         
         writer.writerow(["Channel", "Impedance Test", "Dongle Test", "Pulse Echo Test"]);
         for (i, val) in enumerate(zip(self.passmap["Impedance"], self.passmap["Dongle"], self.passmap["PulseEcho"])):     
-            writer.writerow(val.insert(0, i + 1))
+            writer.writerow([i, val])
             
         file.close()
 
 if __name__ == "__main__":
+
+    import atexit
+    atexit.register(input, "Press Any Key To Continue")
 
     gui = TesterFrontEnd()
     gui.Draw()
