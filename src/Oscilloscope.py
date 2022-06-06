@@ -9,7 +9,7 @@ scope_sample_interval_ns = 1 # sampling period of oscilloscope
 # Oscilloscope Class Wrapper for VISA operations
 class Oscilloscope:
     def __init__(self):
-        rm = visa.ResourceManager('@py') # create a VISA device manager
+        rm = visa.ResourceManager() # create a VISA device manager
         devlist = rm.list_resources()  # print out all of the possible VISA Devices
         print(f"Listing VISA Devices: {devlist}")
         self.Waveform = None
