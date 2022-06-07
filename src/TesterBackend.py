@@ -16,7 +16,7 @@ dongle_freq = 800e3
 
 channel_upper_thresh = 100e-12
 channel_lower_thresh = 80e-12
-channel_freq = 500e3
+channel_freq = 800e3
 
 scope_sample_interval_ns = 1 # sampling period of oscilloscope
 
