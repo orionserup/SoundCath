@@ -10,7 +10,7 @@ scopechanneloffset = 1 << 7
 
 max_channel = 64
 
-dongle_upper_thresh = 103e-12
+dongle_upper_thresh = 103e-12    
 dongle_lower_thresh = 90e-12
 dongle_freq = 800e3
 
