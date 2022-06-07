@@ -121,15 +121,11 @@ class TesterFrontEnd:  # a GUI front end for the test
     def RunAllChannelTests(self, filename):
 
         channel = self.channel
-        if(self.pulseechotest.get() != 0): # if we are gonna do pulse echo
-            channel |= scopechanneloffset # set the scope bit which tells the Arduino to Connect to the Scope
-        else:
-            channel &= ~scopechanneloffset # otherwise clear the bit
 
-        if(self.impedancetest.get() != 0 or self.dongletest.get() != 0): # repeat the same process with the impedance test/dongle test
-            channel |= vnachanneloffset
-        else:
+        if(self.impedancetest.get() != 0 or self.dongletest.get() != 0 or self.pulseechotest.get() != 0): # repeat the same process with the impedance test/dongle test
             channel &= ~vnachanneloffset
+        else:
+            channel |= vnachanneloffset
 
         for i in range(tb.max_channel): # going over all of the Channels
             
@@ -151,15 +147,11 @@ class TesterFrontEnd:  # a GUI front end for the test
      
     def RunSingleChannelTest(self, channel, filename):
 
-        if(self.pulseechotest.get() != 0):# same as TestAllChannels except no loop
-            channel |= scopechanneloffset;
-        else:
-            channel &= ~scopechanneloffset;
-
-        if(self.impedancetest.get() != 0 or self.dongletest.get() != 0):
-            channel |= vnachanneloffset
-        else:
+        channel = self.channel
+        if(self.impedancetest.get() != 0 or self.dongletest.get() != 0 or self.pulseechotest.get() != 0): # repeat the same process with the impedance test/dongle test
             channel &= ~vnachanneloffset
+        else:
+            channel |= vnachanneloffset
 
         self.backend.SetChannel(channel - 1);
     
