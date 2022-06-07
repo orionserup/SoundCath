@@ -70,7 +70,7 @@ class VNA:
 
             if self.calsweep is not None: # If we are Running a Calibration Sweep Set it
                 file.write(f"calsweep {self.calsweep}")
-                file.write( "nv\n" if not self.calsweepverbose else "\n")
+                file.write("nv\n" if not self.calsweepverbose else "\n")
 
             file.write(f"range {self.lowfreq} {self.highfreq}\n") # Set the Start Frequency and Stop Frequency
             file.write(f"frame {self.numpoints} {self.scale}\n") # Set the Scale and Number of Points
@@ -90,7 +90,7 @@ class VNA:
             
             #file.write("exitVNWA") # leave the VNA app so you can do this again
 
-        os.system("{} {} -debug".format(self.executable, self.scriptfile)) # Run this Script File Through the VNA App
+        os.system("{} {} -debug".format(self.executable, os.getcwd() + "\\" + self.scriptfile)) # Run this Script File Through the VNA App
 
 # Takes an S1P File Parses it, grabs the data and Writes the Data to a CS File
 def ConvertS1PToCSV(filename: str) -> dict[str, complex]:
