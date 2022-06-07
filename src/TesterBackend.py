@@ -1,6 +1,7 @@
 import Arduino
 import Oscilloscope
 import os
+import numpy as np
 import VNA
 import math
 
@@ -48,7 +49,7 @@ class CatheterTester:
         data = VNA.ConvertS1PToCSV(filename + str(self.channel + 1) + "dongles11.s1p") # pull the data from the s1p file, write it to CSV
         i = data["Frequency"].index(dongle_freq) # find the index from the data with the test frequency
         if i is not None:
-            c = 1 / (2 * math.PI * data["Z"][i].imag * dongle_freq) # if there is an entry with the test frequency calculate the capacitance
+            c = 1 / (2 * math.pi * data["Z"][i].imag * dongle_freq) # if there is an entry with the test frequency calculate the capacitance
             if c < dongle_upper_thresh and c > dongle_lower_thresh: # 1 / wC = im(Z)  # if we are within the thresholds then we are good
                 return True # Passed the test
                 
@@ -72,7 +73,7 @@ class CatheterTester:
         i = data["Frequency"].index(channel_freq) # if we find the frequency we wanted in the data set
         if i is not None:
             z = data["Z"][i] # get the corresponding impedance with the frequency
-            if z > channel_lower_thresh and z < channel_upper_thresh: # if we are within the threshold then we pass the test
+            if abs(z) > channel_lower_thresh and abs(z) < channel_upper_thresh: # if we are within the threshold then we pass the test
                 return True # return a pass
                 
         return False # if we didnt pass we failed

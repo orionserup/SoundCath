@@ -110,6 +110,9 @@ if __name__== "__main__":
 
     import matplotlib.pyplot as plt
 
+    import atexit
+    atexit.register(input, "Press Any Key To Continue")
+
     scope = Oscilloscope()
     if(scope.IsConnected()):
         scope.CaptureWaveform(3, 8)

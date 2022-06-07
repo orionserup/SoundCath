@@ -1,3 +1,4 @@
+from fileinput import filename
 from tkinter import StringVar, ttk, Tk, IntVar
 import time
 import TesterBackend as tb
@@ -172,6 +173,8 @@ class TesterFrontEnd:  # a GUI front end for the test
 
     def RunTests(self): # run the tests according to the parameters
         
+        path = "\\".join(self.filename.get().split("\\")[0:-1])
+        os.makedirs(path, exist_ok=True)
         if self.allchannels.get() != 0:
             self.RunAllChannelTests()
 
@@ -189,7 +192,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         
     def RunDongleTest(self) -> bool:
         filename = "example" if self.filename.get() == "" else self.filename.get() 
-        return self.backend.DongleTest(os.cwd() + "\\" + filename) # Run the Dongle test with the Filename as its file name
+        return self.backend.DongleTest(os.getcwd() + "\\" + filename) # Run the Dongle test with the Filename as its file name
 
     def IncChannel(self): # increments the channel and displays the change
         if(self.channel < tb.max_channel):

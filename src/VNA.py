@@ -75,17 +75,21 @@ class VNA:
             file.write(f"range {self.lowfreq} {self.highfreq}\n") # Set the Start Frequency and Stop Frequency
             file.write(f"frame {self.numpoints} {self.scale}\n") # Set the Scale and Number of Points
             file.write(f"timeperpoint {self.timeperpoint}\n") # Set the Time Per Point
-            file.write(f"setTXpower {self.txpower}\n") # Set the Transmission Power for Measurement
+            file.write(f"setTXpower {self.txpower}\n") # Set the Transmission Power for Measurement                
 
-            if len(self.parameters) != 0: # for all of the parameters to measure
+
+            if len(self.parameters) != 0: # for all of the parameters to measure            
+                
+                for param in self.parameters: # for each of the meaured parameters write the data to a file
+                    file.write(f"writes1p { self.filename + param}.s1p {param}\n")
+                
                 file.write("sweep ") 
                 for param in self.parameters:
                     file.write(param + " ") # sweep over that range and measure the parameter
 
                 file.write("\n")
             
-                for param in self.parameters: # for each of the meaured parameters write the data to a file
-                    file.write(f"writes1p { self.filename + param}.s1p {param}\n")
+
             
             file.write("exitVNWA \n") # leave the VNA app so you can do this again
 
@@ -102,25 +106,27 @@ def ConvertS1PToCSV(filename: str) -> dict[str, complex]:
     s1pfile.readline()
 
     # Setup an empty Dictionary To Hold the S1P Values
-    data = {"Frequency": [], "Value": []}
+    data = {"Frequency": [], "Value": [], "Z": []}
 
     # line for line extract the data
     for line in s1pfile:
         items = line.split("   ")
         datem = [float(item) for item in items]
-        data["Frequency"].append(datem[0])
+
+        data["Frequency"].append(1000000 * datem[0]) # Frequency in units of MHz
+        
         real = datem[1]
         imag = datem[2]
-        data["Value"].append(complex(real, imag))
+        data["Value"].append(complex(real, imag)) # scale is in MHz
 
     # if we read s11 data we can get the impedance
     if "s11" in filename: 
         # open a file for writing the impedance values to
-        zcsvfile = open(filename.replace("s1p", "csv").replace("s11", "z"))
+        zcsvfile = open(filename.replace("s1p", "csv").replace("s11", "z"), 'w')
         zcsvwriter = csv.writer(zcsvfile)
 
         for (i, val) in enumerate(data["Value"]): # calculate the impedance for every frequency
-            data["Z"][i] = inputimpedance * (1 + val)/(1 - val)
+            data["Z"].append(inputimpedance * (1 + val)/(1 - val))
             zcsvwriter.writerow([ data["Frequency"][i], data["Z"][i] ]) # Write the Frequency and Impedance for every value to a CSV File
             
         zcsvfile.close() # Write the File to the System
@@ -137,6 +143,9 @@ def ConvertS1PToCSV(filename: str) -> dict[str, complex]:
 
 
 if __name__ == "__main__":
+
+    import atexit
+    atexit.register(input, "Press Any Key To Continue")
     
     vna = VNA()
     vna.SetTimePerPoint(10)
