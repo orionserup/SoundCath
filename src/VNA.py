@@ -72,10 +72,10 @@ class VNA:
                 file.write(f"calsweep {self.calsweep}")
                 file.write("nv\n" if not self.calsweepverbose else "\n")
 
-            file.write(f"range {self.lowfreq} {self.highfreq}\n") # Set the Start Frequency and Stop Frequency
+            file.write(f"range {int(self.lowfreq)} {int(self.highfreq)}\n") # Set the Start Frequency and Stop Frequency
             file.write(f"frame {self.numpoints} {self.scale}\n") # Set the Scale and Number of Points
             file.write(f"timeperpoint {self.timeperpoint}\n") # Set the Time Per Point
-            file.write(f"setTXpower {self.txpower}\n") # Set the Transmission Power for Measurement                
+            # file.write(f"setTXpower {self.txpower}\n") # Set the Transmission Power for Measurement                
 
             if len(self.parameters) != 0: # for all of the parameters to measure            
                 
