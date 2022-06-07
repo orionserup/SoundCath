@@ -118,7 +118,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         Window.mainloop()
 
     # Goes through all of the channels and runs the selected tests
-    def RunAllChannelTests(self):
+    def RunAllChannelTests(self, filename):
 
         channel = self.channel
         if(self.pulseechotest.get() != 0): # if we are gonna do pulse echo
@@ -136,20 +136,20 @@ class TesterFrontEnd:  # a GUI front end for the test
             self.backend.SetChannel(i) # Connect the Channel
         
             if self.pulseechotest.get():
-                self.passmap["PulseEcho"][i] = "Pass" if self.RunPulseEchoTest() else "Fail" # Run the Tests and record the Results
+                self.passmap["PulseEcho"][i] = "Pass" if self.RunPulseEchoTest(filename) else "Fail" # Run the Tests and record the Results
    
             if self.impedancetest.get():
-                self.passmap["Impedance"][i] = "Pass" if self.RunImpedanceTest() else "Fail"
+                self.passmap["Impedance"][i] = "Pass" if self.RunImpedanceTest(filename) else "Fail"
   
             if self.dongletest.get() != 0:
-                self.passmap["Dongle"][i] = "Pass" if self.RunDongleTest() else "Fail"
+                self.passmap["Dongle"][i] = "Pass" if self.RunDongleTest(filename) else "Fail"
 
             time.sleep(channel_switch_interval) # wait a set amount of time between channels
 
         self.GenerateReport()
             
      
-    def RunSingleChannelTest(self, channel):
+    def RunSingleChannelTest(self, channel, filename):
 
         if(self.pulseechotest.get() != 0):# same as TestAllChannels except no loop
             channel |= scopechanneloffset;
@@ -163,37 +163,35 @@ class TesterFrontEnd:  # a GUI front end for the test
 
         self.backend.SetChannel(channel - 1);
     
-        if self.pulseechotest.get():
-            self.passmap["PulseEcho"][self.channel - 1] = "Pass" if self.RunPulseEchoTest() else "Fail" # Run the Tests and record the Results
+        if self.pulseechotest.get() != 0:
+            self.passmap["PulseEcho"][self.channel - 1] = "Pass" if self.RunPulseEchoTest(filename) else "Fail" # Run the Tests and record the Results
 
-        if self.impedancetest.get():
-            self.passmap["Impedance"][self.channel - 1] = "Pass" if self.RunImpedanceTest() else "Fail"
+        if self.impedancetest.get() != 0:
+            self.passmap["Impedance"][self.channel - 1] = "Pass" if self.RunImpedanceTest(filename) else "Fail"
 
         if self.dongletest.get() != 0:
-            self.passmap["Dongle"][self.channel - 1] = "Pass" if self.RunDongleTest() else "Fail"
+            self.passmap["Dongle"][self.channel - 1] = "Pass" if self.RunDongleTest(filename) else "Fail"
 
 
     def RunTests(self): # run the tests according to the parameters
         
-        path = "\\".join((os.getcwd() + "\\" + self.filename.get()).split("\\")[0:-1])
+        filename = os.getcwd() + '\\' + self.filename.get() 
+        path = "\\".join(filename.split("\\")[0:-1])
         os.makedirs(path, exist_ok=True)
         if self.allchannels.get() != 0:
-            self.RunAllChannelTests()
+            self.RunAllChannelTests(filename)
 
         else:
-            self.RunSingleChannelTest(self.channel)
+            self.RunSingleChannelTest(self.channel, filename)
 
-    def RunImpedanceTest(self) -> bool:
-        filename = "example" if self.filename.get() == "" else self.filename.get() # Get the Filename to save everything with, it is just the base
+    def RunImpedanceTest(self, filename) -> bool:
         return self.backend.ImpedanceTest(filename) # run the test with the filename
 
-    def RunPulseEchoTest(self) -> bool:    
-        filename = "example" if self.filename.get() == "" else self.filename.get() 
+    def RunPulseEchoTest(self, filename) -> bool:    
         self.TriggerWindow()
         return self.backend.PulseEchoTest(1, filename) # run the test on scope channel 1 with file name filename
         
-    def RunDongleTest(self) -> bool:
-        filename = "example" if self.filename.get() == "" else self.filename.get() 
+    def RunDongleTest(self, filename) -> bool:
         return self.backend.DongleTest(filename) # Run the Dongle test with the Filename as its file name
 
     def IncChannel(self): # increments the channel and displays the change
