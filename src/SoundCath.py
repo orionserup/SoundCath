@@ -7,8 +7,8 @@ import os
 
 channel_switch_interval = 3 # when running all channels the time between channel
 
-vnachanneloffset = 1 << 6
-scopechanneloffset = 1 << 7
+vnachanneloffset = 1 << 7
+scopechanneloffset = 1 << 6
 class TesterFrontEnd:  # a GUI front end for the test
     def __init__(self):
         # Configure the GUI Basic Parts
