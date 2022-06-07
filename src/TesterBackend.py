@@ -5,8 +5,8 @@ import numpy as np
 import VNA
 import math
 
-vnachanneloffset = 1 << 6
-scopechanneloffset = 1 << 7
+vnachanneloffset = 1 << 7
+scopechanneloffset = 1 << 6
 
 max_channel = 64
 
