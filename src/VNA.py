@@ -77,7 +77,6 @@ class VNA:
             file.write(f"timeperpoint {self.timeperpoint}\n") # Set the Time Per Point
             file.write(f"setTXpower {self.txpower}\n") # Set the Transmission Power for Measurement                
 
-
             if len(self.parameters) != 0: # for all of the parameters to measure            
                 
                 file.write("sweep") 
@@ -89,7 +88,7 @@ class VNA:
                 for param in self.parameters: # for each of the meausured parameters write the data to a file
                     file.write(f"writes1p {self.filename + param}.s1p {param}\n")
             
-            file.write("exitVNWA\n") # leave the VNA app so you can do this again
+            file.write("exitVNWA") # leave the VNA app so you can do this again
 
         os.system("{} {} -debug".format(self.executable, self.scriptfile)) # Run this Script File Through the VNA App
 
