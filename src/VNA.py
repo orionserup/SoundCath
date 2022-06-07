@@ -80,9 +80,9 @@ class VNA:
 
             if len(self.parameters) != 0: # for all of the parameters to measure            
                 
-                file.write("sweep ") 
+                file.write("sweep") 
                 for param in self.parameters:
-                    file.write(param + " ") # sweep over that range and measure the parameter
+                    file.write(" " + param) # sweep over that range and measure the parameter
 
                 file.write("\n")                
                 
