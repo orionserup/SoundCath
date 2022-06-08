@@ -185,16 +185,16 @@ class TesterFrontEnd:  # a GUI front end for the test
 
     def RunImpedanceTest(self) -> bool:
         filename = "example" if self.filename.get() == "" else self.filename.get() # Get the Filename to save everything with, it is just the base
-        return self.backend.ImpedanceTest(os.getcwd() + "\\" + filename) # run the test with the filename
+        return self.backend.ImpedanceTest(filename) # run the test with the filename
 
     def RunPulseEchoTest(self) -> bool:    
         filename = "example" if self.filename.get() == "" else self.filename.get() 
         self.TriggerWindow()
-        return self.backend.PulseEchoTest(1, os.getcwd() + "\\" + filename) # run the test on scope channel 1 with file name filename
+        return self.backend.PulseEchoTest(1, filename) # run the test on scope channel 1 with file name filename
         
     def RunDongleTest(self) -> bool:
         filename = "example" if self.filename.get() == "" else self.filename.get() 
-        return self.backend.DongleTest(os.getcwd() + "\\" + filename) # Run the Dongle test with the Filename as its file name
+        return self.backend.DongleTest(filename) # Run the Dongle test with the Filename as its file name
 
     def IncChannel(self): # increments the channel and displays the change
         if(self.channel < tb.max_channel):
