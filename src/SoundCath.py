@@ -145,6 +145,8 @@ class TesterFrontEnd:  # a GUI front end for the test
                 self.passmap["Dongle"][i] = "Pass" if self.RunDongleTest() else "Fail"
 
             time.sleep(channel_switch_interval) # wait a set amount of time between channels
+
+        self.GenerateReport()
             
      
     def RunSingleChannelTest(self, channel):
