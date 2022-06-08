@@ -80,16 +80,14 @@ class VNA:
 
             if len(self.parameters) != 0: # for all of the parameters to measure            
                 
-                for param in self.parameters: # for each of the meaured parameters write the data to a file
-                    file.write(f"writes1p { self.filename + param}.s1p {param}\n")
-                
                 file.write("sweep ") 
                 for param in self.parameters:
                     file.write(param + " ") # sweep over that range and measure the parameter
 
-                file.write("\n")
-            
-
+                file.write("\n")                
+                
+                for param in self.parameters: # for each of the meausured parameters write the data to a file
+                    file.write(f"writes1p { self.filename + param}.s1p {param}\n")
             
             file.write("exitVNWA \n") # leave the VNA app so you can do this again
 
