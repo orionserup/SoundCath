@@ -173,7 +173,7 @@ class TesterFrontEnd:  # a GUI front end for the test
 
     def RunTests(self): # run the tests according to the parameters
         
-        path = "\\".join(self.filename.get().split("\\")[0:-1])
+        path = "\\".join((os.getcwd() + "\\" + self.filename.get()).split("\\")[0:-1])
         os.makedirs(path, exist_ok=True)
         if self.allchannels.get() != 0:
             self.RunAllChannelTests()
