@@ -2,6 +2,7 @@
 import os
 import glob
 import csv
+import re
 
 inputimpedance = 50
 
@@ -105,8 +106,8 @@ def ConvertS1PToCSV(filename: str) -> dict[str, complex]:
 
     # line for line extract the data
     for line in s1pfile:
-        items = line.split(" ")
-        datem = [float(item) for item in items]
+        items = ' '.join(line.split()) # get rid of the extra spaces to make it uniform and extractable
+        datem = [float(item) for item in items.split()] # pull all of the space seperated values and put them into a list
 
         data["Frequency"].append(1000000 * datem[0]) # Frequency in units of MHz
         

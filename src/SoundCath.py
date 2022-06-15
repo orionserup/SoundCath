@@ -31,7 +31,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.text = StringVar(self.root, "Channel " + str(self.channel)) # the string to display the channel
 
         # Variable to Store the Results of all of the Tests
-        self.passmap = { "Impedance": [None] * tb.max_channel, "PulseEcho": [None] * tb.max_channel, "Dongle": [None] * tb.max_channel }
+        self.passmap = { "Impedance": [(None, None)] * tb.max_channel, "PulseEcho": [(None, None)] * tb.max_channel, "Dongle": [(None, None)] * tb.max_channel }
         self.backend = tb.CatheterTester() # Backend tester that does the actual work 
 
         self.window = ttk.Frame(self.root)  # All widget elements
@@ -132,13 +132,13 @@ class TesterFrontEnd:  # a GUI front end for the test
             self.backend.SetChannel(i) # Connect the Channel
         
             if self.pulseechotest.get():
-                self.passmap["PulseEcho"][i] = "Pass" if self.RunPulseEchoTest(filename) else "Fail" # Run the Tests and record the Results
+                self.passmap["PulseEcho"][i] = self.RunPulseEchoTest(filename)  # Run the Tests and record the Results
    
             if self.impedancetest.get():
-                self.passmap["Impedance"][i] = "Pass" if self.RunImpedanceTest(filename) else "Fail"
+                self.passmap["Impedance"][i] = self.RunImpedanceTest(filename) 
   
             if self.dongletest.get() != 0:
-                self.passmap["Dongle"][i] = "Pass" if self.RunDongleTest(filename) else "Fail"
+                self.passmap["Dongle"][i] = self.RunDongleTest(filename) 
 
             time.sleep(channel_switch_interval) # wait a set amount of time between channels
 
@@ -156,19 +156,20 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.backend.SetChannel(channel - 1);
     
         if self.pulseechotest.get() != 0:
-            self.passmap["PulseEcho"][self.channel - 1] = "Pass" if self.RunPulseEchoTest(filename) else "Fail" # Run the Tests and record the Results
+            self.passmap["PulseEcho"][self.channel - 1] = self.RunPulseEchoTest(filename) # Run the Tests and record the Results
 
         if self.impedancetest.get() != 0:
-            self.passmap["Impedance"][self.channel - 1] = "Pass" if self.RunImpedanceTest(filename) else "Fail"
+            self.passmap["Impedance"][self.channel - 1] = self.RunImpedanceTest(filename) 
 
         if self.dongletest.get() != 0:
-            self.passmap["Dongle"][self.channel - 1] = "Pass" if self.RunDongleTest(filename) else "Fail"
+            self.passmap["Dongle"][self.channel - 1] =  self.RunDongleTest(filename) 
 
 
     def RunTests(self): # run the tests according to the parameters
         
         filename = os.getcwd() + '\\' + self.filename.get() 
-        path = "\\".join(filename.split("\\")[0:-1])
+        path = "\\".join(filename.split("\\")[0:-1]) # create the path of the file if it wasn't already there
+
         os.makedirs(path, exist_ok=True)
         if self.allchannels.get() != 0:
             self.RunAllChannelTests(filename)
@@ -205,9 +206,10 @@ class TesterFrontEnd:  # a GUI front end for the test
         file = open(self.filename.get() + 'report.csv', 'w')
         writer = csv.writer(file)
         
-        writer.writerow(["Channel", "Impedance Test", "Dongle Test", "Pulse Echo Test"]);
+        writer.writerow([" ", "(Passed, Value)", "(Passed, Value)", "(Passed, Value)"])
+        writer.writerow(["Channel", "Z Test", "Dongle Test", "PE"]);
         for (i, val) in enumerate(zip(self.passmap["Impedance"], self.passmap["Dongle"], self.passmap["PulseEcho"])):     
-            writer.writerow([i, val])
+            writer.writerow(val.insert(i, 0))
             
         file.close()
 

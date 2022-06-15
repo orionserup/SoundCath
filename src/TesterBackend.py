@@ -32,7 +32,7 @@ class CatheterTester:
             input("Press Any Key To Exit")
             exit() # leave the program
             
-    def DongleTest(self, filename: str = None) -> bool:
+    def DongleTest(self, filename: str = None):
         
         if self.vna is None:  # if we didnt initialze the VNA we can't run the test
             return False
@@ -51,11 +51,11 @@ class CatheterTester:
         if i is not None:
             c = 1 / (2 * math.pi * data["Z"][i].imag * dongle_freq) # if there is an entry with the test frequency calculate the capacitance
             if c < dongle_upper_thresh and c > dongle_lower_thresh: # 1 / wC = im(Z)  # if we are within the thresholds then we are good
-                return True # Passed the test
+                return True, c # Passed the test
                 
-        return False # Failed the Test
+        return False, c # Failed the Test
         
-    def ImpedanceTest(self, filename: str = None) -> bool:
+    def ImpedanceTest(self, filename: str = None):
 
         if self.vna is None:
             return False # if the VNA wasn't initialized we can't pass the test
@@ -72,11 +72,12 @@ class CatheterTester:
         data = VNA.ConvertS1PToCSV(filename + str(self.channel + 1) + "s11.s1p") # convert the generated csv file and pull the data
         i = data["Frequency"].index(channel_freq) # if we find the frequency we wanted in the data set
         if i is not None:
-            z = data["Z"][i] # get the corresponding impedance with the frequency
-            if abs(z) > channel_lower_thresh and abs(z) < channel_upper_thresh: # if we are within the threshold then we pass the test
-                return True # return a pass
+            c = 1 / (2 * math.pi * data["Z"][i].imag * channel_freq) # if there is an entry with the test frequency calculate the capacitance
+            if c < dongle_upper_thresh and c > dongle_lower_thresh: # 1 / wC = im(Z)  # if we are within the thresholds then we are good
+                return True, c # Passed the test
                 
-        return False # if we didnt pass we failed
+                
+        return False, c # if we didnt pass we failed
         
         
     def PulseEchoTest(self, channel: int = 1, filename: str = "cath.csv", duration_us: float = 6.0, ) -> bool:
@@ -94,7 +95,7 @@ class CatheterTester:
         self.scope.CalculateFFT() # calculate the fft of the waveform
         self.scope.WriteDataToCSVFile(filename + str(self.channel + 1)) # Save all of the Data to a CSV File
         
-        return True
+        return True, vpp
 
     def SetChannel(self, channel: int):
 
