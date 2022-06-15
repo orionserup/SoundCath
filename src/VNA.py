@@ -61,7 +61,6 @@ class VNA:
         with open(self.scriptfile, "w") as file: # open the Script for writing
             
             # see VNWA Handbook 
-
             if self.mastercal is not None: # if we are using a master calibration load it
                 file.write(f"loadmastercal {self.mastercal}\n")
 
@@ -82,13 +81,12 @@ class VNA:
                 file.write("sweep") 
                 for param in self.parameters:
                     file.write(" " + param) # sweep over that range and measure the parameter
-
                 file.write("\n")                
                 
                 for param in self.parameters: # for each of the meausured parameters write the data to a file
                     file.write(f"writes1p {self.filename + param}.s1p {param}\n")
             
-            #file.write("exitVNWA") # leave the VNA app so you can do this again
+            file.write("exitVNWA") # leave the VNA app so you can do this again
 
         os.system("{} {} -debug".format(self.executable, os.getcwd() + "\\" + self.scriptfile)) # Run this Script File Through the VNA App
 
@@ -107,7 +105,7 @@ def ConvertS1PToCSV(filename: str) -> dict[str, complex]:
 
     # line for line extract the data
     for line in s1pfile:
-        items = line.split("   ")
+        items = line.split(" ")
         datem = [float(item) for item in items]
 
         data["Frequency"].append(1000000 * datem[0]) # Frequency in units of MHz
