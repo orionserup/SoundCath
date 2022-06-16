@@ -98,7 +98,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         def Destroy():
             PassWindow.destroy()
 
-        passbutton = ttk.Button(PassWindow, text = "Trigger", command = Destroy)
+        passbutton = ttk.Button(PassWindow, text = "Capture", command = Destroy)
         passbutton.place(x = 0, y = 0, height = 100, width = 100)
 
         PassWindow.mainloop()
@@ -209,7 +209,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         writer.writerow([" ", "(Passed, Value)", "(Passed, Value)", "(Passed, Value)"])
         writer.writerow(["Channel", "Z Test", "Dongle Test", "PE"]);
         for (i, val) in enumerate(zip(self.passmap["Impedance"], self.passmap["Dongle"], self.passmap["PulseEcho"])):     
-            writer.writerow(val.insert(i, 0))
+            writer.writerow(list(val).insert(i,0))
             
         file.close()
 
