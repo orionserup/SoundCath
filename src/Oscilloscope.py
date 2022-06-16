@@ -17,7 +17,7 @@ class Oscilloscope:
         self.scope = None
 
         devs = list(devlist)
-        devs.append("USB0:0x0699::0x0378::C001088:INSTR")
+        devs.append("USB0::0x0699::0x0378::C001088::INSTR")
         
         for dev in devs:
             try:
