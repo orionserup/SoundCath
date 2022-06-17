@@ -208,8 +208,10 @@ class TesterFrontEnd:  # a GUI front end for the test
         
         writer.writerow([" ", "(Passed, Value)", "(Passed, Value)", "(Passed, Value)"])
         writer.writerow(["Channel", "Z Test", "Dongle Test", "PE"]);
-        for (i, val) in enumerate(zip(self.passmap["Impedance"], self.passmap["Dongle"], self.passmap["PulseEcho"])):     
-            writer.writerow(list(val).insert(i,0))
+        for (i, val) in enumerate(zip(self.passmap["Impedance"], self.passmap["Dongle"], self.passmap["PulseEcho"])): 
+            row = [i]
+            row.append(val)    
+            writer.writerow(row)
             
         file.close()
 
