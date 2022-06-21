@@ -90,7 +90,7 @@ class CatheterTester:
         minimum = min(data["Voltage"]) # find the minimum voltage of the waveform
         maximum = max(data["Voltage"]) # find the maximum voltage of the waveform
         
-        vpp = maximum - minimum; # get the peak to peak maximum 
+        vpp = maximum - minimum # get the peak to peak maximum 
         
         self.scope.CalculateFFT() # calculate the fft of the waveform
         self.scope.WriteDataToCSVFile(filename + str(self.channel + 1)) # Save all of the Data to a CSV File
