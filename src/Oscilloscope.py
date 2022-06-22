@@ -54,10 +54,10 @@ class Oscilloscope:
         num_samples = int(self.scope.query("HORIZONTAL:RECORD?"))
         self.scope.write("DATA:START 1")
         
-        inc = self.scope.query("WFMOUTPRE:XINCR?")
-        ymult = self.scope.query('WFMOUTPRE:YMULT?')
-        yoff = self.scope.query('WFMOUTPRE:YOFF?')
-        yzero = self.scope.query('WFMOUTPRE:YZERO?')
+        inc = float(self.scope.query("WFMOUTPRE:XINCR?"))
+        ymult = float(self.scope.query('WFMOUTPRE:YMULT?'))
+        yoff = float(self.scope.query('WFMOUTPRE:YOFF?'))
+        yzero = float(self.scope.query('WFMOUTPRE:YZERO?'))
 
         inc_us = np.double(inc) * 1000000
         stop = int(np.double(interval_us)/np.double(inc_us))
@@ -66,7 +66,7 @@ class Oscilloscope:
 
         values = self.scope.query_binary_values("CURVE?", datatype = "b")
         time = [i * np.double(inc) for i in range(stop)]
-        voltage = [np.double(ymult)*(values[i] - np.double(yoff)) - np.double(yzero) for i in range(stop)]
+        voltage = [ymult *(values[i] - yoff) - yzero for i in range(stop)]
 
         self.Waveform = {"Time": time, "Voltage": voltage}
         return self.Waveform
