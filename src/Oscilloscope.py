@@ -15,11 +15,8 @@ class Oscilloscope:
         self.Waveform = None
         self.fft = None
         self.scope = None
-
-        devs = list(devlist)
-        devs.append("USB0::0x0699::0x0378::C001088::INSTR")
         
-        for dev in devs:
+        for dev in devlist:
             try:
                 if not "ASRL" in dev:
                     self.scope = rm.open_resource(dev) # open the device for use
