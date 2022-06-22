@@ -94,15 +94,16 @@ class Oscilloscope:
 
     def WriteDataToCSVFile(self, filename: str) -> None:    
         os.makedirs(os.path.dirname(filename), exist_ok=True)
-        if self.fft is not None:
-            writer = csv.writer(open(filename + "fft.csv", "w"))
-            for i in len(self.fft["Frequency"]):
-                writer.writerow([self.fft["Frequency"][i], self.fft["Amplitude"][i]])
 
         if self.Waveform is not None:
             writer = csv.writer(open(filename + "wave.csv", "w"))
             for i in len(self.fft["Time"]):
-                writer.writerow([self.fft["Time"][i], self.fft["Voltage"][i]])
+                writer.writerow([self.fft["Time"][i], self.fft["Voltage"][i]])        
+                
+        if self.fft is not None:
+            writer = csv.writer(open(filename + "fft.csv", "w"))
+            for i in len(self.fft["Frequency"]):
+                writer.writerow([self.fft["Frequency"][i], self.fft["Amplitude"][i]])
 
 # module main function for testing
 
