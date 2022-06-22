@@ -51,7 +51,7 @@ class Oscilloscope:
         while self.scope.query("BUSY?") == "1":
             pass
 
-        num_samples = self.scope.query("HORIZONTAL:RECORD?")
+        num_samples = int(self.scope.query("HORIZONTAL:RECORD?"))
         self.scope.write("DATA:START 1")
         
         inc = self.scope.query("WFMOUTPRE:XINCR?")
