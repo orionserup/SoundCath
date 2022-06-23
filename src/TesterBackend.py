@@ -104,7 +104,7 @@ class CatheterTester:
         fftplot.plot(fft["Frequency"], fft["Amplitude"], 'r.')
         fftplot.set_title("FFT")
 
-        maxamp = max(fft['Amplitude'])
+        maxamp = np.amax(fft['Amplitude'])
         maxindex = np.where(fft['Amplitude'] == maxamp)
 
         leftband = fft['Frequency'][maxindex[0][0]]
@@ -113,10 +113,12 @@ class CatheterTester:
         for i in range(maxindex[0][0], len(fft['Frequency'])):
             if fft['Amplitude'][i] <= maxamp / 2:
                 rightband = fft["Frequency"][i]
+                break
 
         for i in range(maxindex[0][0], 0, -1):
             if fft['Amplitude'][i] <= maxamp / 2:
                 leftband = fft["Frequency"][i]
+                break
 
         bandwidth = rightband - leftband
 
