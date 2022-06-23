@@ -45,13 +45,10 @@ class Oscilloscope:
         self.scope.write("DATa:ENCdg RIBBINARY")
         self.scope.write("DATA WIDTH 1")        
               
-        
         xinc = float(self.scope.query("WFMOUTPRE:XINCR?"))
         ymult = float(self.scope.query('WFMOUTPRE:YMULT?'))
         yoff = float(self.scope.query('WFMOUTPRE:YOFF?'))
         yzero = float(self.scope.query('WFMOUTPRE:YZERO?'))
-        
-        self.scope.write("DATA:STOP {}".format(num_samples))
 
         self.scope.write("ACQUIRE:STATE OFF")
         self.scope.write("ACQUIRE:MODE NORMALSAMPLE")
