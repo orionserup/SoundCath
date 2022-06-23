@@ -40,39 +40,46 @@ class Oscilloscope:
     def CaptureWaveform(self, channel: int) -> dict[str, list]:
         
         self.scope.write("HEADER OFF")
-        self.scope.write(f"DATa:SOURCe ch{channel}")
-        self.scope.write("DATa:ENCdg RIBBINARY")
-        self.scope.write("DATA WIDTH 1")
-        self.scope.write("ACQUIRE:STATE OFF")
-        self.scope.write("ACQUIRE:MODE NORMALSAMPLE")
-        self.scope.write("ACQUIRE:STOPAFTER SEQUENCE")
-        self.scope.write("ACQUIRE:STATE RUN")
-        
-        while self.scope.query("BUSY?") == "1":
-            pass
 
-        num_samples = int(self.scope.query("HORIZONTAL:RECORD?"))
-        self.scope.write("DATA:START 1")
+        self.scope.write(f"DATa:SOU CH{channel}")
+        self.scope.write("DATa:ENCdg RIBBINARY")
+        self.scope.write("DATA WIDTH 1")        
+              
         
-        inc = float(self.scope.query("WFMOUTPRE:XINCR?"))
+        xinc = float(self.scope.query("WFMOUTPRE:XINCR?"))
         ymult = float(self.scope.query('WFMOUTPRE:YMULT?'))
         yoff = float(self.scope.query('WFMOUTPRE:YOFF?'))
         yzero = float(self.scope.query('WFMOUTPRE:YZERO?'))
+        
+        num_samples = int(self.scope.query("HORIZONTAL:RECORD?"))
 
         self.scope.write("DATA:STOP {}".format(num_samples))
 
-        values = self.scope.query_binary_values("CURVE?", datatype = "b")
+        self.scope.write("ACQUIRE:STATE OFF")
+        self.scope.write("ACQUIRE:MODE NORMALSAMPLE")
+        self.scope.write("ACQUIRE:STOPAFTER SEQUENCE")
+        
+        self.scope.write("ACQUIRE:STATE RUN")
 
-        timeaxis = [i * inc for i in range(len(values))]
+        while self.scope.query('BUSY?') == '1':
+            pass
 
-        voltage = [ymult * (values[i] - yoff) - yzero for i in range(len(values))]
+        self.scope.write("DATA:START 1")  
+        num_samples = int(self.scope.query("HORIZONTAL:RECORD?"))
+        self.scope.write("DATA:STOP {}".format(num_samples))
+
+        values = self.scope.query_binary_values('CURV?', datatype='d', is_big_endian=True)
+
+        timeaxis = [i * xinc for i in range(len(values))]
+
+        voltage = [ymult * (values[i] - yoff) + yzero for i in range(len(values))]
 
         self.Waveform["Time"] = timeaxis
         self.Waveform["Voltage"] = voltage
 
         return self.Waveform
 
-    def WindowWaveform(self, initial_us: np.double = 0.0, window_size_us: float = 5.0) -> dict[str, list]:
+    def WindowWaveform(self, initial_us: float = 0.0, window_size_us: float = 5.0) -> dict[str, list]:
         deltat = self.Waveform["Time"][1] - self.Waveform["Time"][0]
 
         n = int(initial_us/(deltat*1000000))
@@ -99,7 +106,7 @@ class Oscilloscope:
 
     def WriteDataToCSVFile(self, filename: str) -> None:    
         os.makedirs(os.path.dirname(filename), exist_ok=True)
-        
+
         with open(filename + "wave.csv", "w") as wavefile:
             writer = csv.writer(wavefile)
             writer.writerows(zip(self.Waveform["Time"], self.Waveform["Voltage"]))        

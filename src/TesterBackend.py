@@ -105,6 +105,7 @@ class CatheterTester:
         plots[1].set_xlabel("Frequency")
         plots[1].set_ylabel("Amplitude")    
 
+        fig.tight_layout()
         plt.show()
 
         maxamp = np.amax(fft['Amplitude'])
@@ -126,8 +127,6 @@ class CatheterTester:
         bandwidth = rightband - leftband
 
         print(f"Vpp: {vpp} Bandwidth: {bandwidth}")
-
-        input("Press Enter To Continue")
 
         self.scope.WriteDataToCSVFile(filename + str(self.channel + 1)) # Save all of the Data to a CSV File
         
