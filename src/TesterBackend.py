@@ -86,7 +86,6 @@ class CatheterTester:
             return False
         
         data = self.scope.CaptureWaveform(channel, duration_us) # capture the waveform from the screen
-        print(data)
         
         minimum = min(data["Voltage"]) # find the minimum voltage of the waveform
         maximum = max(data["Voltage"]) # find the maximum voltage of the waveform
@@ -94,8 +93,25 @@ class CatheterTester:
         vpp = maximum - minimum # get the peak to peak maximum 
         
         fft = self.scope.CalculateFFT() # calculate the fft of the waveform
-        print(fft)
+
+        maxamp = max(fft['Amplitude'])
+        maxindex = fft['Amplitude'].index(maxamp)
+
+        leftband = fft['Frequency'][maxindex]
+        rightband = fft['Frequency'][maxindex]
         
+        for i in range(maxamp, len(fft['Frequency'])):
+            if fft['Amplitude'][i] <= maxamp / 2:
+                rightband = fft["Frequency"][i]
+
+        for i in range(maxamp, 0, -1):
+            if fft['Amplitude'][i] <= maxamp / 2:
+                leftband = fft["Frequency"][i]
+
+        bandwidth = rightband - leftband
+
+        print(f"Vpp: {vpp} Bandwidth: {bandwidth}")
+
         self.scope.WriteDataToCSVFile(filename + str(self.channel + 1)) # Save all of the Data to a CSV File
         
         return True, vpp
