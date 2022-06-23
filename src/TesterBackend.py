@@ -92,8 +92,6 @@ class CatheterTester:
         
         vpp = maximum - minimum # get the peak to peak maximum 
 
-        #fft = self.scope.CalculateFFT() # calculate the fft of the waveform        
-
         import matplotlib.pyplot as plt
 
         waveplot = plt.subplot(1, 2, 1)
