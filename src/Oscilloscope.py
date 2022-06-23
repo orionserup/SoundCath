@@ -63,8 +63,8 @@ class Oscilloscope:
 
         values = self.scope.query_binary_values("CURVE?", datatype = "b")
 
-        time = [float(i * inc) for i in range(num_samples)]
-        voltage = [float(ymult * (values[i] - yoff) - yzero) for i in range(num_samples)]
+        time = [float(i * inc) for i in range(len(values))]
+        voltage = [float(ymult * (values[i] - yoff) - yzero) for i in range(len(values))]
 
         self.Waveform = {"Time": time, "Voltage": voltage}
         return self.Waveform
