@@ -112,12 +112,12 @@ class CatheterTester:
         
         for i in range(maxindex[0][0], len(fft['Frequency'])):
             if fft['Amplitude'][i] <= maxamp / 2:
-                rightband = fft["Frequency"][i]
+                rightband = fft["Frequency"][i - 1]
                 break
 
         for i in range(maxindex[0][0], 0, -1):
             if fft['Amplitude'][i] <= maxamp / 2:
-                leftband = fft["Frequency"][i]
+                leftband = fft["Frequency"][i + 1]
                 break
 
         bandwidth = rightband - leftband
