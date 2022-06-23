@@ -106,7 +106,7 @@ class CatheterTester:
         plots[1].set_ylabel("Amplitude")    
 
         fig.tight_layout()
-        plt.show()
+        plt.show(block=False)
 
         maxamp = np.amax(fft['Amplitude'])
         maxindex = np.where(fft['Amplitude'] == maxamp)
