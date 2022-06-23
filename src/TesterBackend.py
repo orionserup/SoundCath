@@ -104,6 +104,11 @@ class CatheterTester:
         fftplot.plot(fft["Frequency"], fft["Amplitude"], 'r.')
         fftplot.set_title("FFT")
 
+        input("Press Any Key to Continue")
+
+        plt.close(fftplot)
+        plt.close(waveplot)
+
         maxamp = np.amax(fft['Amplitude'])
         maxindex = np.where(fft['Amplitude'] == maxamp)
 

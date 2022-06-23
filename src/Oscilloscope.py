@@ -115,17 +115,53 @@ if __name__== "__main__":
     atexit.register(input, "Press Any Key To Continue")
 
     scope = Oscilloscope()
+    data = []
     if(scope.IsConnected()):
-        scope.CaptureWaveform(1, 8)
-        scope.WindowWaveform(0, 6.0)
-        wave = scope.GetWaveform()
-        plt.subplot(1, 2, 1)
-        plt.plot(wave["Voltage"], wave["Time"])
-        plt.subplot(1, 2, 2)
-        fft = scope.CalculateFFT()
-        plt.plot(fft["Amplitude"], fft["Frequency"])
-        plt.show()
+        scope.CaptureWaveform(1)
+        data = scope.WindowWaveform(0, 9.0)
+        
+    minimum = min(data["Voltage"]) # find the minimum voltage of the waveform
+    maximum = max(data["Voltage"]) # find the maximum voltage of the waveform
+        
+    vpp = maximum - minimum # get the peak to peak maximum 
 
-        scope.WriteDataToCSVFile()
+    import matplotlib.pyplot as plt
+
+    waveplot = plt.subplot(1, 2, 1)
+    waveplot.plot(data["Time"], data["Voltage"], 'b.')
+    waveplot.set_title("Waveform")
+
+    fft = scope.CalculateFFT() # calculate the fft of the waveform        
+        
+    fftplot = plt.subplot(1, 2, 2)
+    fftplot.plot(fft["Frequency"], fft["Amplitude"], 'r.')
+    fftplot.set_title("FFT")
+
+    input("Press Any Key to Continue")
+
+    plt.close(fftplot)
+    plt.close(waveplot)
+
+    maxamp = np.amax(fft['Amplitude'])
+    maxindex = np.where(fft['Amplitude'] == maxamp)
+
+    leftband = fft['Frequency'][maxindex[0][0]]
+    rightband = fft['Frequency'][maxindex[0][0]]
+        
+    for i in range(maxindex[0][0], len(fft['Frequency'])):
+        if fft['Amplitude'][i] <= maxamp / 2:
+            rightband = fft["Frequency"][i - 1]
+            break
+
+    for i in range(maxindex[0][0], 0, -1):
+        if fft['Amplitude'][i] <= maxamp / 2:
+            leftband = fft["Frequency"][i + 1]
+            break
+
+    bandwidth = rightband - leftband
+
+    print(f"Vpp: {vpp} Bandwidth: {bandwidth}")
+
+    scope.WriteDataToCSVFile()
 
 
