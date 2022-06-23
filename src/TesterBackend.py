@@ -80,7 +80,7 @@ class CatheterTester:
         return False, c # if we didnt pass we failed
         
         
-    def PulseEchoTest(self, channel: int = 1, filename: str = "cath.csv", duration_us: float = 6.0, ) -> bool:
+    def PulseEchoTest(self, channel: int = 1, filename: str = "cath.csv", duration_us: float = 6.0) -> bool:
         
         if not self.scope.IsConnected(): # if we aren't connected to the scope then we automatically fail
             return False
@@ -95,6 +95,7 @@ class CatheterTester:
         
         fft = self.scope.CalculateFFT() # calculate the fft of the waveform
         print(fft)
+        
         self.scope.WriteDataToCSVFile(filename + str(self.channel + 1)) # Save all of the Data to a CSV File
         
         return True, vpp
