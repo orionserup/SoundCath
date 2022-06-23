@@ -80,12 +80,12 @@ class CatheterTester:
         return False, c # if we didnt pass we failed
         
         
-    def PulseEchoTest(self, channel: int = 1, filename: str = "cath.csv", duration_us: float = 6.0) -> bool:
+    def PulseEchoTest(self, channel: int = 1, filename: str = "cath.csv") -> bool:
         
         if not self.scope.IsConnected(): # if we aren't connected to the scope then we automatically fail
             return False
         
-        data = self.scope.CaptureWaveform(channel, duration_us) # capture the waveform from the screen
+        data = self.scope.CaptureWaveform(channel) # capture the waveform from the screen
         
         minimum = min(data["Voltage"]) # find the minimum voltage of the waveform
         maximum = max(data["Voltage"]) # find the maximum voltage of the waveform
