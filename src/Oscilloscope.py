@@ -37,7 +37,7 @@ class Oscilloscope:
     def IsConnected(self) -> bool:
         return self.scope != None
 
-    def CaptureWaveform(self, channel: int, interval_us: int) -> dict[str, list]:
+    def CaptureWaveform(self, channel: int) -> dict[str, list]:
         
         self.scope.write("HEADER OFF")
         self.scope.write(f"DATa:SOURCe ch{channel}")
@@ -59,14 +59,12 @@ class Oscilloscope:
         yoff = float(self.scope.query('WFMOUTPRE:YOFF?'))
         yzero = float(self.scope.query('WFMOUTPRE:YZERO?'))
 
-        stop = int((interval_us * 10e-6 ) / inc)
-
-        self.scope.write("DATA:STOP {}".format(num_samples if stop > num_samples else stop))
+        self.scope.write("DATA:STOP {}".format(num_samples - 1))
 
         values = self.scope.query_binary_values("CURVE?", datatype = "b")
 
-        time = [i * inc for i in range(stop)]
-        voltage = [ymult * (values[i] - yoff) - yzero for i in range(stop)]
+        time = [float(i * inc) for i in range(num_samples)]
+        voltage = [float(ymult * (values[i] - yoff) - yzero) for i in range(num_samples)]
 
         self.Waveform = {"Time": time, "Voltage": voltage}
         return self.Waveform
