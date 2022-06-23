@@ -159,6 +159,6 @@ if __name__== "__main__":
 
     print(f"Vpp: {vpp} Bandwidth: {bandwidth}")
 
-    scope.WriteDataToCSVFile()
+    scope.WriteDataToCSVFile("test")
 
 
