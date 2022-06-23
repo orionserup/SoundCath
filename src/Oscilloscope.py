@@ -51,8 +51,6 @@ class Oscilloscope:
         yoff = float(self.scope.query('WFMOUTPRE:YOFF?'))
         yzero = float(self.scope.query('WFMOUTPRE:YZERO?'))
         
-        num_samples = int(self.scope.query("HORIZONTAL:RECORD?"))
-
         self.scope.write("DATA:STOP {}".format(num_samples))
 
         self.scope.write("ACQUIRE:STATE OFF")
