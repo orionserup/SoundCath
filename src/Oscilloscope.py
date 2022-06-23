@@ -103,7 +103,7 @@ class Oscilloscope:
         return self.fft
 
     def WriteDataToCSVFile(self, filename: str) -> None:    
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        os.makedirs(os.path.dirname(os.getcwd() + '\\' + filename), exist_ok=True)
 
         with open(filename + "wave.csv", "w") as wavefile:
             writer = csv.writer(wavefile)
@@ -123,10 +123,8 @@ if __name__== "__main__":
     atexit.register(input, "Press Any Key To Continue")
 
     scope = Oscilloscope()
-    data = []
-    if(scope.IsConnected()):
-        scope.CaptureWaveform(1)
-        data = scope.WindowWaveform(0, 9.0)
+        
+    data = scope.CaptureWaveform(1) # capture the waveform from the screen
         
     minimum = min(data["Voltage"]) # find the minimum voltage of the waveform
     maximum = max(data["Voltage"]) # find the maximum voltage of the waveform
@@ -135,15 +133,19 @@ if __name__== "__main__":
 
     import matplotlib.pyplot as plt
 
-    waveplot = plt.subplot(1, 2, 1)
-    waveplot.plot(data["Time"], data["Voltage"], 'b.')
-    waveplot.set_title("Waveform")
+    fig, plots = plt.subplots(2, 1)        
+    plots[0].plot(data["Time"], data["Voltage"], 'b-')
+    plots[0].set_xlabel("Time")
+    plots[0].set_ylabel("Voltage")
 
     fft = scope.CalculateFFT() # calculate the fft of the waveform        
         
-    fftplot = plt.subplot(1, 2, 2)
-    fftplot.plot(fft["Frequency"], fft["Amplitude"], 'r.')
-    fftplot.set_title("FFT")
+    plots[1].plot(fft["Frequency"], fft["Amplitude"], 'r-')
+    plots[1].set_xlabel("Frequency")
+    plots[1].set_ylabel("Amplitude")    
+
+    fig.tight_layout()
+    plt.show(block=False)
 
     maxamp = np.amax(fft['Amplitude'])
     maxindex = np.where(fft['Amplitude'] == maxamp)

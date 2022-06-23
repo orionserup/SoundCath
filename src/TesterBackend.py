@@ -92,21 +92,7 @@ class CatheterTester:
         
         vpp = maximum - minimum # get the peak to peak maximum 
 
-        import matplotlib.pyplot as plt
-
-        fig, plots = plt.subplots(2, 1)        
-        plots[0].plot(data["Time"], data["Voltage"], 'b-')
-        plots[0].set_xlabel("Time")
-        plots[0].set_ylabel("Voltage")
-
         fft = self.scope.CalculateFFT() # calculate the fft of the waveform        
-            
-        plots[1].plot(fft["Frequency"], fft["Amplitude"], 'r-')
-        plots[1].set_xlabel("Frequency")
-        plots[1].set_ylabel("Amplitude")    
-
-        fig.tight_layout()
-        plt.show(block=False)
 
         maxamp = np.amax(fft['Amplitude'])
         maxindex = np.where(fft['Amplitude'] == maxamp)
