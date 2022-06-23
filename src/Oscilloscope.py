@@ -70,8 +70,6 @@ class Oscilloscope:
         self.Waveform["Time"] = timeaxis
         self.Waveform["Voltage"] = voltage
 
-        print(self.Waveform['Time'])
-
         return self.Waveform
 
     def WindowWaveform(self, initial_us: np.double = 0.0, window_size_us: float = 5.0) -> dict[str, list]:
@@ -104,7 +102,7 @@ class Oscilloscope:
 
         writer = csv.writer(open(filename + "wave.csv", "w"))
         for i in len(self.GetWaveform()["Time"]):
-            writer.writerow([self.fft["Time"][i], self.fft["Voltage"][i]])        
+            writer.writerow([self.Waveform["Time"][i], self.Waveform["Voltage"][i]])        
                 
         writer = csv.writer(open(filename + "fft.csv", "w"))
         for i in len(self.GetFFT()["Frequency"]):
