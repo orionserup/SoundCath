@@ -71,7 +71,7 @@ class Oscilloscope:
         self.Waveform = {"Time": time, "Voltage": voltage}
         return self.Waveform
 
-    def WindowWaveform(self, initial_us: np.double = 0.0, window_size_us: np.double = 5.0) -> dict[str, list]:
+    def WindowWaveform(self, initial_us: np.double = 0.0, window_size_us: float = 5.0) -> dict[str, list]:
         deltat = self.Waveform["Time"][1] - self.Waveform["Time"][0]
 
         n = int(initial_us/(deltat*1000000))
@@ -84,7 +84,7 @@ class Oscilloscope:
         return self.Waveform
 
     def CalculateFFT(self) -> dict[str, list]:
-        
+
         amp = np.abs(rfft(self.Waveform["Voltage"]))  # run the fft on the voltage values get the magnitude of the amplitude
         freq = rfftfreq(len(self.Waveform["Time"]), self.Waveform["Time"][1]- self.Waveform["Time"][0])  # scale the axis to the sampling period
         

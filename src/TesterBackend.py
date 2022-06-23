@@ -95,16 +95,16 @@ class CatheterTester:
         fft = self.scope.CalculateFFT() # calculate the fft of the waveform
 
         maxamp = max(fft['Amplitude'])
-        maxindex = fft['Amplitude'].index(maxamp)
+        maxindex = np.where(fft['Amplitude'] == maxamp)
 
-        leftband = fft['Frequency'][maxindex]
-        rightband = fft['Frequency'][maxindex]
+        leftband = fft['Frequency'][maxindex[0][0]]
+        rightband = fft['Frequency'][maxindex[0][0]]
         
-        for i in range(maxamp, len(fft['Frequency'])):
+        for i in range(maxindex[0][0], len(fft['Frequency'])):
             if fft['Amplitude'][i] <= maxamp / 2:
                 rightband = fft["Frequency"][i]
 
-        for i in range(maxamp, 0, -1):
+        for i in range(maxindex[0][0], 0, -1):
             if fft['Amplitude'][i] <= maxamp / 2:
                 leftband = fft["Frequency"][i]
 
@@ -114,7 +114,7 @@ class CatheterTester:
 
         self.scope.WriteDataToCSVFile(filename + str(self.channel + 1)) # Save all of the Data to a CSV File
         
-        return True, vpp
+        return True, vpp, bandwidth
 
     def SetChannel(self, channel: int):
 
