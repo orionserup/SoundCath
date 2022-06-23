@@ -59,14 +59,16 @@ class Oscilloscope:
         yoff = float(self.scope.query('WFMOUTPRE:YOFF?'))
         yzero = float(self.scope.query('WFMOUTPRE:YZERO?'))
 
-        self.scope.write("DATA:STOP {}".format(num_samples - 1))
+        self.scope.write("DATA:STOP {}".format(num_samples))
 
         values = self.scope.query_binary_values("CURVE?", datatype = "b")
 
-        time = [float(i * inc) for i in range(len(values))]
+        timeaxis = [ float(i * inc) for i in range(len(values))]
         voltage = [float(ymult * (values[i] - yoff) - yzero) for i in range(len(values))]
 
-        self.Waveform = {"Time": time, "Voltage": voltage}
+        self.Waveform["Time"] = timeaxis
+        self.Waveform["Voltage"] = voltage
+
         return self.Waveform
 
     def WindowWaveform(self, initial_us: np.double = 0.0, window_size_us: float = 5.0) -> dict[str, list]:
