@@ -182,7 +182,7 @@ class TesterFrontEnd:  # a GUI front end for the test
 
     def RunPulseEchoTest(self, filename) -> bool:    
         self.TriggerWindow()
-        return self.backend.PulseEchoTest(1, filename, 10) # run the test on scope channel 1 with file name filename
+        return self.backend.PulseEchoTest(1, filename) # run the test on scope channel 1 with file name filename
         
     def RunDongleTest(self, filename) -> bool:
         return self.backend.DongleTest(filename) # Run the Dongle test with the Filename as its file name
