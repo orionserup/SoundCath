@@ -63,11 +63,14 @@ class Oscilloscope:
 
         values = self.scope.query_binary_values("CURVE?", datatype = "b")
 
-        timeaxis = [ float(i * inc) for i in range(len(values))]
-        voltage = [float(ymult * (values[i] - yoff) - yzero) for i in range(len(values))]
+        timeaxis = [i * inc for i in range(len(values))]
+
+        voltage = [ymult * (values[i] - yoff) - yzero for i in range(len(values))]
 
         self.Waveform["Time"] = timeaxis
         self.Waveform["Voltage"] = voltage
+
+        print(self.Waveform['Time'])
 
         return self.Waveform
 
@@ -90,7 +93,7 @@ class Oscilloscope:
         
         self.fft["Frequency"] = freqaxis
         self.fft["Amplitude"] = amp
-        
+
         return self.fft
 
     def GetFFT(self) -> dict[str, list]:
@@ -99,15 +102,13 @@ class Oscilloscope:
     def WriteDataToCSVFile(self, filename: str) -> None:    
         os.makedirs(os.path.dirname(filename), exist_ok=True)
 
-        if self.Waveform is not None:
-            writer = csv.writer(open(filename + "wave.csv", "w"))
-            for i in len(self.Waveform["Time"]):
-                writer.writerow([self.fft["Time"][i], self.fft["Voltage"][i]])        
+        writer = csv.writer(open(filename + "wave.csv", "w"))
+        for i in len(self.GetWaveform()["Time"]):
+            writer.writerow([self.fft["Time"][i], self.fft["Voltage"][i]])        
                 
-        if self.fft is not None:
-            writer = csv.writer(open(filename + "fft.csv", "w"))
-            for i in len(self.fft["Frequency"]):
-                writer.writerow([self.fft["Frequency"][i], self.fft["Amplitude"][i]])
+        writer = csv.writer(open(filename + "fft.csv", "w"))
+        for i in len(self.GetFFT()["Frequency"]):
+            writer.writerow([self.fft["Frequency"][i], self.fft["Amplitude"][i]])
 
 # module main function for testing
 
