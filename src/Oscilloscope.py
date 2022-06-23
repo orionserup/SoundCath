@@ -100,7 +100,6 @@ class Oscilloscope:
         return self.fft
 
     def WriteDataToCSVFile(self, filename: str) -> None:    
-        os.makedirs(os.path.dirname(os.getcwd() + '\\' + filename), exist_ok=True)
 
         with open(filename + "wave.csv", "w") as wavefile:
             writer = csv.writer(wavefile)
