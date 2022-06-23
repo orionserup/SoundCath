@@ -94,7 +94,7 @@ class CatheterTester:
 
         import matplotlib.pyplot as plt
 
-        fig, plots = plt.subplot(2, 1)        
+        fig, plots = plt.subplots(2, 1)        
         plots[0].plot(data["Time"], data["Voltage"], 'b-')
         plots[0].set_xlabel("Time")
         plots[0].set_ylabel("Voltage")
