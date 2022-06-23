@@ -94,15 +94,18 @@ class CatheterTester:
 
         import matplotlib.pyplot as plt
 
-        waveplot = plt.subplot(1, 2, 1)
-        waveplot.plot(data["Time"], data["Voltage"], 'b.')
-        waveplot.set_title("Waveform")
+        fig, plots = plt.subplot(2, 1)        
+        plots[0].plot(data["Time"], data["Voltage"], 'b-')
+        plots[0].set_xlabel("Time")
+        plots[0].set_ylabel("Voltage")
 
         fft = self.scope.CalculateFFT() # calculate the fft of the waveform        
             
-        fftplot = plt.subplot(1, 2, 2)
-        fftplot.plot(fft["Frequency"], fft["Amplitude"], 'r.')
-        fftplot.set_title("FFT")
+        plots[1].plot(fft["Frequency"], fft["Amplitude"], 'r-')
+        plots[1].set_xlabel("Frequency")
+        plots[1].set_ylabel("Amplitude")    
+
+        plt.show()
 
         maxamp = np.amax(fft['Amplitude'])
         maxindex = np.where(fft['Amplitude'] == maxamp)
@@ -123,6 +126,8 @@ class CatheterTester:
         bandwidth = rightband - leftband
 
         print(f"Vpp: {vpp} Bandwidth: {bandwidth}")
+
+        input("Press Enter To Continue")
 
         self.scope.WriteDataToCSVFile(filename + str(self.channel + 1)) # Save all of the Data to a CSV File
         
