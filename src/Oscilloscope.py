@@ -12,8 +12,8 @@ class Oscilloscope:
         rm = visa.ResourceManager() # create a VISA device manager
         devlist = rm.list_resources()  # print out all of the possible VISA Devices
         print(f"Listing VISA Devices: {devlist}")
-        self.Waveform = None
-        self.fft = None
+        self.Waveform = {}
+        self.fft = {}
         self.scope = None
         
         for dev in devlist:
@@ -86,9 +86,11 @@ class Oscilloscope:
     def CalculateFFT(self) -> dict[str, list]:
 
         amp = np.abs(rfft(self.Waveform["Voltage"]))  # run the fft on the voltage values get the magnitude of the amplitude
-        freq = rfftfreq(len(self.Waveform["Time"]), self.Waveform["Time"][1]- self.Waveform["Time"][0])  # scale the axis to the sampling period
+        freqaxis = rfftfreq(len(self.Waveform["Time"]), self.Waveform["Time"][1]- self.Waveform["Time"][0])  # scale the axis to the sampling period
         
-        self.fft = {"Frequency": freq, "Amplitude": amp}
+        self.fft["Frequency"] = freqaxis
+        self.fft["Amplitude"] = amp
+        
         return self.fft
 
     def GetFFT(self) -> dict[str, list]:
