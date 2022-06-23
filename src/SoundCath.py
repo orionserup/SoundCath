@@ -9,6 +9,7 @@ channel_switch_interval = 3 # when running all channels the time between channel
 
 vnachanneloffset = 1 << 7
 scopechanneloffset = 1 << 6
+
 class TesterFrontEnd:  # a GUI front end for the test
     def __init__(self):
         # Configure the GUI Basic Parts
@@ -31,7 +32,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.text = StringVar(self.root, "Channel " + str(self.channel)) # the string to display the channel
 
         # Variable to Store the Results of all of the Tests
-        self.passmap = { "Impedance": [], "PulseEcho": [], "Dongle": [] }
+        self.passmap = { "Impedance": [None] * tb.max_channel, "PulseEcho": [None] * tb.max_channel, "Dongle": [None] * tb.max_channel}
         self.backend = tb.CatheterTester() # Backend tester that does the actual work 
 
         self.window = ttk.Frame(self.root)  # All widget elements
