@@ -100,8 +100,11 @@ class Oscilloscope:
     def WriteDataToCSVFile(self, filename: str) -> None:    
         os.makedirs(os.path.dirname(filename), exist_ok=True)
 
+        print(self.Waveform)
+        print(self.fft)
+
         writer = csv.writer(open(filename + "wave.csv", "w"))
-        for i in len(self.GetWaveform()["Time"]):
+        for i in len(self.Waveform["Time"]):
             writer.writerow([self.Waveform["Time"][i], self.Waveform["Voltage"][i]])        
                 
         writer = csv.writer(open(filename + "fft.csv", "w"))
