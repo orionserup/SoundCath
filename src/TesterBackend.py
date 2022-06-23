@@ -46,7 +46,7 @@ class CatheterTester:
             
         self.vna.Sweep() # run the sweep 
   
-        data = VNA.ConvertS1PToCSV(filename + str(self.channel + 1) + "dongles11.s1p") # pull the data from the s1p file, write it to CSV
+        data = VNA.GrabS1PData(filename + str(self.channel + 1) + "dongles11.s1p") # pull the data from the s1p file, write it to CSV
         i = data["Frequency"].index(dongle_freq) # find the index from the data with the test frequency
         if i is not None:
             c = 1 / (2 * math.pi * data["Z"][i].imag * dongle_freq) # if there is an entry with the test frequency calculate the capacitance
@@ -69,13 +69,12 @@ class CatheterTester:
         
         self.vna.Sweep() # sweep and save the values to an s1p file
         
-        data = VNA.ConvertS1PToCSV(filename + str(self.channel + 1) + "s11.s1p") # convert the generated csv file and pull the data
+        data = VNA.GrabS1PData(filename + str(self.channel + 1) + "s11.s1p") # convert the generated csv file and pull the data
         i = data["Frequency"].index(channel_freq) # if we find the frequency we wanted in the data set
         if i is not None:
             c = 1 / (2 * math.pi * data["Z"][i].imag * channel_freq) # if there is an entry with the test frequency calculate the capacitance
             if c < dongle_upper_thresh and c > dongle_lower_thresh: # 1 / wC = im(Z)  # if we are within the thresholds then we are good
                 return True, c # Passed the test
-                
                 
         return False, c # if we didnt pass we failed
         
@@ -111,12 +110,13 @@ class CatheterTester:
                 break
 
         bandwidth = rightband - leftband
+        peak = (rightband + leftband) / 2
 
-        print(f"Vpp: {vpp} Bandwidth: {bandwidth}")
+        print(f"Vpp: {vpp} Bandwidth: {bandwidth} Peak Freequency {peak}")
 
-        self.scope.WriteDataToCSVFile(filename + str(self.channel + 1)) # Save all of the Data to a CSV File
+        #self.scope.WriteDataToCSVFile(filename + str(self.channel + 1)) # Save all of the Data to a CSV File
         
-        return True, vpp, bandwidth
+        return True, vpp, bandwidth, peak
 
     def SetChannel(self, channel: int):
 

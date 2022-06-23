@@ -91,10 +91,9 @@ class VNA:
 
         os.system("{} {} -debug".format(self.executable, os.getcwd() + "\\" + self.scriptfile)) # Run this Script File Through the VNA App
 
-# Takes an S1P File Parses it, grabs the data and Writes the Data to a CS File
-def ConvertS1PToCSV(filename: str) -> dict[str, complex]:
 
-    csvfile = open(filename.replace("s1p", "csv"), "w") # open the csv file for writing
+def GrabS1PData(filename: str) -> dict[str, complex]:
+
     s1pfile = open(filename, "r") #read the s1p file
 
     # read the s1p file according to the touchstone specifications
@@ -115,28 +114,36 @@ def ConvertS1PToCSV(filename: str) -> dict[str, complex]:
         imag = datem[2]
         data["Value"].append(complex(real, imag)) # scale is in MHz
 
+    if "s11" in filename:        
+        data["Z"] = [ inputimpedance * (1 + val)/(1 - val) for val in data["Value"] ] # calculate the impedance for every frequency
+
+# Takes an S1P File Parses it, grabs the data and Writes the Data to a CS File
+def ConvertS1PToCSV(filename: str) -> dict[str, complex]:
+
+    csvfile = open(filename.replace("s1p", "csv"), "w") # open the csv file for writing
+
+    # Setup an empty Dictionary To Hold the S1P Values
+    data = GrabS1PData(filename)
+
     # if we read s11 data we can get the impedance
     if "s11" in filename: 
         # open a file for writing the impedance values to
         zcsvfile = open(filename.replace("s1p", "csv").replace("s11", "z"), 'w')
         zcsvwriter = csv.writer(zcsvfile)
 
-        for (i, val) in enumerate(data["Value"]): # calculate the impedance for every frequency
-            data["Z"].append(inputimpedance * (1 + val)/(1 - val))
-            zcsvwriter.writerow([ data["Frequency"][i], data["Z"][i] ]) # Write the Frequency and Impedance for every value to a CSV File
+        zcsvwriter.writerows(zip(data["Frequency"], data["Z"])) # Write the Frequency and Impedance for every value to a CSV File
             
         zcsvfile.close() # Write the File to the System
-
+ 
     # Create A CSV File and Write All of the Data To it
     csvwriter = csv.writer(csvfile)
-    for i in range(len(data["Frequency"])):
-        csvwriter.writerow( [ data["Frequency"][i], data["Value"][i] ])
+    csvwriter.writerows(zip(data["Frequency"], data["Value"]))
 
     csvfile.close()
     s1pfile.close()
     
     return data
-
+        
 
 if __name__ == "__main__":
 
