@@ -37,7 +37,7 @@ class Oscilloscope:
     def IsConnected(self) -> bool:
         return self.scope != None
 
-    def CaptureWaveform(self, channel: int) -> dict[str, list]:
+    def CaptureWaveform(self, channel: int) -> dict[str, list[float]]:
         
         self.scope.write("HEADER OFF")
 
@@ -77,8 +77,8 @@ class Oscilloscope:
     def WindowWaveform(self, initial_us: float = 0.0, window_size_us: float = 5.0) -> dict[str, list]:
         deltat = self.Waveform["Time"][1] - self.Waveform["Time"][0]
 
-        n = int(initial_us/(deltat*1000000))
-        d = int(window_size_us/(deltat*1000000))
+        n = int(initial_us * 10e-6/deltat )
+        d = int(window_size_us * 10e-6/deltat)
 
         self.Waveform = { "Time": self.Waveform["Time"][n: n + d], 'Voltage': self.Waveform["Voltage"][n: n + d] }
         return self.Waveform
@@ -89,7 +89,7 @@ class Oscilloscope:
     def CalculateFFT(self) -> dict[str, list]:
 
         amp = np.abs(rfft(self.Waveform["Voltage"]))  # run the fft on the voltage values get the magnitude of the amplitude
-        freqaxis = rfftfreq(len(self.Waveform["Time"]), self.Waveform["Time"][1]- self.Waveform["Time"][0])  # scale the axis to the sampling period
+        freqaxis = rfftfreq(len(self.Waveform["Time"]), self.Waveform["Time"][1] - self.Waveform["Time"][0])  # scale the axis to the sampling period
         
         self.fft["Frequency"] = freqaxis
         self.fft["Amplitude"] = amp
@@ -150,7 +150,7 @@ if __name__== "__main__":
     rightband = fft['Frequency'][maxindex[0][0]]
         
     for i in range(maxindex[0][0], len(fft['Frequency'])):
-        if fft['Amplitude'][i] <= maxamp / 2:
+        if fft['Amplitude'][i] <= maxamp / 2: # -3db cutoff aka half of the max amplitude
             rightband = fft["Frequency"][i - 1]
             break
 
@@ -161,7 +161,7 @@ if __name__== "__main__":
 
     bandwidth = rightband - leftband
 
-    print(f"Vpp: {vpp} Bandwidth: {bandwidth}")
+    print(f"Vpp: {vpp} Bandwidth: {bandwidth} Peak Frequency: { (leftband + rightband) / 2 }")
 
     scope.WriteDataToCSVFile("test")
 

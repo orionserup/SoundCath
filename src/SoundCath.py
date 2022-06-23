@@ -31,7 +31,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.text = StringVar(self.root, "Channel " + str(self.channel)) # the string to display the channel
 
         # Variable to Store the Results of all of the Tests
-        self.passmap = { "Impedance": [(None, None)] * tb.max_channel, "PulseEcho": [(None, None)] * tb.max_channel, "Dongle": [(None, None)] * tb.max_channel }
+        self.passmap = { "Impedance": [], "PulseEcho": [], "Dongle": [] }
         self.backend = tb.CatheterTester() # Backend tester that does the actual work 
 
         self.window = ttk.Frame(self.root)  # All widget elements
@@ -171,6 +171,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         path = "\\".join(filename.split("\\")[0:-1]) # create the path of the file if it wasn't already there
 
         os.makedirs(path, exist_ok=True)
+        
         if self.allchannels.get() != 0:
             self.RunAllChannelTests(filename)
 
@@ -202,18 +203,27 @@ class TesterFrontEnd:  # a GUI front end for the test
             print(self.backend.arduino.ReadLine())
             
     def GenerateReport(self): # Generates a CSV Report with all of the results
-        os.makedirs(os.path.dirname(os.getcwd() + self.filename.get() + 'report.csv'), exist_ok=True)
-        file = open(self.filename.get() + 'report.csv', 'w')
-        writer = csv.writer(file)
-        
-        writer.writerow([" ", "(Passed, Value)", "(Passed, Value)", "(Passed, Value)"])
-        writer.writerow(["Channel", "Z Test", "Dongle Test", "PE"]);
-        for (i, val) in enumerate(zip(self.passmap["Impedance"], self.passmap["Dongle"], self.passmap["PulseEcho"])): 
-            row = [i]
-            row.append(val)    
-            writer.writerow(row)
+
+        filename = os.getcwd() + '\\' + self.filename.get() 
+
+        with open(filename + 'PEReport.csv', 'w') as pefile:
+            pewriter = csv.writer(pefile)
             
-        file.close()
+            pewriter.writerow(["Channel", "Passed", "Vpp", "Bandwidth", "Center Frequency"])
+            pewriter.writerows(zip(range(len(self.passmap["PulseEcho"])), self.passmap["PulseEcho"]) )
+
+        with open(filename + 'ZReport.csv', 'w') as zfile:
+            zwriter = csv.writer(zfile)
+            
+            zwriter.writerow(["Channel", "Capacitance"])
+            zwriter.writerows(zip(range(len(self.passmap["Impendance"])), self.passmap["Impedance"]) )
+        
+        with open(filename + "DongleReport", 'w') as donglefile:
+            donglewriter = csv.writer(donglefile)
+            
+            donglewriter.writerow(["Channel", "Capacitance"])
+            donglewriter.writerows(zip(range(len(self.passmap["Dongle"])), self.passmap["Dongle"]))
+            
 
 if __name__ == "__main__":
 
