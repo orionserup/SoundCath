@@ -68,7 +68,7 @@ class Oscilloscope:
         num_samples = int(self.scope.query("HORIZONTAL:RECORD?"))
         self.scope.write("DATA:STOP {}".format(num_samples))
 
-        values = self.scope.query_binary_values('CURV?', datatype='d', is_big_endian=True)
+        values = self.scope.query_binary_values('CURV?', datatype='b')
 
         timeaxis = [i * xinc for i in range(len(values))]
 
