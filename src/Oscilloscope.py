@@ -96,6 +96,17 @@ class Oscilloscope:
 
         return self.fft
 
+    def WindowFFT(self, start_freq: float, window_size: float) -> dist[str, list[float]]:
+
+        deltaf = self.fft["Frequency"][1] - self.fft["Frequency"][0]
+        f0 = self.fft["Frequency"][0]
+
+        n = int((start_freq - f0) / deltaf)
+        d = int(window_size / deltaf)
+
+        self.fft = { "Frequency": self.fft["Frequency"][n: n + d], "Amplitude": self.fft["Amplitude"][n: n + d] }
+        return self.fft
+
     def GetFFT(self) -> dict[str, list]:
         return self.fft
 
@@ -135,8 +146,9 @@ if __name__== "__main__":
     plots[0].set_xlabel("Time")
     plots[0].set_ylabel("Voltage")
 
-    fft = scope.CalculateFFT() # calculate the fft of the waveform        
-        
+    scope.CalculateFFT() # calculate the fft of the waveform        
+    fft = scope.WindowFFT(1e6, 8e6)
+
     plots[1].plot(fft["Frequency"], fft["Amplitude"], 'r-')
     plots[1].set_xlabel("Frequency")
     plots[1].set_ylabel("Amplitude")    
