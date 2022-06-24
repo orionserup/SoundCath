@@ -113,7 +113,7 @@ class CatheterTester:
         bandwidth = rightband - leftband
         peak = (rightband + leftband) / 2
 
-        print(f"Vpp: {vpp} Bandwidth: {bandwidth} Peak Freequency {peak}")
+        print(f"Vpp: {vpp} Bandwidth: {bandwidth} Peak Frequency {peak}")
 
         #self.scope.WriteDataToCSVFile(filename + str(self.channel + 1)) # Save all of the Data to a CSV File
         

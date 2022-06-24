@@ -120,8 +120,9 @@ if __name__== "__main__":
 
     scope = Oscilloscope()
         
-    data = scope.CaptureWaveform(1) # capture the waveform from the screen
-        
+    scope.CaptureWaveform(1) # capture the waveform from the screen
+    data = scope.WindowWaveform(4.0, 6.0)
+
     minimum = min(data["Voltage"]) # find the minimum voltage of the waveform
     maximum = max(data["Voltage"]) # find the maximum voltage of the waveform
         
@@ -163,6 +164,5 @@ if __name__== "__main__":
 
     print(f"Vpp: {vpp} Bandwidth: {bandwidth} Peak Frequency: { (leftband + rightband) / 2 }")
 
-    scope.WriteDataToCSVFile("test")
 
 
