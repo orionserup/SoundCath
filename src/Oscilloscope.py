@@ -121,7 +121,7 @@ if __name__== "__main__":
     scope = Oscilloscope()
         
     scope.CaptureWaveform(1) # capture the waveform from the screen
-    data = scope.WindowWaveform(5.0, 4.0)
+    data = scope.WindowWaveform(4.8, .25)
 
     minimum = min(data["Voltage"]) # find the minimum voltage of the waveform
     maximum = max(data["Voltage"]) # find the maximum voltage of the waveform
