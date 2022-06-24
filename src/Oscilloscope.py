@@ -96,7 +96,7 @@ class Oscilloscope:
 
         return self.fft
 
-    def WindowFFT(self, start_freq: float, window_size: float) -> dist[str, list[float]]:
+    def WindowFFT(self, start_freq: float, window_size: float) -> dict[str, list[float]]:
 
         deltaf = self.fft["Frequency"][1] - self.fft["Frequency"][0]
         f0 = self.fft["Frequency"][0]
