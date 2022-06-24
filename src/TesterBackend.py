@@ -84,8 +84,9 @@ class CatheterTester:
         if not self.scope.IsConnected(): # if we aren't connected to the scope then we automatically fail
             return False
         
-        data = self.scope.CaptureWaveform(channel) # capture the waveform from the screen
-        
+        self.scope.CaptureWaveform(channel) # capture the waveform from the screen
+        data = self.scope.WindowWaveform(3.0, 6.0)
+
         minimum = min(data["Voltage"]) # find the minimum voltage of the waveform
         maximum = max(data["Voltage"]) # find the maximum voltage of the waveform
         
