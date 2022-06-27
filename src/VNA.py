@@ -92,7 +92,7 @@ class VNA:
         os.system("{} {} -debug".format(self.executable, os.getcwd() + "\\" + self.scriptfile)) # Run this Script File Through the VNA App
 
 
-def GrabS1PData(filename: str) -> dict[str, complex]:
+def GrabS1PData(filename: str) -> dict[str, list[complex]]:
 
     s1pfile = open(filename, "r") #read the s1p file
 
@@ -101,21 +101,25 @@ def GrabS1PData(filename: str) -> dict[str, complex]:
     s1pfile.readline()
 
     # Setup an empty Dictionary To Hold the S1P Values
-    data = {"Frequency": [], "Value": [], "Z": []}
+    data = {"Frequency": [None], "Value": [None], "Z": [None]}
 
     # line for line extract the data
     for line in s1pfile:
+
         items = ' '.join(line.split()) # get rid of the extra spaces to make it uniform and extractable
         datem = [float(item) for item in items.split()] # pull all of the space seperated values and put them into a list
 
-        data["Frequency"].append(1000000 * datem[0]) # Frequency in units of MHz
+        data["Frequency"].append(1e6 * datem[0]) # Frequency in units of MHz
         
         real = datem[1]
         imag = datem[2]
+
         data["Value"].append(complex(real, imag)) # scale is in MHz
 
     if "s11" in filename:        
         data["Z"] = [ inputimpedance * (1 + val)/(1 - val) for val in data["Value"] ] # calculate the impedance for every frequency
+
+    return data
 
 # Takes an S1P File Parses it, grabs the data and Writes the Data to a CS File
 def ConvertS1PToCSV(filename: str) -> dict[str, complex]:
@@ -141,8 +145,7 @@ def ConvertS1PToCSV(filename: str) -> dict[str, complex]:
 
     csvfile.close()
     s1pfile.close()
-    
-    return data
+
         
 
 if __name__ == "__main__":

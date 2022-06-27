@@ -35,7 +35,7 @@ class Oscilloscope:
         self.scope = None
 
     def IsConnected(self) -> bool:
-        return self.scope != None
+        return self.scope is not None
 
     def CaptureWaveform(self, channel: int) -> dict[str, list[float]]:
         
@@ -122,7 +122,7 @@ class Oscilloscope:
 
 # module main function for testing
 
-if __name__== "__main__":
+if __name__ == "__main__":
 
     import matplotlib.pyplot as plt
 

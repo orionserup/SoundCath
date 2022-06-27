@@ -18,6 +18,18 @@ channel_upper_thresh = 100e-12
 channel_lower_thresh = 80e-12
 channel_freq = 800e3
 
+scope_window_start_us = 4.95
+scope_window_width_us = .2
+
+vpp_lower_thresh = 0.0
+vpp_upper_thresh = 10.0
+
+bandwidth_lower_thresh = 0.0
+bandwidth_upper_thresh = 10e6
+
+peak_freq_lower_thresh = 0.0
+peak_freq_upper_thresh = 10e6
+
 scope_sample_interval_ns = 1 # sampling period of oscilloscope
 
 class CatheterTester:
@@ -47,7 +59,9 @@ class CatheterTester:
         self.vna.Sweep() # run the sweep 
   
         data = VNA.GrabS1PData(filename + str(self.channel + 1) + "dongles11.s1p") # pull the data from the s1p file, write it to CSV
+
         i = data["Frequency"].index(dongle_freq) # find the index from the data with the test frequency
+
         if i is not None:
             c = 1 / (2 * math.pi * data["Z"][i].imag * dongle_freq) # if there is an entry with the test frequency calculate the capacitance
             if c < dongle_upper_thresh and c > dongle_lower_thresh: # 1 / wC = im(Z)  # if we are within the thresholds then we are good
@@ -70,7 +84,10 @@ class CatheterTester:
         self.vna.Sweep() # sweep and save the values to an s1p file
         
         data = VNA.GrabS1PData(filename + str(self.channel + 1) + "s11.s1p") # convert the generated csv file and pull the data
+        print(data)
+
         i = data["Frequency"].index(channel_freq) # if we find the frequency we wanted in the data set
+
         if i is not None:
             c = 1 / (2 * math.pi * data["Z"][i].imag * channel_freq) # if there is an entry with the test frequency calculate the capacitance
             if c < dongle_upper_thresh and c > dongle_lower_thresh: # 1 / wC = im(Z)  # if we are within the thresholds then we are good
@@ -82,10 +99,10 @@ class CatheterTester:
     def PulseEchoTest(self, channel: int = 1, filename: str = "cath.csv") -> bool:
         
         if not self.scope.IsConnected(): # if we aren't connected to the scope then we automatically fail
-            return False
+            return False, None, None, None
         
         self.scope.CaptureWaveform(channel) # capture the waveform from the screen
-        data = self.scope.WindowWaveform(3.0, 6.0)
+        data = self.scope.WindowWaveform(scope_window_start_us, scope_window_width_us)
 
         minimum = min(data["Voltage"]) # find the minimum voltage of the waveform
         maximum = max(data["Voltage"]) # find the maximum voltage of the waveform
@@ -113,7 +130,16 @@ class CatheterTester:
         bandwidth = rightband - leftband
         peak = (rightband + leftband) / 2
 
-        print(f"Vpp: {vpp} Bandwidth: {bandwidth} Peak Frequency {peak}")
+        print(f"Vpp: {vpp} Bandwidth: {bandwidth} Peak Frequency: {peak}")
+
+        if vpp < vpp_lower_thresh or vpp > vpp_upper_thresh:
+            return False, vpp, bandwidth, peak
+
+        if bandwidth < bandwidth_lower_thresh or bandwidth > bandwidth_upper_thresh:
+            return False, vpp, bandwidth, peak
+
+        if peak < peak_freq_lower_thresh or peak > peak_freq_upper_thresh:
+            return False, vpp, bandwidth, peak
 
         #self.scope.WriteDataToCSVFile(filename + str(self.channel + 1)) # Save all of the Data to a CSV File
         

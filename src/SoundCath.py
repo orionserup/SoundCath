@@ -5,8 +5,6 @@ import TesterBackend as tb
 import csv
 import os
 
-channel_switch_interval = 3 # when running all channels the time between channel
-
 vnachanneloffset = 1 << 7
 scopechanneloffset = 1 << 6
 
@@ -32,7 +30,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.text = StringVar(self.root, "Channel " + str(self.channel)) # the string to display the channel
 
         # Variable to Store the Results of all of the Tests
-        self.passmap = { "Impedance": [None] * tb.max_channel, "PulseEcho": [None] * tb.max_channel, "Dongle": [None] * tb.max_channel}
+        self.passmap = { "Impedance": [False, None] * tb.max_channel, "PulseEcho": [False, None, None, None] * tb.max_channel, "Dongle": [False, None] * tb.max_channel}
         self.backend = tb.CatheterTester() # Backend tester that does the actual work 
 
         self.window = ttk.Frame(self.root)  # All widget elements
@@ -77,11 +75,11 @@ class TesterFrontEnd:  # a GUI front end for the test
         PassWindow.geometry('100x200')
 
         def Pass():
-            self.passmap["PulseEcho"][self.channel] = "Pass"
+            self.passmap["PulseEcho"][self.channel] = True, None, None, None
             PassWindow.destroy()
 
         def Fail():
-            self.passmap["PulseEcho"][self.channel] = "Fail"
+            self.passmap["PulseEcho"][self.channel] = True, None, None, None
             PassWindow.destroy()
 
         passbutton = ttk.Button(PassWindow, text = "Pass", command = Pass)
@@ -91,7 +89,7 @@ class TesterFrontEnd:  # a GUI front end for the test
 
         PassWindow.mainloop()
 
-        # Draws a Small Window with two buttons and 
+        # Draws a Small Window with One button to trigger the  
     def TriggerWindow(self) -> None:
         PassWindow = Tk()
         PassWindow.geometry('100x100')
@@ -128,7 +126,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         else:
             channel |= vnachanneloffset
 
-        for i in range(tb.max_channel): # going over all of the Channels
+        for i in range(5): # going over all of the Channels
             
             self.backend.SetChannel(i) # Connect the Channel
         
@@ -140,8 +138,6 @@ class TesterFrontEnd:  # a GUI front end for the test
   
             if self.dongletest.get() != 0:
                 self.passmap["Dongle"][i] = self.RunDongleTest(filename) 
-
-            time.sleep(channel_switch_interval) # wait a set amount of time between channels
 
         self.GenerateReport()
             
