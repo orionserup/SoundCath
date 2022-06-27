@@ -9,6 +9,7 @@ vnachanneloffset = 1 << 7
 scopechanneloffset = 1 << 6
 
 class TesterFrontEnd:  # a GUI front end for the test
+
     def __init__(self):
         # Configure the GUI Basic Parts
         self.root = Tk() # setup the GUI base
@@ -51,7 +52,8 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.results = ttk.Button(self.root, text = "Results", command = self.DisplayPassMap )
         self.reportbutton = ttk.Button(self.root, text = "Generate Report", command = self.GenerateReport)
 
-    def Draw(self): # positions and draws all of the widgets in the frame
+    def Draw(self) -> None: # positions and draws all of the widgets in the frame
+
         self.upbutton.place(x = 400, y = 50)
         self.label.place(x = 240 , y = 50)
         self.downbutton.place(x = 50, y = 50)
@@ -104,6 +106,7 @@ class TesterFrontEnd:  # a GUI front end for the test
 
     # Displays the List of the tests results for all tests
     def DisplayPassMap(self) -> None:
+
         Window = Tk()
         ImpedanceLabel = ttk.Label(Window, style = "TLabel",text = f"Impendance Test Results: {self.passmap['Impedance']}")
         PulseEchoLabel = ttk.Label(Window, style = "TLabel",  text = f"Pulse Echo Test Results: {self.passmap['PulseEcho']}")
@@ -142,7 +145,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.GenerateReport()
             
      
-    def RunSingleChannelTest(self, channel, filename):
+    def RunSingleChannelTest(self, channel, filename) -> None:
 
         channel = self.channel
         if(self.impedancetest.get() != 0 or self.dongletest.get() != 0 or self.pulseechotest.get() != 0): # repeat the same process with the impedance test/dongle test
@@ -162,7 +165,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             self.passmap["Dongle"][self.channel - 1] =  self.RunDongleTest(filename) 
 
 
-    def RunTests(self): # run the tests according to the parameters
+    def RunTests(self) -> None: # run the tests according to the parameters
         
         filename = os.getcwd() + '\\' + self.filename.get() 
         path = "\\".join(filename.split("\\")[0:-1]) # create the path of the file if it wasn't already there
@@ -175,31 +178,31 @@ class TesterFrontEnd:  # a GUI front end for the test
         else:
             self.RunSingleChannelTest(self.channel, filename)
 
-    def RunImpedanceTest(self, filename) -> bool:
+    def RunImpedanceTest(self, filename) -> tuple[bool, float, float, float]:
         return self.backend.ImpedanceTest(filename) # run the test with the filename
 
-    def RunPulseEchoTest(self, filename) -> bool:    
+    def RunPulseEchoTest(self, filename) -> tuple[bool, float]:    
         self.TriggerWindow()
         return self.backend.PulseEchoTest(1, filename) # run the test on scope channel 1 with file name filename
         
-    def RunDongleTest(self, filename) -> bool:
+    def RunDongleTest(self, filename) -> tuple[bool, float]:
         return self.backend.DongleTest(filename) # Run the Dongle test with the Filename as its file name
 
-    def IncChannel(self): # increments the channel and displays the change
+    def IncChannel(self) -> None: # increments the channel and displays the change
         if(self.channel < tb.max_channel):
             self.channel += 1
             self.text.set("Channel " + str(self.channel))
             self.backend.SetChannel(self.channel - 1)
             print(self.backend.arduino.ReadLine())
 
-    def DecChannel(self): # Decrements the channel and display the change
+    def DecChannel(self) -> None: # Decrements the channel and display the change
         if(self.channel > 0):
             self.channel -= 1
             self.text.set("Channel " + str(self.channel))
             self.backend.SetChannel(self.channel - 1)
             print(self.backend.arduino.ReadLine())
             
-    def GenerateReport(self): # Generates a CSV Report with all of the results
+    def GenerateReport(self) -> None: # Generates a CSV Report with all of the results
 
         filename = os.getcwd() + '\\' + self.filename.get() 
 
@@ -207,19 +210,19 @@ class TesterFrontEnd:  # a GUI front end for the test
             pewriter = csv.writer(pefile)
             
             pewriter.writerow(["Channel", "Passed", "Vpp", "Bandwidth", "Center Frequency"])
-            pewriter.writerows(zip(range(len(self.passmap["PulseEcho"])), self.passmap["PulseEcho"]) )
+            pewriter.writerows(zip(range(1, len(self.passmap["PulseEcho"]) + 1), self.passmap["PulseEcho"]) )
 
         with open(filename + 'ZReport.csv', 'w') as zfile:
             zwriter = csv.writer(zfile)
             
             zwriter.writerow(["Channel", "Capacitance"])
-            zwriter.writerows(zip(range(len(self.passmap["Impendance"])), self.passmap["Impedance"]) )
+            zwriter.writerows(zip(range(1, len(self.passmap["Impendance"]) + 1), self.passmap["Impedance"]) )
         
         with open(filename + "DongleReport", 'w') as donglefile:
             donglewriter = csv.writer(donglefile)
             
             donglewriter.writerow(["Channel", "Capacitance"])
-            donglewriter.writerows(zip(range(len(self.passmap["Dongle"])), self.passmap["Dongle"]))
+            donglewriter.writerows(zip(range(1, len(self.passmap["Dongle"]) + 1), self.passmap["Dongle"]))
             
 
 if __name__ == "__main__":
