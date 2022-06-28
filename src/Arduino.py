@@ -19,7 +19,7 @@ class Arduino:
         self.port = None
 
     def IsConnected(self) -> bool:
-        return self.port != None
+        return self.port is not None
 
     def Write(self, data: bytes) -> int:
         if self.port is not None:

@@ -71,19 +71,15 @@ class TesterFrontEnd:  # a GUI front end for the test
 
         self.window.mainloop()
         
-
-        # Draws a Small Window with One button to trigger the  
+    # Draws a Small Window with One button to trigger the  
     def TriggerWindow(self) -> None:
-        PassWindow = Tk()
-        PassWindow.geometry('100x100')
+        Window = Tk()
+        Window.geometry('100x100')
 
-        def Destroy():
-            PassWindow.destroy()
+        button = ttk.Button(Window, text = "Capture", command = Window.destroy)
+        button.place(x = 0, y = 0, height = 100, width = 100)
 
-        passbutton = ttk.Button(PassWindow, text = "Capture", command = Destroy)
-        passbutton.place(x = 0, y = 0, height = 100, width = 100)
-
-        PassWindow.mainloop()
+        Window.mainloop()
 
     # Displays the List of the tests results for all tests
     def DisplayPassMap(self) -> None:
@@ -185,7 +181,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             
     def GenerateReport(self) -> None: # Generates a CSV Report with all of the results
 
-        filename = os.getcwd() + "\\" + self.filename.get() 
+        filename = os.getcwd() + '\\' + self.filename.get() 
 
         with open(filename + 'PEReport.csv', 'w') as pefile:
             pewriter = csv.writer(pefile)
