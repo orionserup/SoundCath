@@ -197,7 +197,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             zwriter = csv.writer(zfile)
             
             zwriter.writerow(["Channel", "Capacitance"])
-            zwriter.writerows(zip(range(1, len(self.passmap["Impendance"]) + 1), self.passmap["Impedance"]) )
+            zwriter.writerows(zip(range(1, len(self.passmap["Impedance"]) + 1), self.passmap["Impedance"]) )
         
         with open(filename + "DongleReport", 'w') as donglefile:
             donglewriter = csv.writer(donglefile)
