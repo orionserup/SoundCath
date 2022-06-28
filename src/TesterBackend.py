@@ -60,6 +60,8 @@ class CatheterTester:
   
         data = VNA.GrabS1PData(filename + str(self.channel + 1) + "dongles11.s1p") # pull the data from the s1p file, write it to CSV
 
+        print(data)
+
         i = data["Frequency"].index(dongle_freq) # find the index from the data with the test frequency
 
         if i is not None:
@@ -84,6 +86,7 @@ class CatheterTester:
         self.vna.Sweep() # sweep and save the values to an s1p file
         
         data = VNA.GrabS1PData(filename + str(self.channel + 1) + "s11.s1p") # convert the generated csv file and pull the data
+
         print(data)
 
         i = data["Frequency"].index(channel_freq) # if we find the frequency we wanted in the data set

@@ -71,25 +71,6 @@ class TesterFrontEnd:  # a GUI front end for the test
 
         self.window.mainloop()
         
-    # Draws a Small Window with two buttons and 
-    def DisplayPassWindow(self) -> None:
-        PassWindow = Tk()
-        PassWindow.geometry('100x200')
-
-        def Pass():
-            self.passmap["PulseEcho"][self.channel] = True, None, None, None
-            PassWindow.destroy()
-
-        def Fail():
-            self.passmap["PulseEcho"][self.channel] = True, None, None, None
-            PassWindow.destroy()
-
-        passbutton = ttk.Button(PassWindow, text = "Pass", command = Pass)
-        failbutton = ttk.Button(PassWindow, text = "Fail", command = Fail)
-        passbutton.place(x = 0, y = 0, height = 100, width = 100)
-        failbutton.place(x = 0, y = 100, height = 100, width = 100)
-
-        PassWindow.mainloop()
 
         # Draws a Small Window with One button to trigger the  
     def TriggerWindow(self) -> None:
@@ -204,7 +185,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             
     def GenerateReport(self) -> None: # Generates a CSV Report with all of the results
 
-        filename = os.getcwd() + '\\' + self.filename.get() 
+        filename = os.getcwd() + "\\" + self.filename.get() 
 
         with open(filename + 'PEReport.csv', 'w') as pefile:
             pewriter = csv.writer(pefile)

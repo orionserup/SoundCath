@@ -101,7 +101,7 @@ def GrabS1PData(filename: str) -> dict[str, list[complex]]:
     s1pfile.readline()
 
     # Setup an empty Dictionary To Hold the S1P Values
-    data = {"Frequency": [None], "Value": [None], "Z": [None]}
+    data = {"Frequency": [], "Value": [], "Z": []}
 
     # line for line extract the data
     for line in s1pfile:
