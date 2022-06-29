@@ -73,12 +73,11 @@ class TesterFrontEnd:  # a GUI front end for the test
         
     # Draws a Small Window with One button to trigger the  
     def TriggerWindow(self) -> None:
-        Window = Toplevel()
-        Window.geometry('100x100')
+        window = Tk()
 
-        button = ttk.Button(Window, text = "Capture", command = Window.destroy)
-        button.place(x = 0, y = 0, height = 100, width = 100)
-        Window.mainloop()
+        button = ttk.Button(window, text = "Capture", command = window.destroy)
+        button.pack()
+        window.mainloop()
 
         
     # Displays the List of the tests results for all tests
