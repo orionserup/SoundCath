@@ -110,6 +110,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             self.backend.SetChannel(i) # Connect the Channel
         
             if self.pulseechotest.get():
+                TriggerWindow()
                 self.passmap["PulseEcho"][i] = self.RunPulseEchoTest(filename)  # Run the Tests and record the Results
    
             if self.impedancetest.get():
@@ -132,6 +133,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.backend.SetChannel(channel - 1);
     
         if self.pulseechotest.get() != 0:
+            TriggerWindow()
             self.passmap["PulseEcho"][self.channel - 1] = self.RunPulseEchoTest(filename) # Run the Tests and record the Results
 
         if self.impedancetest.get() != 0:
@@ -158,7 +160,6 @@ class TesterFrontEnd:  # a GUI front end for the test
         return self.backend.ImpedanceTest(filename) # run the test with the filename
 
     def RunPulseEchoTest(self, filename) -> tuple[bool, float]:    
-        self.TriggerWindow()
         return self.backend.PulseEchoTest(1, filename) # run the test on scope channel 1 with file name filename
         
     def RunDongleTest(self, filename) -> tuple[bool, float]:
