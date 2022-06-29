@@ -73,14 +73,14 @@ class TesterFrontEnd:  # a GUI front end for the test
         
     # Draws a Small Window with One button to trigger the  
     def TriggerWindow(self) -> None:
-        Window = tk.TopLevel()
+        Window = TopLevel()
         Window.geometry('100x100')
 
         button = ttk.Button(Window, text = "Capture", command = Window.destroy)
         button.place(x = 0, y = 0, height = 100, width = 100)
         Window.mainloop()
 
-
+        
     # Displays the List of the tests results for all tests
     def DisplayPassMap(self) -> None:
 
@@ -88,7 +88,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         ImpedanceLabel = ttk.Label(Window, style = "TLabel",text = f"Impendance Test Results: {self.passmap['Impedance']}")
         PulseEchoLabel = ttk.Label(Window, style = "TLabel",  text = f"Pulse Echo Test Results: {self.passmap['PulseEcho']}")
         DongleLabel = ttk.Label(Window, style = "TLabel", text = f"Dongle Test Results: {self.passmap['Dongle']}")
-        Button = ttk.Button(Window, text = "Ok", command = lambda: Window.destroy())
+        Button = ttk.Button(Window, text = "Ok", command = Window.destroy)
 
         DongleLabel.pack()
         PulseEchoLabel.pack()
