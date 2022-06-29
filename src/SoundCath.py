@@ -73,7 +73,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         
     # Draws a Small Window with One button to trigger the  
     def TriggerWindow(self) -> None:
-        Window = TopLevel()
+        Window = Toplevel()
         Window.geometry('100x100')
 
         button = ttk.Button(Window, text = "Capture", command = Window.destroy)
