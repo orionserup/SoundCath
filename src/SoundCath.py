@@ -126,7 +126,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         
         if self.allchannels.get() != 0:
             for i in range(tb.max_channel):
-                self.RunSingleChannelTest(i)
+                self.RunSingleChannelTest(i, filename)
             
             self.GenerateReport()
 
