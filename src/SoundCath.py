@@ -94,32 +94,6 @@ class TesterFrontEnd:  # a GUI front end for the test
         ImpedanceLabel.pack()
         Button.pack()
         Window.mainloop()
-
-    # Goes through all of the channels and runs the selected tests
-    def RunAllChannelTests(self, filename):
-
-        channel = self.channel
-
-        if(self.impedancetest.get() != 0 or self.dongletest.get() != 0 or self.pulseechotest.get() != 0): # repeat the same process with the impedance test/dongle test
-            channel &= ~vnachanneloffset
-        else:
-            channel |= vnachanneloffset
-
-        for i in range(5): # going over all of the Channels
-            
-            self.backend.SetChannel(i) # Connect the Channel
-        
-            if self.pulseechotest.get():
-                TriggerWindow()
-                self.passmap["PulseEcho"][i] = self.RunPulseEchoTest(filename)  # Run the Tests and record the Results
-   
-            if self.impedancetest.get():
-                self.passmap["Impedance"][i] = self.RunImpedanceTest(filename) 
-  
-            if self.dongletest.get() != 0:
-                self.passmap["Dongle"][i] = self.RunDongleTest(filename) 
-
-        self.GenerateReport()
             
      
     def RunSingleChannelTest(self, channel, filename) -> None:
@@ -133,7 +107,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.backend.SetChannel(channel - 1);
     
         if self.pulseechotest.get() != 0:
-            TriggerWindow()
+            self.TriggerWindow()
             self.passmap["PulseEcho"][self.channel - 1] = self.RunPulseEchoTest(filename) # Run the Tests and record the Results
 
         if self.impedancetest.get() != 0:
@@ -151,7 +125,10 @@ class TesterFrontEnd:  # a GUI front end for the test
         os.makedirs(path, exist_ok=True)
         
         if self.allchannels.get() != 0:
-            self.RunAllChannelTests(filename)
+            for i in range(tb.max_channel):
+                self.RunSingleChannelTest(i)
+            
+            self.GenerateReport()
 
         else:
             self.RunSingleChannelTest(self.channel, filename)
