@@ -70,16 +70,8 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.filename.place(x = 300, y = 200, height = 50, width = 250)
 
         self.window.mainloop()
-        
-    # Draws a Small Window with One button to trigger the  
-    def TriggerWindow(self) -> None:
-        window = Tk()
 
-        button = ttk.Button(window, text = "Capture", command = window.destroy)
-        button.pack()
-        window.mainloop()
 
-        
     # Displays the List of the tests results for all tests
     def DisplayPassMap(self) -> None:
 
@@ -98,7 +90,7 @@ class TesterFrontEnd:  # a GUI front end for the test
      
     def RunSingleChannelTest(self, channel, filename) -> None:
 
-        channel = self.channel
+        channel = self.channel -1
         if(self.impedancetest.get() != 0 or self.dongletest.get() != 0 or self.pulseechotest.get() != 0): # repeat the same process with the impedance test/dongle test
             channel &= ~vnachanneloffset
         else:
@@ -107,7 +99,6 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.backend.SetChannel(channel - 1);
     
         if self.pulseechotest.get() != 0:
-            self.TriggerWindow()
             self.passmap["PulseEcho"][self.channel - 1] = self.RunPulseEchoTest(filename) # Run the Tests and record the Results
 
         if self.impedancetest.get() != 0:
@@ -123,17 +114,25 @@ class TesterFrontEnd:  # a GUI front end for the test
         path = "\\".join(filename.split("\\")[0:-1]) # create the path of the file if it wasn't already there
 
         os.makedirs(path, exist_ok=True)
+
+        channel = self.channel - 1
+        if(self.impedancetest.get() != 0 or self.dongletest.get() != 0 or self.pulseechotest.get() != 0): # repeat the same process with the impedance test/dongle test
+            channel &= ~vnachanneloffset
+        else:
+            channel |= vnachanneloffset
         
         if self.allchannels.get() != 0:
-            for i in range(tb.max_channel):
+            span = range(channel & vnachanneloffset, channel & vnachanneloffset + 5)
+            for i in span:
                 self.RunSingleChannelTest(i, filename)
             
             self.GenerateReport()
 
         else:
-            self.RunSingleChannelTest(self.channel, filename)
+            self.RunSingleChannelTest(channel, filename)
 
     def RunImpedanceTest(self, filename) -> tuple[bool, float, float, float]:
+        input("Press Enter To Continue")
         return self.backend.ImpedanceTest(filename) # run the test with the filename
 
     def RunPulseEchoTest(self, filename) -> tuple[bool, float]:    
