@@ -98,6 +98,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.backend.SetChannel(channel - 1)
     
         if self.pulseechotest.get() != 0:
+            input("Press Enter To Continue")
             self.passmap["PulseEcho"][self.channel - 1] = self.RunPulseEchoTest(filename) # Run the Tests and record the Results
 
         if self.impedancetest.get() != 0:
