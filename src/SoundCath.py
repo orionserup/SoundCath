@@ -90,7 +90,6 @@ class TesterFrontEnd:  # a GUI front end for the test
      
     def RunSingleChannelTest(self, channel, filename) -> None:
 
-        channel = self.channel -1
         if(self.impedancetest.get() != 0 or self.dongletest.get() != 0 or self.pulseechotest.get() != 0): # repeat the same process with the impedance test/dongle test
             channel &= ~vnachanneloffset
         else:
@@ -120,7 +119,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         
         if self.allchannels.get() != 0:
             for i in range(5):
-                self.RunSingleChannelTest(i, filename)
+                self.RunSingleChannelTest(i + 1, filename)
             
             self.GenerateReport()
 
