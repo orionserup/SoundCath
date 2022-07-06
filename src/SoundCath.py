@@ -96,7 +96,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         else:
             channel |= vnachanneloffset
 
-        self.backend.SetChannel(channel - 1);
+        self.backend.SetChannel(channel - 1)
     
         if self.pulseechotest.get() != 0:
             self.passmap["PulseEcho"][self.channel - 1] = self.RunPulseEchoTest(filename) # Run the Tests and record the Results
@@ -109,30 +109,26 @@ class TesterFrontEnd:  # a GUI front end for the test
 
 
     def RunTests(self) -> None: # run the tests according to the parameters
-        
+
+        if(self.impedancetest.get() == 0 and self.dongletest.get() == 0 and self.pulseechotest.get() == 0): # repeat the same process with the impedance test/dongle test
+            return
+    
         filename = os.getcwd() + '\\' + self.filename.get() 
         path = "\\".join(filename.split("\\")[0:-1]) # create the path of the file if it wasn't already there
 
         os.makedirs(path, exist_ok=True)
-
-        channel = self.channel - 1
-        if(self.impedancetest.get() != 0 or self.dongletest.get() != 0 or self.pulseechotest.get() != 0): # repeat the same process with the impedance test/dongle test
-            channel &= ~vnachanneloffset
-        else:
-            channel |= vnachanneloffset
         
         if self.allchannels.get() != 0:
-            span = range(channel & vnachanneloffset, channel & vnachanneloffset + 5)
-            for i in span:
+            for i in range(5):
                 self.RunSingleChannelTest(i, filename)
             
             self.GenerateReport()
 
         else:
-            self.RunSingleChannelTest(channel, filename)
+            self.RunSingleChannelTest(self.channel, filename)
 
     def RunImpedanceTest(self, filename) -> tuple[bool, float, float, float]:
-        input("Press Enter To Continue")
+        time.sleep(7)
         return self.backend.ImpedanceTest(filename) # run the test with the filename
 
     def RunPulseEchoTest(self, filename) -> tuple[bool, float]:    
