@@ -4,6 +4,7 @@ import time
 import TesterBackend as tb
 import csv
 import os
+import threading
 
 vnachanneloffset = 1 << 7
 scopechanneloffset = 1 << 6
@@ -33,6 +34,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         # Variable to Store the Results of all of the Tests
         self.passmap = { "Impedance": [False, None] * tb.max_channel, "PulseEcho": [False, None, None, None] * tb.max_channel, "Dongle": [False, None] * tb.max_channel}
         self.backend = tb.CatheterTester() # Backend tester that does the actual work 
+        self.triggered = IntVar(self.root, 0)
 
         self.window = ttk.Frame(self.root)  # All widget elements
         
@@ -49,7 +51,6 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.dongletestbutton = ttk.Checkbutton(self.root, variable = self.dongletest, text = "Dongle Test")
 
         self.runbutton = ttk.Button(self.root, text = "Run Tests", command = self.RunTests) # all of the buttons to actually run the tests and get results and stuff
-        self.results = ttk.Button(self.root, text = "Results", command = self.DisplayPassMap )
         self.reportbutton = ttk.Button(self.root, text = "Generate Report", command = self.GenerateReport)
 
     def Draw(self) -> None: # positions and draws all of the widgets in the frame
@@ -65,29 +66,11 @@ class TesterFrontEnd:  # a GUI front end for the test
 
         self.reportbutton.place(x = 50, y = 300)
         self.runbutton.place(x = 400, y = 300)
-        self.results.place(x = 240, y = 300)
         self.filenamelabel.place(x = 50, y = 200)
         self.filename.place(x = 300, y = 200, height = 50, width = 250)
 
         self.window.mainloop()
-
-
-    # Displays the List of the tests results for all tests
-    def DisplayPassMap(self) -> None:
-
-        Window = Tk()
-        ImpedanceLabel = ttk.Label(Window, style = "TLabel",text = f"Impendance Test Results: {self.passmap['Impedance']}")
-        PulseEchoLabel = ttk.Label(Window, style = "TLabel",  text = f"Pulse Echo Test Results: {self.passmap['PulseEcho']}")
-        DongleLabel = ttk.Label(Window, style = "TLabel", text = f"Dongle Test Results: {self.passmap['Dongle']}")
-        Button = ttk.Button(Window, text = "Ok", command = Window.destroy)
-
-        DongleLabel.pack()
-        PulseEchoLabel.pack()
-        ImpedanceLabel.pack()
-        Button.pack()
-        Window.mainloop()
             
-     
     def RunSingleChannelTest(self, channel, filename) -> None:
 
         if(self.impedancetest.get() != 0 or self.dongletest.get() != 0 or self.pulseechotest.get() != 0): # repeat the same process with the impedance test/dongle test
@@ -98,7 +81,6 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.backend.SetChannel(channel - 1)
     
         if self.pulseechotest.get() != 0:
-            input("Press Enter To Continue")
             self.passmap["PulseEcho"][self.channel - 1] = self.RunPulseEchoTest(filename) # Run the Tests and record the Results
 
         if self.impedancetest.get() != 0:
@@ -106,10 +88,8 @@ class TesterFrontEnd:  # a GUI front end for the test
 
         if self.dongletest.get() != 0:
             self.passmap["Dongle"][self.channel - 1] =  self.RunDongleTest(filename) 
-
-
-    def RunTests(self) -> None: # run the tests according to the parameters
-
+    
+    def RunTests(self) -> None:
         if(self.impedancetest.get() == 0 and self.dongletest.get() == 0 and self.pulseechotest.get() == 0): # repeat the same process with the impedance test/dongle test
             return
     
@@ -126,15 +106,31 @@ class TesterFrontEnd:  # a GUI front end for the test
 
         else:
             self.RunSingleChannelTest(self.channel, filename)
+            
+    def CapturePopup(self) -> None:
+        window = Toplevel()
+        
+        def CaptureButtonCB() -> None:
+            self.triggered.set(1)
+            window.destroy()
+                
+        button = ttk.Button(window, text = "Capture", command = CaptureButtonCB)
+        button.pack()
+        button.wait_variable(self.triggered)
 
     def RunImpedanceTest(self, filename) -> tuple[bool, float, float, float]:
-        time.sleep(7)
+        print("Running Impedance Test")
         return self.backend.ImpedanceTest(filename) # run the test with the filename
 
     def RunPulseEchoTest(self, filename) -> tuple[bool, float]:    
+        
+        self.CapturePopup()
+        self.triggered.set(0)
+        print("Running Pulse Echo Test")
         return self.backend.PulseEchoTest(1, filename) # run the test on scope channel 1 with file name filename
         
     def RunDongleTest(self, filename) -> tuple[bool, float]:
+        print("Running Dongle Test")
         return self.backend.DongleTest(filename) # Run the Dongle test with the Filename as its file name
 
     def IncChannel(self) -> None: # increments the channel and displays the change
