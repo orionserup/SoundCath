@@ -39,10 +39,10 @@ class CatheterTester:
         self.vna = VNA.VNA() # and a VNA
         self.channel = -1 # start with no channel being connected 
 
-        # if not self.arduino.IsConnected():  # if could not connect to the arduino
-        #     print("Could Not Connect To the Arduino, Exiting")
-        #     input("Press Any Key To Exit")
-        #     exit() # leave the program
+        if not self.arduino.IsConnected():  # if could not connect to the arduino
+            print("Could Not Connect To the Arduino, Exiting")
+            input("Press Any Key To Exit")
+            exit() # leave the program
             
     def DongleTest(self, filename: str = None):
         
