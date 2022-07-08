@@ -149,25 +149,31 @@ class TesterFrontEnd:  # a GUI front end for the test
     def GenerateReport(self) -> None: # Generates a CSV Report with all of the results
 
         filename = os.getcwd() + '\\' + self.filename.get() 
-        channels = [i + 1 for i in range(len(self.passmap["PulseEcho"]))]
+        channels = [i + 1 for i in range(tb.max_channel)]
 
         with open(filename + 'PEReport.csv', 'w') as pefile:
             pewriter = csv.writer(pefile)
             
             pewriter.writerow(["Channel", "Passed", "Vpp", "Bandwidth", "Center Frequency"])
-            pewriter.writerows(zip(channels, self.passmap["PulseEcho"]) )
+            for channel in channels:
+                data = list(self.passmap["PulseEcho"])
+                pewriter.writerow(data.insert(0, channel))
 
         with open(filename + 'ZReport.csv', 'w') as zfile:
             zwriter = csv.writer(zfile)
             
-            zwriter.writerow(["Channel", "Capacitance"])
-            zwriter.writerows(zip(channels, self.passmap["Impedance"]) )
+            zwriter.writerow(["Channel", "Passed", "Capacitance"])
+            for channel in channels:
+                data = list(self.passmap["Impedance"])
+                zwriter.writerow(data.insert(0, channel))
         
         with open(filename + "DongleReport", 'w') as donglefile:
             donglewriter = csv.writer(donglefile)
             
-            donglewriter.writerow(["Channel", "Capacitance"])
-            donglewriter.writerows(zip(range(channels, self.passmap["Dongle"]))
+            donglewriter.writerow(["Channel", "Passed", "Capacitance"])
+            for channel in channels:
+                data = list(self.passmap["Dongle"])
+                donglewriter.writerow(data.insert(0, channel))
             
 
 if __name__ == "__main__":
