@@ -81,13 +81,13 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.backend.SetChannel(channel - 1)
     
         if self.pulseechotest.get() != 0:
-            self.passmap["PulseEcho"][channel - 1] = self.RunPulseEchoTest(filename) # Run the Tests and record the Results
+            self.passmap["PulseEcho"][channel - 1] = self.RunPulseEchoTest(channel, filename) # Run the Tests and record the Results
 
         if self.impedancetest.get() != 0:
-            self.passmap["Impedance"][channel - 1] = self.RunImpedanceTest(filename) 
+            self.passmap["Impedance"][channel - 1] = self.RunImpedanceTest(channel, filename) 
 
         if self.dongletest.get() != 0:
-            self.passmap["Dongle"][channel - 1] =  self.RunDongleTest(filename) 
+            self.passmap["Dongle"][channel - 1] =  self.RunDongleTest(channel, filename) 
     
     def RunTests(self) -> None:
         if(self.impedancetest.get() == 0 and self.dongletest.get() == 0 and self.pulseechotest.get() == 0): # repeat the same process with the impedance test/dongle test
@@ -118,19 +118,19 @@ class TesterFrontEnd:  # a GUI front end for the test
         button.pack()
         button.wait_variable(self.triggered)
 
-    def RunImpedanceTest(self, filename) -> tuple[bool, float, float, float]:
+    def RunImpedanceTest(self, channel, filename) -> tuple[bool, float, float, float]:
         print("Running Impedance Test")
-        return self.backend.ImpedanceTest(filename) # run the test with the filename
+        return self.backend.ImpedanceTest(channel, filename) # run the test with the filename
 
-    def RunPulseEchoTest(self, filename) -> tuple[bool, float]:    
+    def RunPulseEchoTest(self, channel, filename) -> tuple[bool, float]:    
         self.CapturePopup()
         self.triggered.set(0)
         print("Running Pulse Echo Test")
-        return self.backend.PulseEchoTest(1, filename) # run the test on scope channel 1 with file name filename
+        return self.backend.PulseEchoTest(1, channel, filename) # run the test on scope channel 1 with file name filename
         
-    def RunDongleTest(self, filename) -> tuple[bool, float]:
+    def RunDongleTest(self, channel, filename) -> tuple[bool, float]:
         print("Running Dongle Test")
-        return self.backend.DongleTest(filename) # Run the Dongle test with the Filename as its file name
+        return self.backend.DongleTest(channel, filename) # Run the Dongle test with the Filename as its file name
 
     def IncChannel(self) -> None: # increments the channel and displays the change
         if(self.channel < tb.max_channel):
@@ -156,24 +156,27 @@ class TesterFrontEnd:  # a GUI front end for the test
             
             pewriter.writerow(["Channel", "Passed", "Vpp", "Bandwidth", "Center Frequency"])
             for channel in channels:
-                data = list(self.passmap["PulseEcho"])
-                pewriter.writerow(data.insert(0, channel))
+                data = list(self.passmap["PulseEcho"][channel - 1])
+                data.insert(0, channel)
+                pewriter.writerow(data)
 
         with open(filename + 'ZReport.csv', 'w') as zfile:
             zwriter = csv.writer(zfile)
             
             zwriter.writerow(["Channel", "Passed", "Capacitance"])
             for channel in channels:
-                data = list(self.passmap["Impedance"])
-                zwriter.writerow(data.insert(0, channel))
+                data = list(self.passmap["Impedance"][channel - 1])
+                data.insert(0, channel)
+                zwriter.writerow(data)
         
         with open(filename + "DongleReport", 'w') as donglefile:
             donglewriter = csv.writer(donglefile)
             
             donglewriter.writerow(["Channel", "Passed", "Capacitance"])
             for channel in channels:
-                data = list(self.passmap["Dongle"])
-                donglewriter.writerow(data.insert(0, channel))
+                data = list(self.passmap["Dongle"][channel - 1])
+                data.insert(0, channel)
+                donglewriter.writerow(data)
             
 
 if __name__ == "__main__":

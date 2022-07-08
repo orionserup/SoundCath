@@ -4,6 +4,7 @@ import os
 import numpy as np
 import VNA
 import math
+import matplotlib.pyplot as plt
 
 vnachanneloffset = 1 << 7
 scopechanneloffset = 1 << 6
@@ -44,7 +45,7 @@ class CatheterTester:
             input("Press Any Key To Exit")
             exit() # leave the program
             
-    def DongleTest(self, filename: str = None):
+    def DongleTest(self, channel, filename: str = None):
         
         if self.vna is None:  # if we didnt initialze the VNA we can't run the test
             return False
@@ -54,11 +55,11 @@ class CatheterTester:
         self.vna.SetNumPoints(1)
         self.vna.SetSweepParameters(["s11"]) # we want to test for impedance, which is calculated from S11
   
-        self.vna.SetFileName(filename + str(self.channel + 1) + "dongle") # set the filename to what was provided as well as the channel and dongle indicator 
+        self.vna.SetFileName(filename + str(channel + 1) + "dongle") # set the filename to what was provided as well as the channel and dongle indicator 
             
         self.vna.Sweep() # run the sweep 
   
-        data = VNA.GrabS1PData(filename + str(self.channel + 1) + "dongles11.s1p") # pull the data from the s1p file, write it to CSV
+        data = VNA.GrabS1PData(filename + str(channel + 1) + "dongles11.s1p") # pull the data from the s1p file, write it to CSV
 
         print(data)
 
@@ -71,12 +72,12 @@ class CatheterTester:
                 
         return False, c # Failed the Test
         
-    def ImpedanceTest(self, filename: str = None):
+    def ImpedanceTest(self, channel = 1, filename: str = None):
 
         if self.vna is None:
             return False # if the VNA wasn't initialized we can't pass the test
         
-        self.vna.SetFileName(filename + str(self.channel + 1)) # set the filename to "{filename} {channel} s11.s1p"
+        self.vna.SetFileName(filename + str(channel)) # set the filename to "{filename} {channel} s11.s1p"
         
         self.vna.SetStartFreq(channel_freq) # we only want to test one frequency
         self.vna.SetStopFreq(channel_freq)
@@ -85,7 +86,7 @@ class CatheterTester:
         
         self.vna.Sweep() # sweep and save the values to an s1p file
         
-        data = VNA.GrabS1PData(filename + str(self.channel + 1) + "s11.s1p") # convert the generated csv file and pull the data
+        data = VNA.GrabS1PData(filename + str(channel + 1) + "s11.s1p") # convert the generated csv file and pull the data
 
         print(data)
 
@@ -99,12 +100,12 @@ class CatheterTester:
         return False, c # if we didnt pass we failed
         
         
-    def PulseEchoTest(self, channel: int = 1, filename: str = "cath.csv") -> bool:
+    def PulseEchoTest(self, scopechannel: int = 1, channel = 1, filename: str = "cath.csv") -> bool:
         
         if not self.scope.IsConnected(): # if we aren't connected to the scope then we automatically fail
             return False, None, None, None
         
-        self.scope.CaptureWaveform(channel) # capture the waveform from the screen
+        self.scope.CaptureWaveform(scopechannel) # capture the waveform from the screen
         data = self.scope.WindowWaveform(scope_window_start_us, scope_window_width_us)
 
         minimum = min(data["Voltage"]) # find the minimum voltage of the waveform
@@ -112,7 +113,8 @@ class CatheterTester:
         
         vpp = maximum - minimum # get the peak to peak maximum 
 
-        fft = self.scope.CalculateFFT() # calculate the fft of the waveform        
+        self.scope.CalculateFFT() # calculate the fft of the waveform      
+        fft = scope.WindowFFT(1e6, 8e6)  
 
         maxamp = np.amax(fft['Amplitude'])
         maxindex = np.where(fft['Amplitude'] == maxamp)
@@ -133,7 +135,18 @@ class CatheterTester:
         bandwidth = rightband - leftband
         peak = (rightband + leftband) / 2
 
-        print(f"Vpp: {vpp} Bandwidth: {bandwidth} Peak Frequency: {peak}")
+        print(f"Vpp: {vpp} Bandwidth: {bandwidth} Peak Frequency: {peak}")        
+        
+        #self.scope.WriteDataToCSVFile(filename + str(self.channel + 1)) # Save all of the Data to a CSV File
+        plt.plot(data["Time"], data["Voltage"])
+        plt.xlabel("Time")
+        plt.ylabel("Voltage")
+        plt.savefig(filename + "wave" + str(channel) + ".png")
+
+        plt.plot(data["Frequency"], fft["Amplitude"])
+        plt.xlabel("Frequency")
+        plt.ylabel("Amplitude")
+        plt.savefig(filename + "fft" + str(channel) + ".png")
 
         if vpp < vpp_lower_thresh or vpp > vpp_upper_thresh:
             return False, vpp, bandwidth, peak
@@ -143,8 +156,6 @@ class CatheterTester:
 
         if peak < peak_freq_lower_thresh or peak > peak_freq_upper_thresh:
             return False, vpp, bandwidth, peak
-
-        #self.scope.WriteDataToCSVFile(filename + str(self.channel + 1)) # Save all of the Data to a CSV File
         
         return True, vpp, bandwidth, peak
 
