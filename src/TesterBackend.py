@@ -114,7 +114,7 @@ class CatheterTester:
         vpp = maximum - minimum # get the peak to peak maximum 
 
         self.scope.CalculateFFT() # calculate the fft of the waveform      
-        fft = scope.WindowFFT(1e6, 8e6)  
+        fft = self.scope.WindowFFT(1e6, 8e6)  
 
         maxamp = np.amax(fft['Amplitude'])
         maxindex = np.where(fft['Amplitude'] == maxamp)
