@@ -86,7 +86,7 @@ class CatheterTester:
         
         self.vna.Sweep() # sweep and save the values to an s1p file
         
-        data = VNA.GrabS1PData(filename + str(channel + 1) + "s11.s1p") # convert the generated csv file and pull the data
+        data = VNA.GrabS1PData(filename + str(channel) + "s11.s1p") # convert the generated csv file and pull the data
 
         print(data)
 
@@ -114,7 +114,7 @@ class CatheterTester:
         vpp = maximum - minimum # get the peak to peak maximum 
 
         self.scope.CalculateFFT() # calculate the fft of the waveform      
-        fft = self.scope.WindowFFT(1e6, 8e6)  
+        fft = self.scope.WindowFFT(1e6, 10e6)  
 
         maxamp = np.amax(fft['Amplitude'])
         maxindex = np.where(fft['Amplitude'] == maxamp)
@@ -142,11 +142,13 @@ class CatheterTester:
         plt.xlabel("Time")
         plt.ylabel("Voltage")
         plt.savefig(filename + "wave" + str(channel) + ".png")
+        plt.close()
 
         plt.plot(fft["Frequency"], fft["Amplitude"])
         plt.xlabel("Frequency")
         plt.ylabel("Amplitude")
         plt.savefig(filename + "fft" + str(channel) + ".png")
+        plt.close()
 
         if vpp < vpp_lower_thresh or vpp > vpp_upper_thresh:
             return [False, vpp, bandwidth, peak]
