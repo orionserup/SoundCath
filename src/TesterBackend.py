@@ -143,7 +143,7 @@ class CatheterTester:
         plt.ylabel("Voltage")
         plt.savefig(filename + "wave" + str(channel) + ".png")
 
-        plt.plot(data["Frequency"], fft["Amplitude"])
+        plt.plot(fft["Frequency"], fft["Amplitude"])
         plt.xlabel("Frequency")
         plt.ylabel("Amplitude")
         plt.savefig(filename + "fft" + str(channel) + ".png")
