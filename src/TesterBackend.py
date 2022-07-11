@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 vnachanneloffset = 1 << 7
 scopechanneloffset = 1 << 6
 
-max_channel = 5
+max_channel = 8
 
 dongle_upper_thresh = 103e-12    
 dongle_lower_thresh = 90e-12
@@ -115,6 +115,19 @@ class CatheterTester:
 
         self.scope.CalculateFFT() # calculate the fft of the waveform      
         fft = self.scope.WindowFFT(1e6, 10e6)  
+        
+        #self.scope.WriteDataToCSVFile(filename + str(self.channel + 1)) # Save all of the Data to a CSV File
+        plt.plot(data["Time"], data["Voltage"])
+        plt.xlabel("Time")
+        plt.ylabel("Voltage")
+        plt.savefig(filename + "wave" + str(channel) + ".png")
+        plt.close()
+
+        plt.plot(fft["Frequency"], fft["Amplitude"])
+        plt.xlabel("Frequency")
+        plt.ylabel("Amplitude")
+        plt.savefig(filename + "fft" + str(channel) + ".png")
+        plt.close()
 
         maxamp = np.amax(fft['Amplitude'])
         maxindex = np.where(fft['Amplitude'] == maxamp)
@@ -137,18 +150,8 @@ class CatheterTester:
 
         print(f"Vpp: {vpp} Bandwidth: {bandwidth} Peak Frequency: {peak}")        
         
-        #self.scope.WriteDataToCSVFile(filename + str(self.channel + 1)) # Save all of the Data to a CSV File
-        plt.plot(data["Time"], data["Voltage"])
-        plt.xlabel("Time")
-        plt.ylabel("Voltage")
-        plt.savefig(filename + "wave" + str(channel) + ".png")
-        plt.close()
-
-        plt.plot(fft["Frequency"], fft["Amplitude"])
-        plt.xlabel("Frequency")
-        plt.ylabel("Amplitude")
-        plt.savefig(filename + "fft" + str(channel) + ".png")
-        plt.close()
+        if maxamp <= 2:
+            return [False, vpp, bandwidth, 0]
 
         if vpp < vpp_lower_thresh or vpp > vpp_upper_thresh:
             return [False, vpp, bandwidth, peak]

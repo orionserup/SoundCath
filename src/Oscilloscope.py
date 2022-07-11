@@ -72,6 +72,9 @@ class Oscilloscope:
         self.Waveform["Time"] = timeaxis
         self.Waveform["Voltage"] = voltage
 
+        self.scope.write("ACQUIRE:STOPAFTER RUNSTOP")
+        self.scope.write("ACQUIRE:STATE RUN")
+
         return self.Waveform
 
     def WindowWaveform(self, initial_us: float = 0.0, window_size_us: float = 5.0) -> dict[str, list]:
