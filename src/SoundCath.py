@@ -149,7 +149,7 @@ class TesterFrontEnd:  # a GUI front end for the test
     def GenerateReport(self) -> None: # Generates a CSV Report with all of the results
 
         filename = os.getcwd() + '\\' + self.filename.get() 
-        channels = [i + 1 for i in range(tb.max_channel)]
+        channels = [i + 1 for i in range(5)]
 
         with open(filename + 'PEReport.csv', 'w') as pefile:
             pewriter = csv.writer(pefile)
