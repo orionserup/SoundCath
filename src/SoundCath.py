@@ -159,7 +159,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             pewriter.writerow(["Channel", "Passed", "Vpp", "Bandwidth", "Center Frequency"])
             for channel in channels:
                 print(self.passmap["PulseEcho"][channel - 1])
-                data = list(self.passmap["PulseEcho"][channel - 1])
+                data = self.passmap["PulseEcho"][channel - 1]
                 data.insert(0, channel)
                 pewriter.writerow(data)
 
@@ -169,7 +169,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             zwriter.writerow(["Channel", "Passed", "Capacitance"])
             for channel in channels:
                 print(self.passmap["Impedance"][channel - 1])
-                data = list(self.passmap["Impedance"][channel - 1])
+                data = self.passmap["Impedance"][channel - 1]
                 data.insert(0, channel)
                 zwriter.writerow(data)
         
@@ -179,7 +179,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             donglewriter.writerow(["Channel", "Passed", "Capacitance"])
             for channel in channels:
                 print(self.passmap["Dongle"][channel - 1])
-                data = list(self.passmap["Dongle"][channel - 1])
+                data = self.passmap["Dongle"][channel - 1]
                 data.insert(0, channel)
                 donglewriter.writerow(data)
             
