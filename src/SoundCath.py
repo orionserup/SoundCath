@@ -32,7 +32,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.text = StringVar(self.root, "Channel " + str(self.channel)) # the string to display the channel
 
         # Variable to Store the Results of all of the Tests
-        self.passmap = { "Impedance": [False, None] * tb.max_channel, "PulseEcho": [False, None, None, None] * tb.max_channel, "Dongle": [False, None] * tb.max_channel}
+        self.passmap = { "Impedance": [[False, None]] * tb.max_channel, "PulseEcho": [[False, None, None, None]] * tb.max_channel, "Dongle": [[False, None]] * tb.max_channel}
         self.backend = tb.CatheterTester() # Backend tester that does the actual work 
         self.triggered = IntVar(self.root, 0)
 
@@ -90,6 +90,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             self.passmap["Dongle"][channel - 1] =  self.RunDongleTest(channel, filename) 
     
     def RunTests(self) -> None:
+        
         if(self.impedancetest.get() == 0 and self.dongletest.get() == 0 and self.pulseechotest.get() == 0): # repeat the same process with the impedance test/dongle test
             return
     
@@ -99,7 +100,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         os.makedirs(path, exist_ok=True)
         
         if self.allchannels.get() != 0:
-            for i in range(5):
+            for i in range(tb.max_channel):
                 self.RunSingleChannelTest(i + 1, filename)
             
             self.GenerateReport()
@@ -108,6 +109,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             self.RunSingleChannelTest(self.channel, filename)
             
     def CapturePopup(self) -> None:
+        
         window = Toplevel()
         
         def CaptureButtonCB() -> None:
@@ -149,13 +151,14 @@ class TesterFrontEnd:  # a GUI front end for the test
     def GenerateReport(self) -> None: # Generates a CSV Report with all of the results
 
         filename = os.getcwd() + '\\' + self.filename.get() 
-        channels = [i + 1 for i in range(5)]
+        channels = [i + 1 for i in range(tb.max_channel)]
 
         with open(filename + 'PEReport.csv', 'w') as pefile:
             pewriter = csv.writer(pefile)
             
             pewriter.writerow(["Channel", "Passed", "Vpp", "Bandwidth", "Center Frequency"])
             for channel in channels:
+                print(self.passmap["PulseEcho"][channel - 1])
                 data = list(self.passmap["PulseEcho"][channel - 1])
                 data.insert(0, channel)
                 pewriter.writerow(data)
@@ -165,6 +168,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             
             zwriter.writerow(["Channel", "Passed", "Capacitance"])
             for channel in channels:
+                print(self.passmap["Impedance"][channel - 1])
                 data = list(self.passmap["Impedance"][channel - 1])
                 data.insert(0, channel)
                 zwriter.writerow(data)
@@ -174,6 +178,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             
             donglewriter.writerow(["Channel", "Passed", "Capacitance"])
             for channel in channels:
+                print(self.passmap["Dongle"][channel - 1])
                 data = list(self.passmap["Dongle"][channel - 1])
                 data.insert(0, channel)
                 donglewriter.writerow(data)

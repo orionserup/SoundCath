@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 vnachanneloffset = 1 << 7
 scopechanneloffset = 1 << 6
 
-max_channel = 64
+max_channel = 5
 
 dongle_upper_thresh = 103e-12    
 dongle_lower_thresh = 90e-12
@@ -45,7 +45,7 @@ class CatheterTester:
             input("Press Any Key To Exit")
             exit() # leave the program
             
-    def DongleTest(self, channel, filename: str = None):
+    def DongleTest(self, channel, filename: str = None) -> list[bool, float]:
         
         if self.vna is None:  # if we didnt initialze the VNA we can't run the test
             return False
@@ -68,11 +68,11 @@ class CatheterTester:
         if i is not None:
             c = 1 / (2 * math.pi * data["Z"][i].imag * dongle_freq) # if there is an entry with the test frequency calculate the capacitance
             if c < dongle_upper_thresh and c > dongle_lower_thresh: # 1 / wC = im(Z)  # if we are within the thresholds then we are good
-                return True, c # Passed the test
+                return [True, c] # Passed the test
                 
-        return False, c # Failed the Test
+        return [False, c] # Failed the Test
         
-    def ImpedanceTest(self, channel = 1, filename: str = None):
+    def ImpedanceTest(self, channel = 1, filename: str = None) -> list[bool, float]:
 
         if self.vna is None:
             return False # if the VNA wasn't initialized we can't pass the test
@@ -95,12 +95,12 @@ class CatheterTester:
         if i is not None:
             c = 1 / (2 * math.pi * data["Z"][i].imag * channel_freq) # if there is an entry with the test frequency calculate the capacitance
             if c < dongle_upper_thresh and c > dongle_lower_thresh: # 1 / wC = im(Z)  # if we are within the thresholds then we are good
-                return True, c # Passed the test
+                return [True, c] # Passed the test
                 
-        return False, c # if we didnt pass we failed
+        return [False, c] # if we didnt pass we failed
         
         
-    def PulseEchoTest(self, scopechannel: int = 1, channel = 1, filename: str = "cath.csv") -> bool:
+    def PulseEchoTest(self, scopechannel: int = 1, channel = 1, filename: str = "cath.csv") -> list[bool, float, float, float]:
         
         if not self.scope.IsConnected(): # if we aren't connected to the scope then we automatically fail
             return False, None, None, None
@@ -149,15 +149,15 @@ class CatheterTester:
         plt.savefig(filename + "fft" + str(channel) + ".png")
 
         if vpp < vpp_lower_thresh or vpp > vpp_upper_thresh:
-            return False, vpp, bandwidth, peak
+            return [False, vpp, bandwidth, peak]
 
         if bandwidth < bandwidth_lower_thresh or bandwidth > bandwidth_upper_thresh:
-            return False, vpp, bandwidth, peak
+            return [False, vpp, bandwidth, peak]
 
         if peak < peak_freq_lower_thresh or peak > peak_freq_upper_thresh:
-            return False, vpp, bandwidth, peak
+            return [False, vpp, bandwidth, peak]
         
-        return True, vpp, bandwidth, peak
+        return [True, vpp, bandwidth, peak]
 
     def SetChannel(self, channel: int):
 
