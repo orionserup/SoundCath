@@ -22,6 +22,9 @@ channel_freq = 800e3
 scope_window_start_us = 4.95
 scope_window_width_us = .2
 
+fft_window_start = 2e6
+fft_window_width = 8e6
+
 vpp_lower_thresh = 0.0
 vpp_upper_thresh = 10.0
 
@@ -114,7 +117,7 @@ class CatheterTester:
         vpp = maximum - minimum # get the peak to peak maximum 
 
         self.scope.CalculateFFT() # calculate the fft of the waveform      
-        fft = self.scope.WindowFFT(2e6, 8e6)  
+        fft = self.scope.WindowFFT(fft_window_start, fft_window_width)  
         
         #self.scope.WriteDataToCSVFile(filename + str(self.channel + 1)) # Save all of the Data to a CSV File
         plt.plot(data["Time"], data["Voltage"])
