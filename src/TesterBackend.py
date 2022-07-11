@@ -114,7 +114,7 @@ class CatheterTester:
         vpp = maximum - minimum # get the peak to peak maximum 
 
         self.scope.CalculateFFT() # calculate the fft of the waveform      
-        fft = self.scope.WindowFFT(1e6, 10e6)  
+        fft = self.scope.WindowFFT(2e6, 8e6)  
         
         #self.scope.WriteDataToCSVFile(filename + str(self.channel + 1)) # Save all of the Data to a CSV File
         plt.plot(data["Time"], data["Voltage"])
