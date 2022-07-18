@@ -5,6 +5,7 @@ import TesterBackend as tb
 import csv
 import os
 import threading
+import openpyxl
 
 vnachanneloffset = 1 << 7
 scopechanneloffset = 1 << 6
@@ -51,7 +52,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.dongletestbutton = ttk.Checkbutton(self.root, variable = self.dongletest, text = "Dongle Test")
 
         self.runbutton = ttk.Button(self.root, text = "Run Tests", command = self.RunTests) # all of the buttons to actually run the tests and get results and stuff
-        self.reportbutton = ttk.Button(self.root, text = "Generate Report", command = self.GenerateReport)
+        self.reportbutton = ttk.Button(self.root, text = "Generate Report", command = self.GenerateCSVReport)
 
     def Draw(self) -> None: # positions and draws all of the widgets in the frame
 
@@ -148,7 +149,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             self.backend.SetChannel(self.channel - 1)
             print(self.backend.arduino.ReadLine())
             
-    def GenerateReport(self) -> None: # Generates a CSV Report with all of the results
+    def GenerateCSVReport(self) -> None: # Generates a CSV Report with all of the results
 
         filename = os.getcwd() + '\\' + self.filename.get() 
         channels = [i + 1 for i in range(tb.max_channel)]
@@ -182,6 +183,12 @@ class TesterFrontEnd:  # a GUI front end for the test
                 data = self.passmap["Dongle"][channel - 1]
                 data.insert(0, channel)
                 donglewriter.writerow(data)
+
+    def GenerateXLSXReport(self) -> None:
+
+        donglereporttemplate = openpyxl.load_worksheet(filename = os.path.dirname(os.path.abspath(__file__)) + "..\\docs")
+        donglereport = openpyxl.Workbook()
+        donglereport.copy_worksheet()
             
 
 if __name__ == "__main__":

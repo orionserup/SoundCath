@@ -6,5 +6,6 @@ pip install pyserial
 pip install scipy
 pip install libusb
 pip install pyusb
+pip install openpyxl
 
 
