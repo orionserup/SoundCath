@@ -208,6 +208,9 @@ class TesterFrontEnd:  # a GUI front end for the test
         
         for i in range(8, 8 + tb.max_channel):
             data = self.passmap["PulseEcho"][i - 8]
+            if None in data:
+                continue
+            
             pereport["D" + str(i)] = int(data[1] * 10e3)
             pereport["E" + str(i)] = int(data[3] * 10e-6)
             pereport["F" + str(i)] = "Pass" if data[0] == True else "Fail"
@@ -220,6 +223,9 @@ class TesterFrontEnd:  # a GUI front end for the test
             
         for i in range(11, 11 + tb.max_channel):    
             data = self.passmap["Impedance"][i - 11]
+            if None in data:
+                continue
+            
             impedancereport["D" + str(i)] = int(data[1] * 10e12)
             impedancereport["E" + str(i)] = "Pass" if data[0] == True else "Fail"            
             
