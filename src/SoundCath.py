@@ -6,6 +6,7 @@ import csv
 import os
 import threading
 import openpyxl
+from openpyxl.styles import fills, colors
 
 vnachanneloffset = 1 << 7
 scopechanneloffset = 1 << 6
@@ -52,7 +53,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.dongletestbutton = ttk.Checkbutton(self.root, variable = self.dongletest, text = "Dongle Test")
 
         self.runbutton = ttk.Button(self.root, text = "Run Tests", command = self.RunTests) # all of the buttons to actually run the tests and get results and stuff
-        self.reportbutton = ttk.Button(self.root, text = "Generate Report", command = self.GenerateCSVReport)
+        self.reportbutton = ttk.Button(self.root, text = "Generate Report", command = self.GenerateXLSXReport)
 
     def Draw(self) -> None: # positions and draws all of the widgets in the frame
 
@@ -186,10 +187,59 @@ class TesterFrontEnd:  # a GUI front end for the test
 
     def GenerateXLSXReport(self) -> None:
 
-        donglereporttemplate = openpyxl.load_worksheet(filename = os.path.dirname(os.path.abspath(__file__)) + "..\\docs")
-        donglereport = openpyxl.Workbook()
-        donglereport.copy_worksheet()
+        report = openpyxl.Workbook()
+        
+        templatepath = os.path.dirname(os.path.abspath(__file__)) + "..\\docs\\"
+        donglereporttemplate = openpyxl.load_worksheet(filename = templatepath + "DongleTemplate.xlsx")
+        impedancereporttemplate = openpyxl.load_workbook(filename= templatepath + "ImpedanceTemplate.xlsx")
+        pereporttemplate = openpyxl.load_workbook(filename= templatepath + "PETemplate.xlsx")
+        
+        donglereport = report.copy_worksheet(donglereporttemplate)
+        donglereport.title = "Dongle"
+        impedancereport = report.copy_worksheet(impedancereporttemplate)
+        impedancereport.title = "Impedance"
+        pereport = report.copy_worksheet(pereporttemplate)
+        pereport.title = "PulseEcho"
+        
+        red = colors.Color("00FF0000")
+        green = colors.Color("0000FF00")
+        failcolor = fills.PatternFill(patternType = 'solid', fgColor = red)
+        passcolor = fills.PatternFill(patternType = 'solid', fgColor = green)
+        
+        for i in range(8, 8 + tb.max_channel):
+            data = self.passmap["PulseEcho"][i - 8]
+            pereport["D" + str(i)] = int(data[1] * 10e3)
+            pereport["E" + str(i)] = int(data[3] * 10e-6)
+            pereport["F" + str(i)] = "Pass" if data[0] == True else "Fail"
+            pereport["G" + str(i)] = "True" if data[3] == 0 else "False"
             
+            color = passcolor if data[0] == True else failcolor
+            rowcells = pereport.iter_cols(min_col = 3, max_col = 8, min_row = i, max_row = i)
+            for cell in rowcells:
+                cell.fill = color
+            
+        for i in range(11, 11 + tb.max_channel):    
+            data = self.passmap["Impedance"][i - 11]
+            impedancereport["D" + str(i)] = int(data[1] * 10e12)
+            impedancereport["E" + str(i)] = "Pass" if data[0] == True else "Fail"            
+            
+            color = passcolor if data[0] == True else failcolor
+            rowcells = impedancereport.iter_cols(min_col = 3, max_col = 6, min_row = i, max_row = i)
+            for cell in rowcells:
+                cell.fill = color
+            
+            data = self.passmap["Dongle"][i - 11]
+            donglereport["D" + str(i)] = int(data[1] * 10e12)
+            donglereport["E" + str(i)] = "Pass" if data[0] == True else "Fail"
+            
+            color = passcolor if data[0] == True else failcolor
+            rowcells = donglereport.iter_cols(min_col = 3, max_col = 6, min_row = i, max_row = i)
+            for cell in rowcells:
+                cell.fill = color
+                
+        filename = os.getcwd() + '\\' + self.filename.get() + "Report.xlsx"
+        report.save(filename)
+              
 
 if __name__ == "__main__":
 
