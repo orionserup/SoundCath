@@ -105,7 +105,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             for i in range(tb.max_channel):
                 self.RunSingleChannelTest(i + 1, filename)
             
-            self.GenerateReport()
+            self.GenerateXLSXReport()
 
         else:
             self.RunSingleChannelTest(self.channel, filename)
@@ -190,15 +190,15 @@ class TesterFrontEnd:  # a GUI front end for the test
         report = openpyxl.Workbook()
         
         templatepath = os.path.dirname(os.path.abspath(__file__)) + "..\\docs\\"
-        donglereporttemplate = openpyxl.load_worksheet(filename = templatepath + "DongleTemplate.xlsx")
-        impedancereporttemplate = openpyxl.load_workbook(filename= templatepath + "ImpedanceTemplate.xlsx")
-        pereporttemplate = openpyxl.load_workbook(filename= templatepath + "PETemplate.xlsx")
+        donglereporttemplate = openpyxl.load_workbook(filename = templatepath + "DongleTemplate.xlsx")
+        impedancereporttemplate = openpyxl.load_workbook(filename = templatepath + "ImpedanceTemplate.xlsx")
+        pereporttemplate = openpyxl.load_workbook(filename = templatepath + "PETemplate.xlsx")
         
-        donglereport = report.copy_worksheet(donglereporttemplate)
+        donglereport = report.copy_worksheet(donglereporttemplate.active)
         donglereport.title = "Dongle"
-        impedancereport = report.copy_worksheet(impedancereporttemplate)
+        impedancereport = report.copy_worksheet(impedancereporttemplate.active)
         impedancereport.title = "Impedance"
-        pereport = report.copy_worksheet(pereporttemplate)
+        pereport = report.copy_worksheet(pereporttemplate.active)
         pereport.title = "PulseEcho"
         
         red = colors.Color("00FF0000")
