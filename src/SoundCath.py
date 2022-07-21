@@ -216,7 +216,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             pereport["D" + str(i)] = int(data[1] * 10e3)
             pereport["E" + str(i)] = int(data[3] * 10e-6)
             pereport["F" + str(i)] = "Pass" if data[0] == True else "Fail"
-            pereport["G" + str(i)] = "True" if data[3] == 0 else "False"
+            pereport["G" + str(i)] = "True" if data[1] < .03 else "False"
             
             color = passcolor if data[0] == True else failcolor
             rowcells = pereport.iter_cols(min_col = 3, max_col = 8, min_row = i, max_row = i)
