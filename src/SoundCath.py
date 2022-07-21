@@ -1,4 +1,4 @@
-from fileinput import filename
+
 from tkinter import StringVar, ttk, Tk, IntVar, Toplevel
 import time
 import TesterBackend as tb
