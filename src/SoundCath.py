@@ -7,7 +7,7 @@ import os
 import threading
 import openpyxl
 from openpyxl.styles import fills, colors
-import copy from copy
+from copy import copy
 
 vnachanneloffset = 1 << 7
 scopechanneloffset = 1 << 6
