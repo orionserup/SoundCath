@@ -195,7 +195,8 @@ class TesterFrontEnd:  # a GUI front end for the test
         impedancereporttemplate = openpyxl.load_workbook(filename = templatepath + "ImpedanceTemplate.xlsx")
         pereporttemplate = openpyxl.load_workbook(filename = templatepath + "PETemplate.xlsx")
         
-        donglereport = report.create_sheet("Dongle")
+        donglereport = report.active
+        donglereport.title = "Dongle"
         copy_sheet(donglereporttemplate.active, donglereport)
         impedancereport = report.create_sheet("Impedance")
         copy_sheet(impedancereporttemplate.active, impedancereport)
