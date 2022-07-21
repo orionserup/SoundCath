@@ -219,8 +219,9 @@ class TesterFrontEnd:  # a GUI front end for the test
             
             color = passcolor if data[0] == True else failcolor
             rowcells = pereport.iter_cols(min_col = 3, max_col = 8, min_row = i, max_row = i)
-            for cell in rowcells:
-                cell.fill = color
+            for row in rowscells:
+                for cols in row: 
+                    cols.fill = color
             
         for i in range(11, 11 + tb.max_channel):    
             data = self.passmap["Impedance"][i - 11]
@@ -232,8 +233,9 @@ class TesterFrontEnd:  # a GUI front end for the test
             
             color = passcolor if data[0] == True else failcolor
             rowcells = impedancereport.iter_cols(min_col = 3, max_col = 6, min_row = i, max_row = i)
-            for cell in rowcells:
-                cell.fill = color
+            for row in rowscells:
+                for cols in row: 
+                    cols.fill = color
             
             data = self.passmap["Dongle"][i - 11]
             donglereport["D" + str(i)] = int(data[1] * 10e12)
@@ -241,8 +243,9 @@ class TesterFrontEnd:  # a GUI front end for the test
             
             color = passcolor if data[0] == True else failcolor
             rowcells = donglereport.iter_cols(min_col = 3, max_col = 6, min_row = i, max_row = i)
-            for cell in rowcells:
-                cell.fill = color
+            for row in rowscells:
+                for cols in row: 
+                    cols.fill = color
                 
         filename = os.getcwd() + '\\' + self.filename.get() + "Report.xlsx"
         report.save(filename)
