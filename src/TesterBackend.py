@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 vnachanneloffset = 1 << 7
 scopechanneloffset = 1 << 6
 
-max_channel = 8
+max_channel = 64
 
 dongle_upper_thresh = 103e-12    
 dongle_lower_thresh = 90e-12
