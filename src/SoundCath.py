@@ -219,7 +219,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             
             color = passcolor if data[0] == True else failcolor
             rowcells = pereport.iter_cols(min_col = 3, max_col = 8, min_row = i, max_row = i)
-            for row in rowscells:
+            for row in rowcells:
                 for cols in row: 
                     cols.fill = color
             
@@ -233,7 +233,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             
             color = passcolor if data[0] == True else failcolor
             rowcells = impedancereport.iter_cols(min_col = 3, max_col = 6, min_row = i, max_row = i)
-            for row in rowscells:
+            for row in rowcells:
                 for cols in row: 
                     cols.fill = color
             
@@ -243,7 +243,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             
             color = passcolor if data[0] == True else failcolor
             rowcells = donglereport.iter_cols(min_col = 3, max_col = 6, min_row = i, max_row = i)
-            for row in rowscells:
+            for row in rowcells:
                 for cols in row: 
                     cols.fill = color
                 
