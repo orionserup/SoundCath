@@ -189,7 +189,7 @@ class TesterFrontEnd:  # a GUI front end for the test
 
         report = openpyxl.Workbook()
         
-        templatepath = os.path.dirname(os.path.abspath(__file__)) + "..\\docs\\"
+        templatepath = os.path.dirname(os.path.abspath(__file__)) + "\\..\\docs\\"
         donglereporttemplate = openpyxl.load_workbook(filename = templatepath + "DongleTemplate.xlsx")
         impedancereporttemplate = openpyxl.load_workbook(filename = templatepath + "ImpedanceTemplate.xlsx")
         pereporttemplate = openpyxl.load_workbook(filename = templatepath + "PETemplate.xlsx")
