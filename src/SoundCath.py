@@ -239,6 +239,9 @@ class TesterFrontEnd:  # a GUI front end for the test
                     cols.fill = color
             
             data = self.passmap["Dongle"][i - 11]
+            if None in data:
+                continue
+                
             donglereport["D" + str(i)] = int(data[1] * 10e12)
             donglereport["E" + str(i)] = "Pass" if data[0] == True else "Fail"
             
