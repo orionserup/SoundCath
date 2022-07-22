@@ -73,7 +73,9 @@ class CatheterTester:
             if c < dongle_upper_thresh and c > dongle_lower_thresh: # 1 / wC = im(Z)  # if we are within the thresholds then we are good
                 return [True, c] # Passed the test
                 
-        return [False, c] # Failed the Test
+            return [False, c] # Failed the Test
+
+        return [False, 0]
         
     def ImpedanceTest(self, channel = 1, filename: str = None) -> list[bool, float]:
 
