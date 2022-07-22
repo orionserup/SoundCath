@@ -209,6 +209,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         passcolor = fills.PatternFill(patternType = 'solid', fgColor = green)
         
         for i in range(8, 8 + tb.max_channel):
+            
             data = self.passmap["PulseEcho"][i - 8]
             if None in data:
                 continue
@@ -225,6 +226,7 @@ class TesterFrontEnd:  # a GUI front end for the test
                     cols.fill = color
             
         for i in range(11, 11 + tb.max_channel):    
+
             data = self.passmap["Impedance"][i - 11]
             if None in data:
                 continue
@@ -237,6 +239,8 @@ class TesterFrontEnd:  # a GUI front end for the test
             for row in rowcells:
                 for cols in row: 
                     cols.fill = color
+
+        for i in range(11, 11 + tb.max_channel):    
             
             data = self.passmap["Dongle"][i - 11]
             if None in data:
