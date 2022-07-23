@@ -69,7 +69,7 @@ class CatheterTester:
         i = data["Frequency"].index(dongle_freq) # find the index from the data with the test frequency
 
         if i is not None:
-            c = -1 / (2 * math.pi * data["Z"][i].imag * dongle_freq) # if there is an entry with the test frequency calculate the capacitance
+            c = -1 / (20 * math.pi * data["Z"][i].imag * dongle_freq) # if there is an entry with the test frequency calculate the capacitance
             if c < dongle_upper_thresh and c > dongle_lower_thresh: # 1 / wC = im(Z)  # if we are within the thresholds then we are good
                 return [True, c] # Passed the test
                 
@@ -98,7 +98,7 @@ class CatheterTester:
         i = data["Frequency"].index(channel_freq) # if we find the frequency we wanted in the data set
 
         if i is not None:
-            c = -1 / (2 * math.pi * data["Z"][i].imag * channel_freq) # if there is an entry with the test frequency calculate the capacitance
+            c = -1 / (20 * math.pi * data["Z"][i].imag * channel_freq) # if there is an entry with the test frequency calculate the capacitance
             if c < dongle_upper_thresh and c > dongle_lower_thresh: # 1 / wC = im(Z)  # if we are within the thresholds then we are good
                 return [True, c] # Passed the test
                 
