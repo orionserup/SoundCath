@@ -15,8 +15,8 @@ dongle_upper_thresh = 310e-12
 dongle_lower_thresh = 290e-12
 dongle_freq = 800e3
 
-channel_upper_thresh = 100e-12
-channel_lower_thresh = 80e-12
+channel_upper_thresh = 340e-12
+channel_lower_thresh = 318e-12
 channel_freq = 800e3
 
 scope_window_start_us = 4.95
@@ -99,7 +99,7 @@ class CatheterTester:
 
         if i is not None:
             c = -1 / (20 * math.pi * data["Z"][i].imag * channel_freq) # if there is an entry with the test frequency calculate the capacitance
-            if c < dongle_upper_thresh and c > dongle_lower_thresh: # 1 / wC = im(Z)  # if we are within the thresholds then we are good
+            if c < channel_upper_thresh and c > channel_lower_thresh: # 1 / wC = im(Z)  # if we are within the thresholds then we are good
                 return [True, c] # Passed the test
                 
         return [False, c] # if we didnt pass we failed
