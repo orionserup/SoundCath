@@ -231,7 +231,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             if None in data:
                 continue
             
-            impedancereport["D" + str(i)] = int(data[1] * 10e12)
+            impedancereport["D" + str(i)] = int(data[1] * 10e11)
             impedancereport["E" + str(i)] = "Pass" if data[0] else "Fail"            
             
             color = passcolor if data[0] == True else failcolor
@@ -246,7 +246,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             if None in data:
                 continue
                 
-            donglereport["D" + str(i)] = int(data[1] * 10e12)
+            donglereport["D" + str(i)] = int(data[1] * 10e11)
             donglereport["E" + str(i)] = "Pass" if data[0] else "Fail"
             
             color = passcolor if data[0] == True else failcolor
