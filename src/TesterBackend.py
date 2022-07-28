@@ -15,8 +15,8 @@ dongle_upper_thresh = 340e-12
 dongle_lower_thresh = 290e-12
 dongle_freq = 800e3
 
-channel_upper_thresh = 340e-12
-channel_lower_thresh = 290e-12
+channel_upper_thresh = 750e-12
+channel_lower_thresh = 700e-12
 channel_freq = 800e3
 
 scope_window_start_us = 4.95
