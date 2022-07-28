@@ -16,7 +16,7 @@ dongle_lower_thresh = 290e-12
 dongle_freq = 800e3
 
 channel_upper_thresh = 340e-12
-channel_lower_thresh = 318e-12
+channel_lower_thresh = 290e-12
 channel_freq = 800e3
 
 scope_window_start_us = 4.95
@@ -25,14 +25,14 @@ scope_window_width_us = .2
 fft_window_start = 2e6
 fft_window_width = 8e6
 
-vpp_lower_thresh = 0.0
-vpp_upper_thresh = 10.0
+vpp_lower_thresh = 50.0e-3
+vpp_upper_thresh = 140.0e-3
 
 bandwidth_lower_thresh = 0.0
 bandwidth_upper_thresh = 10e6
 
-peak_freq_lower_thresh = 0.0
-peak_freq_upper_thresh = 10e6
+peak_freq_lower_thresh = 5e6
+peak_freq_upper_thresh = 8e6
 
 scope_sample_interval_ns = 1 # sampling period of oscilloscope
 
