@@ -218,6 +218,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             pereport["E" + str(i)] = int(data[3] * 10e-6)
             pereport["F" + str(i)] = "Pass" if data[0] else "Fail"
             pereport["G" + str(i)] = "True" if data[1] < .03 else "False"
+            pereport["H" + str(i)] = int(data[2] * 10e-6)
             
             color = passcolor if data[0] == True else failcolor
             rowcells = pereport.iter_cols(min_col = 3, max_col = 8, min_row = i, max_row = i)
@@ -231,7 +232,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             if None in data:
                 continue
             
-            impedancereport["D" + str(i)] = int(data[1] * 10e11)
+            impedancereport["D" + str(i)] = int(data[1] * 10e10)
             impedancereport["E" + str(i)] = "Pass" if data[0] else "Fail"            
             
             color = passcolor if data[0] == True else failcolor
