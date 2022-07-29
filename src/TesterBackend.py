@@ -100,7 +100,6 @@ class CatheterTester:
 
         if i is not None:
             c = -1 / (2 * math.pi * data["Z"][i].imag * channel_freq) # if there is an entry with the test frequency calculate the capacitance
-            print(f"Capacitance: {c * 10e12}pF, Higher Than Lower Thresh: {c > channel_lower_thresh}, Lower Than Higher Thresh: {c < channel_lower_thresh}")
             if c < channel_upper_thresh and c > channel_lower_thresh: # 1 / wC = im(Z)  # if we are within the thresholds then we are good
                 return [True, c] # Passed the test
                 
@@ -139,8 +138,9 @@ class CatheterTester:
         maxamp = np.amax(fft['Amplitude'])
         maxindex = np.where(fft['Amplitude'] == maxamp)
 
-        leftband = fft['Frequency'][maxindex[0][0]]
-        rightband = fft['Frequency'][maxindex[0][0]]
+        center = fft['Frequency'][maxindex[0][0]]
+        leftband = center 
+        rightband = center
         
         for i in range(maxindex[0][0], len(fft['Frequency'])):
             if fft['Amplitude'][i] <= maxamp / 2:
@@ -153,9 +153,9 @@ class CatheterTester:
                 break
 
         bandwidth = rightband - leftband
-        peak = (rightband + leftband) / 2
+        peak = center
 
-        print(f"Vpp: {vpp} Bandwidth: {bandwidth} Peak Frequency: {peak}")        
+        print(f"Vpp: {vpp} Bandwidth: {bandwidth} Peak Frequency: {center}")        
         
         if maxamp <= 2:
             return [False, vpp, bandwidth, 0]

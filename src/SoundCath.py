@@ -214,11 +214,11 @@ class TesterFrontEnd:  # a GUI front end for the test
             if None in data:
                 continue
             
-            pereport["D" + str(i)] = int(data[1] * 10e3)
-            pereport["E" + str(i)] = int(data[3] * 10e-6)
+            pereport["D" + str(i)] = f"{data[1] * 1e3: .2f}"
+            pereport["E" + str(i)] = f"{data[3] * 1e-6: .2f}"
             pereport["F" + str(i)] = "Pass" if data[0] else "Fail"
             pereport["G" + str(i)] = "True" if data[1] < .03 else "False"
-            pereport["H" + str(i)] = int(data[2] * 10e-6)
+            pereport["H" + str(i)] = f"{data[2] * 10e-6:.2f}"
             
             color = passcolor if data[0] == True else failcolor
             rowcells = pereport.iter_cols(min_col = 3, max_col = 8, min_row = i, max_row = i)
@@ -232,7 +232,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             if None in data:
                 continue
             
-            impedancereport["D" + str(i)] = int(data[1] * 10e10)
+            impedancereport["D" + str(i)] = f"{data[1] * 1e12: .2f}"
             impedancereport["E" + str(i)] = "Pass" if data[0] else "Fail"            
             
             color = passcolor if data[0] == True else failcolor
@@ -247,7 +247,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             if None in data:
                 continue
                 
-            donglereport["D" + str(i)] = int(data[1] * 10e11)
+            donglereport["D" + str(i)] = f"{data[1] * 1e12: .2f}"
             donglereport["E" + str(i)] = "Pass" if data[0] else "Fail"
             
             color = passcolor if data[0] == True else failcolor
@@ -263,7 +263,6 @@ class TesterFrontEnd:  # a GUI front end for the test
 def copy_sheet(source_sheet, target_sheet):
     copy_cells(source_sheet, target_sheet)  # copy all the cel values and styles
     copy_sheet_attributes(source_sheet, target_sheet)
-
 
 def copy_sheet_attributes(source_sheet, target_sheet):
     target_sheet.sheet_format = copy(source_sheet.sheet_format)
@@ -289,7 +288,6 @@ def copy_sheet_attributes(source_sheet, target_sheet):
         target_sheet.column_dimensions[key].max = copy(source_sheet.column_dimensions[key].max)  # https://stackoverflow.com/questions/36417278/openpyxl-can-not-read-consecutive-hidden-columns discussed the issue. Note that this is also the case for the width, not onl;y the hidden property
         target_sheet.column_dimensions[key].width = copy(source_sheet.column_dimensions[key].width) # set width for every column
         target_sheet.column_dimensions[key].hidden = copy(source_sheet.column_dimensions[key].hidden)
-
 
 def copy_cells(source_sheet, target_sheet):
     for (row, col), source_cell in source_sheet._cells.items():
