@@ -82,6 +82,8 @@ class TesterFrontEnd:  # a GUI front end for the test
             channel |= vnachanneloffset
 
         self.backend.SetChannel(channel - 1)
+
+        print(f"Running Test on Channel: {channel}")
     
         if self.pulseechotest.get() != 0:
             self.passmap["PulseEcho"][channel - 1] = self.RunPulseEchoTest(channel, filename) # Run the Tests and record the Results

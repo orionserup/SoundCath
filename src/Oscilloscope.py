@@ -80,8 +80,8 @@ class Oscilloscope:
     def WindowWaveform(self, initial_us: float = 0.0, window_size_us: float = 5.0) -> dict[str, list]:
         deltat = self.Waveform["Time"][1] - self.Waveform["Time"][0]
 
-        n = int(initial_us * 10e-6/deltat )
-        d = int(window_size_us * 10e-6/deltat)
+        n = int(initial_us * 1e-6/deltat )
+        d = int(window_size_us * 1e-6/deltat)
 
         self.Waveform = { "Time": self.Waveform["Time"][n: n + d], 'Voltage': self.Waveform["Voltage"][n: n + d] }
         return self.Waveform
