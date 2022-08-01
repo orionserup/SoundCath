@@ -147,10 +147,10 @@ class CatheterTester:
         left = maxindex - 1
         right = maxindex + 1
 
-        while fft["Amplitude"][left] > thresh and left >= 0:
+        while left >= 0 and fft["Amplitude"][left] > thresh:
             left -= 1
 
-        while fft["Amplitude"][right] > thresh and right < len(fft["Amplitude"]):
+        while right < len(fft["Amplitude"]) and fft["Amplitude"][right] > thresh:
             right += 1
 
         bandwidth = fft["Frequency"][right] - fft["Frequency"][left]
