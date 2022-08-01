@@ -31,7 +31,7 @@ vpp_upper_thresh = 140.0e-3
 bandwidth_lower_thresh = 0.0
 bandwidth_upper_thresh = 10e6
 
-peak_freq_lower_thresh = 2e6
+peak_freq_lower_thresh = 5e6
 peak_freq_upper_thresh = 8e6
 
 scope_sample_interval_ns = 1 # sampling period of oscilloscope
@@ -123,6 +123,7 @@ class CatheterTester:
         self.scope.CalculateFFT() # calculate the fft of the waveform      
         self.scope.WindowFFT(fft_window_start, fft_window_width)
         fft = self.scope.GetFFT()
+
         
         #self.scope.WriteDataToCSVFile(filename + str(self.channel + 1)) # Save all of the Data to a CSV File
         plt.plot(data["Time"], data["Voltage"])
