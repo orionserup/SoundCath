@@ -85,6 +85,7 @@ class Oscilloscope:
         d = int(window_size_us * 1e-6/deltat)
 
         if n < 0 or n + d >= len(self.WaveForm["Time"]):
+            print("Window Outside of Range")
             return self.Waveform
 
         self.Waveform = { "Time": self.Waveform["Time"][n: n + d], 'Voltage': self.Waveform["Voltage"][n: n + d] }
@@ -112,6 +113,7 @@ class Oscilloscope:
         d = int(window_size / deltaf)
 
         if n < 0 or n + d >= len(self.fft["Frequency"]):
+            print("Window Outside of Range")
             return self.fft
 
         self.fft = { "Frequency": self.fft["Frequency"][n: n + d], "Amplitude": self.fft["Amplitude"][n: n + d] }
