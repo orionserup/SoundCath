@@ -81,8 +81,8 @@ class Oscilloscope:
         deltat = self.Waveform["Time"][1] - self.Waveform["Time"][0]
         t0 = self.Waveform["Time"][0]
 
-        n = int((initial_us * 1e-6 - t0)/deltat)
-        d = int(window_size_us * 1e-6/deltat)
+        n = np.round((initial_us * 1e-6 - t0) / deltat)
+        d = np.round(window_size_us * 1e-6 / deltat)
 
         if n < 0 or n + d >= len(self.WaveForm["Time"]):
             print("Window Outside of Range")
@@ -109,8 +109,8 @@ class Oscilloscope:
         deltaf = self.fft["Frequency"][1] - self.fft["Frequency"][0]
         f0 = self.fft["Frequency"][0]
 
-        n = int((start_freq - f0) / deltaf)
-        d = int(window_size / deltaf)
+        n = np.round((start_freq - f0) / deltaf)
+        d = np.round(window_size / deltaf)
 
         if n < 0 or n + d >= len(self.fft["Frequency"]):
             print("Window Outside of Range")
