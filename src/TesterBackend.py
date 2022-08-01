@@ -142,22 +142,19 @@ class CatheterTester:
         maxamp = fft["Amplitude"].max()
         maxindex = np.where(fft['Amplitude'] == maxamp)[0][0]
 
-        center = fft["Frequency"][maxindex]
-        leftband = fft["Frequency"][0]
-        rightband = fft["Frequency"][-1]
+        thresh = .707 * maxamp
         
-        for i in range(maxindex, len(fft['Frequency'])):
-            if fft['Amplitude'][i] < (maxamp * .7):
-                rightband = fft["Frequency"][i - 1]
-                break
+        left = maxindex - 1
+        right = maxindex + 1
 
-        for i in range(maxindex, 0, -1):
-            if fft['Amplitude'][i] < (maxamp * .7):
-                leftband = fft["Frequency"][i + 1]
-                break
+        while fft["Amplitude"][left] > thresh and left >= 0:
+            left -= 1
 
-        bandwidth = rightband - leftband
-        peak = center
+        while fft["Amplitude"][right] > thresh and right < len(fft["Amplitude"]):
+            right += 1
+
+        bandwidth = fft["Frequency"][right] - fft["Frequency"][left]
+        peak = fft["Frequency"][maxindex]
 
         print(f"Vpp: {vpp} Bandwidth: {bandwidth} Peak Frequency: {center}")        
         
