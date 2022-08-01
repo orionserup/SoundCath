@@ -147,12 +147,12 @@ class CatheterTester:
         rightband = center
         
         for i in range(maxindex, len(fft['Frequency'])):
-            if fft['Amplitude'][i] <= maxamp / 2:
+            if fft['Amplitude'][i] <= maxamp * .707:
                 rightband = fft["Frequency"][i - 1]
                 break
 
         for i in range(maxindex, 0, -1):
-            if fft['Amplitude'][i] <= maxamp / 2:
+            if fft['Amplitude'][i] <= maxamp * .707:
                 leftband = fft["Frequency"][i + 1]
                 break
 
