@@ -135,19 +135,19 @@ class CatheterTester:
         plt.savefig(filename + "fft" + str(channel) + ".png")
         plt.close()
 
-        maxamp = np.amax(fft['Amplitude'])
-        maxindex = np.where(fft['Amplitude'] == maxamp)
+        maxamp = fft['Amplitude'].max()
+        maxindex = np.where(fft['Amplitude'] == maxamp)[0][0]
 
-        center = fft['Frequency'][maxindex[0][0]]
+        center = fft['Frequency'][maxindex]
         leftband = center 
         rightband = center
         
-        for i in range(maxindex[0][0], len(fft['Frequency'])):
+        for i in range(maxindex, len(fft['Frequency'])):
             if fft['Amplitude'][i] <= maxamp / 2:
                 rightband = fft["Frequency"][i - 1]
                 break
 
-        for i in range(maxindex[0][0], 0, -1):
+        for i in range(maxindex, 0, -1):
             if fft['Amplitude'][i] <= maxamp / 2:
                 leftband = fft["Frequency"][i + 1]
                 break
