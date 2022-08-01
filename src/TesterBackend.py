@@ -120,7 +120,9 @@ class CatheterTester:
         vpp = maximum - minimum # get the peak to peak maximum 
 
         self.scope.CalculateFFT() # calculate the fft of the waveform      
-        fft = self.scope.WindowFFT(fft_window_start, fft_window_width)  
+        #self.scope.WindowFFT(fft_window_start, fft_window_width)
+        fft = self.scope.GetFFT()
+        print(f"FFT Result is: {fft}")  
         
         #self.scope.WriteDataToCSVFile(filename + str(self.channel + 1)) # Save all of the Data to a CSV File
         plt.plot(data["Time"], data["Voltage"])
@@ -135,10 +137,11 @@ class CatheterTester:
         plt.savefig(filename + "fft" + str(channel) + ".png")
         plt.close()
 
-        maxamp = fft['Amplitude'].max()
+        fft = self.scope.GetFFT()
+        maxamp = fft["Amplitude"].max()
         maxindex = np.where(fft['Amplitude'] == maxamp)[0][0]
 
-        center = fft['Frequency'][maxindex]
+        center = fft["Frequency"][maxindex]
         leftband = center 
         rightband = center
         
