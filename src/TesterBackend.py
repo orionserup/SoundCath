@@ -143,16 +143,16 @@ class CatheterTester:
         maxindex = np.where(fft['Amplitude'] == maxamp)[0][0]
 
         center = fft["Frequency"][maxindex]
-        leftband = center 
-        rightband = center
+        leftband = fft["Frequency"][0]
+        rightband = fft["Frequency"][-1]
         
         for i in range(maxindex, len(fft['Frequency'])):
-            if fft['Amplitude'][i] < maxamp * .7:
+            if fft['Amplitude'][i] < (maxamp * .7):
                 rightband = fft["Frequency"][i - 1]
                 break
 
         for i in range(maxindex, 0, -1):
-            if fft['Amplitude'][i] < maxamp * .7:
+            if fft['Amplitude'][i] < (maxamp * .7):
                 leftband = fft["Frequency"][i + 1]
                 break
 
