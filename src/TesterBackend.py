@@ -19,8 +19,8 @@ channel_upper_thresh = 750e-12
 channel_lower_thresh = 700e-12
 channel_freq = 800e3
 
-scope_window_start_us = 49.5
-scope_window_width_us = 1.25
+scope_window_start_us = 49.6
+scope_window_width_us = .9
 
 fft_window_start = 2e6
 fft_window_width = 8e6
@@ -162,8 +162,8 @@ class CatheterTester:
 
         print(f"Vpp: {vpp} Bandwidth: {bandwidth} Peak Frequency: {peak}")        
         
-        if maxamp <= 2:
-            return [False, vpp, bandwidth, 0]
+        if vpp <= .04:
+            return [False, 0, 0, 0]
 
         if vpp < vpp_lower_thresh or vpp > vpp_upper_thresh:
             return [False, vpp, bandwidth, peak]
