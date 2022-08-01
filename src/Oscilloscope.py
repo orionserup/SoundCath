@@ -84,7 +84,7 @@ class Oscilloscope:
         n = np.round((initial_us * 1e-6 - t0) / deltat)
         d = np.round(window_size_us * 1e-6 / deltat)
 
-        if n < 0 or n + d >= len(self.WaveForm["Time"]):
+        if n < 0 or n + d >= len(self.Waveform["Time"]):
             print("Window Outside of Range")
             return self.Waveform
 
