@@ -156,7 +156,7 @@ class CatheterTester:
         bandwidth = fft["Frequency"][right] - fft["Frequency"][left]
         peak = fft["Frequency"][maxindex]
 
-        print(f"Vpp: {vpp} Bandwidth: {bandwidth} Peak Frequency: {center}")        
+        print(f"Vpp: {vpp} Bandwidth: {bandwidth} Peak Frequency: {peak}")        
         
         if maxamp <= 2:
             return [False, vpp, bandwidth, 0]
