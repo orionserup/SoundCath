@@ -144,8 +144,8 @@ class CatheterTester:
 
         thresh = .707 * maxamp
         
-        left = maxindex - 1
-        right = maxindex + 1
+        left = maxindex
+        right = maxindex 
 
         while left >= 0 and fft["Amplitude"][left] > thresh:
             left -= 1
