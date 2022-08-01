@@ -19,8 +19,8 @@ channel_upper_thresh = 750e-12
 channel_lower_thresh = 700e-12
 channel_freq = 800e3
 
-scope_window_start_us = 4.95
-scope_window_width_us = .625
+scope_window_start_us = 4
+scope_window_width_us = 2
 
 fft_window_start = 2e6
 fft_window_width = 8e6
