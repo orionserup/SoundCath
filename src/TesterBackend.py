@@ -112,7 +112,8 @@ class CatheterTester:
             return False, None, None, None
         
         self.scope.CaptureWaveform(scopechannel) # capture the waveform from the screen
-        data = self.scope.WindowWaveform(scope_window_start_us, scope_window_width_us)
+        #data = self.scope.WindowWaveform(scope_window_start_us, scope_window_width_us)
+        data = self.scope.GetWaveform()
 
         minimum = min(data["Voltage"]) # find the minimum voltage of the waveform
         maximum = max(data["Voltage"]) # find the maximum voltage of the waveform
