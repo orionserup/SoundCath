@@ -84,7 +84,7 @@ class Oscilloscope:
         n = int((initial_us * 1e-6 - t0)/deltat)
         d = int(window_size_us * 1e-6/deltat)
 
-        if n < 0:
+        if n < 0 or n + d >= len(self.WaveForm["Time"]):
             return self.Waveform
 
         self.Waveform = { "Time": self.Waveform["Time"][n: n + d], 'Voltage': self.Waveform["Voltage"][n: n + d] }
@@ -111,7 +111,7 @@ class Oscilloscope:
         n = int((start_freq - f0) / deltaf)
         d = int(window_size / deltaf)
 
-        if n < 0:
+        if n < 0 or n + d >= len(self.fft["Frequency"]):
             return self.fft
 
         self.fft = { "Frequency": self.fft["Frequency"][n: n + d], "Amplitude": self.fft["Amplitude"][n: n + d] }
