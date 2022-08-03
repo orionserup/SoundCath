@@ -235,7 +235,8 @@ class TesterFrontEnd:  # a GUI front end for the test
                 continue
             
             impedancereport["D" + str(i)] = f"{data[1] * 1e12: .2f}"
-            impedancereport["E" + str(i)] = "Pass" if data[0] else "Fail"            
+            impedancereport["E" + str(i)] = "Pass" if data[0] else "Fail"     
+            impedancereport["F" + str(i)] = "Open" if data[1] > 10e-12 and data[i] < 600e-12 else "Short" if data[1] < 0 else ""       
             
             color = passcolor if data[0] == True else failcolor
             rowcells = impedancereport.iter_cols(min_col = 3, max_col = 6, min_row = i, max_row = i)
@@ -251,6 +252,7 @@ class TesterFrontEnd:  # a GUI front end for the test
                 
             donglereport["D" + str(i)] = f"{data[1] * 1e12: .2f}"
             donglereport["E" + str(i)] = "Pass" if data[0] else "Fail"
+            donglereport["F" + str(i)] = "Open" if data[1] > 10e-12 and data[1] < 180e-12 else "Short" if data[1] < 0 else ""
             
             color = passcolor if data[0] == True else failcolor
             rowcells = donglereport.iter_cols(min_col = 3, max_col = 6, min_row = i, max_row = i)
