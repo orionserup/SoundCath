@@ -28,6 +28,7 @@ class TesterFrontEnd:  # a GUI front end for the test
 
         # All of the Internal Variables
         self.channel = 0 # the channel we are in
+        self.promptcapture = IntVar(self.root, 1)
         self.impedancetest = IntVar(self.root, 0) # bool for if we are gonna run the impedance test
         self.allchannels = IntVar(self.root, 0) # bool if we are gonna test all channels
         self.pulseechotest = IntVar(self.root, 0) # bool if we are gonna run the pulse echo test
@@ -52,6 +53,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.allchannelsbutton  = ttk.Checkbutton(self.root, variable = self.allchannels,  text = "Run All Channels")
         self.pulseechotestbutton = ttk.Checkbutton(self.root, variable = self.pulseechotest, text = "Pulse Echo")
         self.dongletestbutton = ttk.Checkbutton(self.root, variable = self.dongletest, text = "Dongle Test")
+        self.promptcapturebutton = ttk.Checkbutton(self.root, variable = self.promptcapture, text = "Prompt Capture")
 
         self.runbutton = ttk.Button(self.root, text = "Run Tests", command = self.RunTests) # all of the buttons to actually run the tests and get results and stuff
         self.reportbutton = ttk.Button(self.root, text = "Generate Report", command = self.GenerateXLSXReport)
@@ -66,6 +68,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.pulseechotestbutton.place(x = 250, y = 100)
         self.allchannelsbutton.place(x = 400, y = 100)
         self.dongletestbutton.place(x = 50, y = 150)
+        self.promptcapturebutton.place(x = 250, y = 50)
 
         self.reportbutton.place(x = 50, y = 300)
         self.runbutton.place(x = 400, y = 300)
@@ -103,6 +106,10 @@ class TesterFrontEnd:  # a GUI front end for the test
         path = "\\".join(filename.split("\\")[0:-1]) # create the path of the file if it wasn't already there
 
         os.makedirs(path, exist_ok=True)
+
+        window = None
+        if self.promptcapture.get() and self.pulseechotest.get():
+            window = self.CapturePopup()
         
         if self.allchannels.get() != 0:
             for i in range(tb.max_channel):
@@ -112,26 +119,30 @@ class TesterFrontEnd:  # a GUI front end for the test
 
         else:
             self.RunSingleChannelTest(self.channel, filename)
+
+        if self.promptcapture.get() and self.pulseechotest.get():
+            window.destroy()
             
-    def CapturePopup(self) -> None:
+    def CapturePopup(self) -> Toplevel:
         
         window = Toplevel()
         
         def CaptureButtonCB() -> None:
             self.triggered.set(1)
-            window.destroy()
                 
         button = ttk.Button(window, text = "Capture", command = CaptureButtonCB)
         button.pack()
         button.wait_variable(self.triggered)
+
+        return window
 
     def RunImpedanceTest(self, channel, filename) -> tuple[bool, float, float, float]:
         print("Running Impedance Test")
         return self.backend.ImpedanceTest(channel, filename) # run the test with the filename
 
     def RunPulseEchoTest(self, channel, filename) -> tuple[bool, float]:    
-        self.CapturePopup()
-        self.triggered.set(0)
+        if not self.promptcapture.get():
+            time.sleep(5)
         print("Running Pulse Echo Test")
         return self.backend.PulseEchoTest(1, channel, filename) # run the test on scope channel 1 with file name filename
         
