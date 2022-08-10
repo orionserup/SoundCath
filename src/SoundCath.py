@@ -68,7 +68,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.pulseechotestbutton.place(x = 250, y = 100)
         self.allchannelsbutton.place(x = 400, y = 100)
         self.dongletestbutton.place(x = 50, y = 150)
-        self.promptcapturebutton.place(x = 250, y = 50)
+        self.promptcapturebutton.place(x = 250, y = 150)
 
         self.reportbutton.place(x = 50, y = 300)
         self.runbutton.place(x = 400, y = 300)
