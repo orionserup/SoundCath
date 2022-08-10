@@ -231,7 +231,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             pereport["E" + str(i)] = f"{data[3] * 1e-6: .2f}"
             pereport["F" + str(i)] = "Pass" if data[0] else "Fail"
             pereport["G" + str(i)] = "True" if data[1] == 0 else ""
-            pereport["H" + str(i)] = f"{data[2] * 10e-6:.2f}"
+            pereport["H" + str(i)] = f"{data[2] * 1e-6:.2f}"
             
             color = passcolor if data[0] == True else failcolor
             rowcells = pereport.iter_cols(min_col = 3, max_col = 8, min_row = i, max_row = i)
