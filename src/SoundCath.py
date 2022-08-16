@@ -82,9 +82,9 @@ class TesterFrontEnd:  # a GUI front end for the test
         if(self.impedancetest.get() != 0 or self.dongletest.get() != 0 or self.pulseechotest.get() != 0): # repeat the same process with the impedance test/dongle test
             channel &= ~vnachanneloffset
         else:
-            channel |= vnachanneloffset
+            channel |= vnachanneloffset     # if we are running a test then mark the box to connect to the VNA/scope
 
-        self.backend.SetChannel(channel - 1)
+        self.backend.SetChannel(channel - 1) # set the channel to be the 0 indexed channel vs the 1 indexed channel
 
         print(f"Running Test on Channel: {channel}")
     
@@ -102,37 +102,37 @@ class TesterFrontEnd:  # a GUI front end for the test
         if(self.impedancetest.get() == 0 and self.dongletest.get() == 0 and self.pulseechotest.get() == 0): # repeat the same process with the impedance test/dongle test
             return
     
-        filename = os.getcwd() + '\\' + self.filename.get() 
+        filename = os.getcwd() + '\\' + self.filename.get()
         path = "\\".join(filename.split("\\")[0:-1]) # create the path of the file if it wasn't already there
 
-        os.makedirs(path, exist_ok=True)
+        os.makedirs(path, exist_ok=True) # if the directory isn't there create it
 
         window = None
-        if self.promptcapture.get() and self.pulseechotest.get():
+        if self.promptcapture.get() and self.pulseechotest.get():   # if we want to prompt capture then open up a capture window
             window = self.CapturePopup()
         
         if self.allchannels.get() != 0:
             for i in range(tb.max_channel):
-                self.RunSingleChannelTest(i + 1, filename)
+                self.RunSingleChannelTest(i + 1, filename)  # run every channel
             
-            self.GenerateXLSXReport()
+            self.GenerateXLSXReport() # after all channels have been run then generate a report of the findings
 
         else:
-            self.RunSingleChannelTest(self.channel, filename)
+            self.RunSingleChannelTest(self.channel, filename) # run only one channel
 
-        if self.promptcapture.get() and self.pulseechotest.get():
+        if self.promptcapture.get() and self.pulseechotest.get(): # after we are done destroy the capture window if we are using it
             window.destroy()
             
-    def CapturePopup(self) -> Toplevel:
+    def CapturePopup(self) -> Toplevel: 
         
-        window = Toplevel()
+        window = Toplevel() # a secondary window
         
         def CaptureButtonCB() -> None:
-            self.triggered.set(1)
+            self.triggered.set(1) # mark the channel is triggered
                 
-        button = ttk.Button(window, text = "Capture", command = CaptureButtonCB)
-        button.pack()
-        button.wait_variable(self.triggered)
+        button = ttk.Button(window, text = "Capture", command = CaptureButtonCB) # create a button, when pushed trigger the scope to capture
+        button.pack() # place the button in the window
+        button.wait_variable(self.triggered) # wait for the button to be pressed
 
         return window
 
@@ -143,6 +143,10 @@ class TesterFrontEnd:  # a GUI front end for the test
     def RunPulseEchoTest(self, channel, filename) -> tuple[bool, float]:    
         if not self.promptcapture.get():
             time.sleep(5)
+        else:
+            self.triggered.set(0) # mark the the channel as untriggered
+            while not self.triggered.get(): # wait for the button to be pressed
+                pass
         print("Running Pulse Echo Test")
         return self.backend.PulseEchoTest(1, channel, filename) # run the test on scope channel 1 with file name filename
         
@@ -201,13 +205,15 @@ class TesterFrontEnd:  # a GUI front end for the test
 
     def GenerateXLSXReport(self) -> None:
 
-        report = openpyxl.Workbook()
+        report = openpyxl.Workbook() # create a new excel sheet with multiple pages
         
+        # load all of the templates into sheets
         templatepath = os.path.dirname(os.path.abspath(__file__)) + "\\..\\docs\\"
         donglereporttemplate = openpyxl.load_workbook(filename = templatepath + "DongleTemplate.xlsx")
         impedancereporttemplate = openpyxl.load_workbook(filename = templatepath + "ImpedanceTemplate.xlsx")
         pereporttemplate = openpyxl.load_workbook(filename = templatepath + "PETemplate.xlsx")
         
+        # copy all of the templates into the new excel sheet and name the sheets accordingly
         donglereport = report.active
         donglereport.title = "Dongle"
         copy_sheet(donglereporttemplate.active, donglereport)
@@ -221,60 +227,64 @@ class TesterFrontEnd:  # a GUI front end for the test
         failcolor = fills.PatternFill(patternType = 'solid', fgColor = red)
         passcolor = fills.PatternFill(patternType = 'solid', fgColor = green)
         
+        # fill out the sheet with the data from the pulse echo test results
         for i in range(8, 8 + tb.max_channel):
             
-            data = self.passmap["PulseEcho"][i - 8]
+            data = self.passmap["PulseEcho"][i - 8] # get the channel test results for PE
             if None in data:
                 continue
             
-            pereport["D" + str(i)] = f"{data[1] * 1e3: .2f}"
-            pereport["E" + str(i)] = f"{data[3] * 1e-6: .2f}"
-            pereport["F" + str(i)] = "Pass" if data[0] else "Fail"
-            pereport["G" + str(i)] = "True" if data[1] == 0 else ""
-            pereport["H" + str(i)] = f"{data[2] * 1e-6:.2f}"
+            pereport["D" + str(i)] = f"{data[1] * 1e3: .2f}" # put the vpp in mV
+            pereport["E" + str(i)] = f"{data[3] * 1e-6: .2f}" # put the bandwidth in MHz
+            pereport["F" + str(i)] = "Pass" if data[0] else "Fail" # if the channel passed put "Pass"
+            pereport["G" + str(i)] = "True" if data[1] == 0 else "" # if the channel is dead say so
+            pereport["H" + str(i)] = f"{data[2] * 1e-6:.2f}" # put the center frequency in MHz
             
-            color = passcolor if data[0] == True else failcolor
+            color = passcolor if data[0] == True else failcolor # fill the rows with the correct color based on the pass or fail
             rowcells = pereport.iter_cols(min_col = 3, max_col = 8, min_row = i, max_row = i)
             for row in rowcells:
                 for cols in row: 
                     cols.fill = color
-            
+        
+        # fill out the sheet with the impedance test results 
         for i in range(11, 11 + tb.max_channel):    
 
             data = self.passmap["Impedance"][i - 11]
             if None in data:
                 continue
             
-            impedancereport["D" + str(i)] = f"{data[1] * 1e12: .2f}"
-            impedancereport["E" + str(i)] = "Pass" if data[0] else "Fail"     
-            impedancereport["F" + str(i)] = "Open" if data[1] > 10e-12 and data[1] < 600e-12 else "Short" if data[1] < 0 else ""       
+            impedancereport["D" + str(i)] = f"{data[1] * 1e12: .2f}" # put the capacitance in pF
+            impedancereport["E" + str(i)] = "Pass" if data[0] else "Fail"  # put if the channel passed or failed
+            impedancereport["F" + str(i)] = "Open" if data[1] > 10e-12 and data[1] < 600e-12 else "Short" if data[1] < 0 else "" # Put if the channel is Open or Short based on criteria       
             
-            color = passcolor if data[0] == True else failcolor
+            color = passcolor if data[0] == True else failcolor # highlight the rows with the correct color based on if they passed or failed
             rowcells = impedancereport.iter_cols(min_col = 3, max_col = 6, min_row = i, max_row = i)
             for row in rowcells:
                 for cols in row: 
                     cols.fill = color
 
+        # fill out the sheet with the dongle test results
         for i in range(11, 11 + tb.max_channel):    
             
             data = self.passmap["Dongle"][i - 11]
             if None in data:
                 continue
                 
-            donglereport["D" + str(i)] = f"{data[1] * 1e12: .2f}"
-            donglereport["E" + str(i)] = "Pass" if data[0] else "Fail"
-            donglereport["F" + str(i)] = "Open" if data[1] > 10e-12 and data[1] < 180e-12 else "Short" if data[1] < 0 else ""
+            donglereport["D" + str(i)] = f"{data[1] * 1e12: .2f}" # put the capacitance in pF
+            donglereport["E" + str(i)] = "Pass" if data[0] else "Fail" # mark if the channel passed or failed
+            donglereport["F" + str(i)] = "Open" if data[1] > 10e-12 and data[1] < 180e-12 else "Short" if data[1] < 0 else "" # mark if the channel is open or short based on criteria
             
-            color = passcolor if data[0] == True else failcolor
+            color = passcolor if data[0] == True else failcolor # color the rows according to passing or failing
             rowcells = donglereport.iter_cols(min_col = 3, max_col = 6, min_row = i, max_row = i)
             for row in rowcells:
                 for cols in row: 
                     cols.fill = color
                 
-        filename = os.getcwd() + '\\' + self.filename.get() + "Report.xlsx"
+        filename = os.getcwd() + '\\' + self.filename.get() + "Report.xlsx" # save the report
         report.save(filename)
 
 
+# Straight from SO on copying whole sheets
 def copy_sheet(source_sheet, target_sheet):
     copy_cells(source_sheet, target_sheet)  # copy all the cel values and styles
     copy_sheet_attributes(source_sheet, target_sheet)
@@ -325,6 +335,8 @@ def copy_cells(source_sheet, target_sheet):
         if source_cell.comment:
             target_cell.comment = copy(source_cell.comment)
             
+
+# the default script starts here
 
 if __name__ == "__main__":
 

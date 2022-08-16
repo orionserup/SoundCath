@@ -13,7 +13,7 @@ class VNA:
         self.mastercal = None # master calibration file
         self.calfile = None # "C:\\VNWA\\VNWA.cal" # Calibration File Path
         self.numpoints = 2000 # The Number of Points to Test Between the Frequencies
-        self.scale = "lin" # [lin / log]
+        self.scale = "lin" # [lin / log] scale for the sweeping points
         self.timeperpoint = 10 # How Long to wait before capturing the value
         self.txpower = 4000 # how much power to test with
         self.parameters = ["s11"] # which parameters to test with [s11, s22, s12, s21]

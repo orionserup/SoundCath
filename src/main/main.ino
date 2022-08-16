@@ -1,6 +1,6 @@
 #include <stdint.h>
 
-#define SEL0 4
+#define SEL0 4 // all of the select pins for choosing a channel
 #define SEL1 5
 #define SEL2 6
 #define SEL3 7
@@ -9,70 +9,45 @@
 #define SEL6 10
 #define SEL7 11
 
-#define TRIG0 12
+#define EN 13 // enable pin
 
-#define EN 13
-
-#define MAX_CHANNEL 64
-
-const uint8_t sel[] = { SEL0, SEL1, SEL2, SEL3, SEL4, SEL5, SEL6, SEL7 };
-const uint8_t trig[] = { TRIG0 };
+const uint8_t sel[] = { SEL0, SEL1, SEL2, SEL3, SEL4, SEL5, SEL6, SEL7 }; // all of the selct pins
 
 void set_channel(const uint8_t channel);
-void set_trigger(const uint8_t trigger);
-void reset_trigger(const uint8_t trigger);
 
 void setup() {
 
-  Serial.begin(115200);
+  Serial.begin(115200); // begin the serial port and 
   Serial.setTimeout(1);
 
-  for (uint8_t i = 0; i < sizeof(sel); i++)
+  for (uint8_t i = 0; i < sizeof(sel); i++) // configure all of the select pins as outputs
     pinMode(sel[i], OUTPUT);
 
-  for (uint8_t i = 0; i < sizeof(trig); i++)
-    pinMode(trig[i], OUTPUT);
+  pinMode(EN, OUTPUT); // enable is an output
 
-  pinMode(EN, OUTPUT);
-
-  digitalWrite(EN, LOW);
+  digitalWrite(EN, LOW); // disable the device by default
 
 }
 
 void loop() {
 
-  while(!Serial.available());
+  while(!Serial.available()); // wait for the host to send something over the serial port
 
-  int value = Serial.read();
+  int value = Serial.read(); // get the value the host sent
 
-  Serial.println(value);
+  Serial.println(value); // print the value over the serial port
 
-  if(value >= 0) {
-   
-    set_channel(value);
-    digitalWrite(EN, HIGH);
+  set_channel(value); // set the cooresponding channel
+  digitalWrite(EN, HIGH); // enable the chip
 
-  }
+
 
 }
 
 void set_channel(const uint8_t channel) {
 
   for (uint8_t i = 0; i < sizeof(sel); i++)
-    digitalWrite(sel[i], channel & 1 << i);
+    digitalWrite(sel[i], channel & (1 << i)); // set the channel bit by bit 
 
 }
 
-void set_trigger(const uint8_t trigger) {
-
-  for (uint8_t i = 0; i < sizeof(trig); i++)
-    digitalWrite(trig[i], trigger & 1 << i);
-
-}
-
-void reset_trigger(const uint8_t trigger) {
-
-  for (uint8_t i = 0; i < sizeof(trig); i++)
-    digitalWrite(trig[i], trigger & ~(1 << i));
-
-}

@@ -6,35 +6,55 @@ import VNA
 import math
 import matplotlib.pyplot as plt
 
-vnachanneloffset = 1 << 7
-scopechanneloffset = 1 << 6
-
+# user edittable pass fail criterion
+# the number of channels we are testing
 max_channel = 64
 
+# the upper threshhold of the capacitance for the dongle test, must be less than this
 dongle_upper_thresh = 340e-12    
+# the lower threshold of the capacitance for the dongle test, must be greater than this
 dongle_lower_thresh = 290e-12
+# the frequency to test the dongle at
 dongle_freq = 800e3
 
+# impedance test capacitance upper threshhold, must be less than this
 channel_upper_thresh = 750e-12
+# impedance test capacitance lower threshold, must be greater than this
 channel_lower_thresh = 700e-12
+# frequency to test the impedance at
 channel_freq = 800e3
 
+# pulse echo when to start the waveform capture
 scope_window_start_us = 49.6
+# pulse echo how wide of a window to examine
 scope_window_width_us = .9
 
+# pulse echo fft when to start the window
 fft_window_start = 2e6
+# pulse echo fft the window of the fft we want to look at
 fft_window_width = 8e6
 
+# pulse echo vpp lower threshold, must be higher than this
 vpp_lower_thresh = 50.0e-3
+# pulse echo upper threshold, must be lower than this
 vpp_upper_thresh = 140.0e-3
 
+# pulse echo bandwidth lower threshold, must be greater than this
 bandwidth_lower_thresh = 0.0
+# pulse echo bandwidth upper threshold, must be less than this
 bandwidth_upper_thresh = 10e6
 
+# center frequency lower threshold, must be greater than this
 peak_freq_lower_thresh = 5e6
+# center frequency upper threshold, must be less than this
 peak_freq_upper_thresh = 8e6
 
 scope_sample_interval_ns = 1 # sampling period of oscilloscope
+
+# do not edit past here #
+
+vnachanneloffset = 1 << 7
+scopechanneloffset = 1 << 6
 
 class CatheterTester:
     def __init__(self):
@@ -127,6 +147,8 @@ class CatheterTester:
 
         
         #self.scope.WriteDataToCSVFile(filename + str(self.channel + 1)) # Save all of the Data to a CSV File
+
+        # plot the waveform and fft and save it
         plt.plot(data["Time"], data["Voltage"])
         plt.xlabel("Time")
         plt.ylabel("Voltage")
@@ -139,30 +161,36 @@ class CatheterTester:
         plt.savefig(filename + "fft" + str(channel) + ".png")
         plt.close()
 
+        # Get the FFT
         fft = self.scope.GetFFT()
-        maxamp = fft["Amplitude"].max()
-        maxindex = np.where(fft['Amplitude'] == maxamp)[0][0]
+        maxamp = fft["Amplitude"].max() # find the maximum amplitude over the spectrum
+        maxindex = np.where(fft['Amplitude'] == maxamp)[0][0] # find where the maximum amplitude is at
 
-        thresh = .707 * maxamp
+        thresh = .707 * maxamp # -3db cutoff
         
-        left = maxindex
+        left = maxindex # start the bandedges at the center frequency
         right = maxindex 
 
-        while fft["Amplitude"][left] > thresh:
+        while fft["Amplitude"][left] > thresh: # we go until we hit -3db going left
             if left <= 0:
                 break
             left -= 1
 
-        while fft["Amplitude"][right] > thresh:
+        while fft["Amplitude"][right] > thresh: # we go until we hit -3db going right
             if right >= len(fft["Amplitude"]) - 1:
                 break 
             right += 1
 
-        bandwidth = fft["Frequency"][right] - fft["Frequency"][left]
-        peak = fft["Frequency"][maxindex]
+        # left edge is on the lower band edge and right is on the upper band edge
 
-        print(f"Vpp: {vpp} Bandwidth: {bandwidth} Peak Frequency: {peak}")        
+        bandwidth = fft["Frequency"][right] - fft["Frequency"][left] # bandwidth is the distance between the upper and lower bandedges
+        peak = fft["Frequency"][maxindex] # the center frequency is where the maximum is
+
+        print(f"Vpp: {vpp} Bandwidth: {bandwidth} Peak Frequency: {peak}")        # debug message
         
+        # check all of the thresholds and return if it passed and the tested values
+
+        # if vpp < .04 we have a dead element and thus return failure, the rest of the values dont matter
         if vpp <= .04:
             return [False, 0, 0, 0]
 

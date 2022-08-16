@@ -1,8 +1,8 @@
-import pyvisa as visa
-import numpy as np
-from scipy.fft import rfft, rfftfreq
-import csv
-import os
+import pyvisa as visa # visa for SCPi Commands
+import numpy as np # for Various Data and Numerical Operations
+from scipy.fft import rfft, rfftfreq # ffts
+import csv  # csv for report data
+import os   # for mkdir and pwd
 
 scope_sample_interval_ns = 1 # sampling period of oscilloscope
 
@@ -12,83 +12,83 @@ class Oscilloscope:
         rm = visa.ResourceManager() # create a VISA device manager
         devlist = rm.list_resources()  # print out all of the possible VISA Devices
         print(f"Listing VISA Devices: {devlist}")
-        self.Waveform = {}
-        self.fft = {}
-        self.scope = None
+        self.Waveform = {"Time": [], "Voltage": []} # a dictionary of Lists
+        self.fft = {"Frequency": [], "Amplitude": []}
+        self.scope = None # a visa handle for the scope device
         
         for dev in devlist:
             try:
-                if not "ASRL" in dev:
+                if not "ASRL" in dev: # if the device is not on the serial port
                     self.scope = rm.open_resource(dev) # open the device for use
-                    self.scope.query("*IDN?")
                 
-                if self.scope != None:
-                    print("Connected To a Scope: {}".format(dev))
+                if self.scope is not None: # if the scope was found
+                    print("Connected To a Scope: {}".format(dev)) # print a status message
                     print("Scope ID: " + self.scope.query("*IDN?"))
-                    return                
+                    return                # if we found the scope we are good to leave
             
-            except visa.VisaIOError:
+            except visa.VisaIOError: # if we fun into an error move on to the next device that was found
                 self.scope = None
                 continue
             
-        print("Did Not Find A Valid Scope")
+        print("Did Not Find A Valid Scope")  # If we didnt find a 
         self.scope = None
 
-    def IsConnected(self) -> bool:
+    def IsConnected(self) -> bool: # if we have an active conection to the scope, aka a visa handle
         return self.scope is not None
 
-    def CaptureWaveform(self, channel: int) -> dict[str, list[float]]:
+    def CaptureWaveform(self, channel: int) -> dict[str, list[float]]: # we capture the waveform using standard VISA / SCPI Commands
         
         self.scope.write("HEADER OFF")
 
-        self.scope.write(f"DATa:SOU CH{channel}")
-        self.scope.write("DATa:ENCdg RIBBINARY")
-        self.scope.write("DATA WIDTH 1")        
+        self.scope.write(f"DATa:SOU CH{channel}") # get the waeform from the channel specified in the argument
+        self.scope.write("DATa:ENCdg RIBBINARY") # We want the data as binary signed integers
+        self.scope.write("DATA WIDTH 1") # we want one byte per point
               
-        xinc = float(self.scope.query("WFMOUTPRE:XINCR?"))
-        ymult = float(self.scope.query('WFMOUTPRE:YMULT?'))
-        yoff = float(self.scope.query('WFMOUTPRE:YOFF?'))
-        yzero = float(self.scope.query('WFMOUTPRE:YZERO?'))
+        xinc = float(self.scope.query("WFMOUTPRE:XINCR?")) # we will find what the current x increment is
+        ymult = float(self.scope.query('WFMOUTPRE:YMULT?')) # we find out what the y scaling is 
+        yoff = float(self.scope.query('WFMOUTPRE:YOFF?')) # we find what the y offset is 
+        yzero = float(self.scope.query('WFMOUTPRE:YZERO?')) # we find out where the y zero is at
 
-        self.scope.write("ACQUIRE:STATE OFF")
-        self.scope.write("ACQUIRE:MODE NORMALSAMPLE")
-        self.scope.write("ACQUIRE:STOPAFTER SEQUENCE")
+        self.scope.write("ACQUIRE:STATE OFF")   # stop any waveform capture
+        self.scope.write("ACQUIRE:MODE NORMALSAMPLE") # set the capture mode to capture the screen normally like a trigger
+        self.scope.write("ACQUIRE:STOPAFTER SEQUENCE")  # set the capture to stop updating the screen after the capture
         
-        self.scope.write("ACQUIRE:STATE RUN")
+        self.scope.write("ACQUIRE:STATE RUN") # capture the waveform
 
-        while self.scope.query('BUSY?') == '1':
+        while self.scope.query('BUSY?') == '1': # while the waveform is capturing wait for it to finish
             pass
 
-        self.scope.write("DATA:START 1")  
-        num_samples = int(self.scope.query("HORIZONTAL:RECORD?"))
-        self.scope.write("DATA:STOP {}".format(num_samples))
+        self.scope.write("DATA:START 1")  # start getting the data from the beginning
+        num_samples = int(self.scope.query("HORIZONTAL:RECORD?")) # read how many samples were captured
+        self.scope.write("DATA:STOP {}".format(num_samples)) # set the end of the data to the end of the waveform
 
-        values = self.scope.query_binary_values('CURV?', datatype='b')
+        values = self.scope.query_binary_values('CURV?', datatype='b') # get the captured waveform
 
-        timeaxis = [i * xinc for i in range(len(values))]
+        timeaxis = [i * xinc for i in range(len(values))] # generate a list to represent the time access
 
-        voltage = [ymult * (values[i] - yoff) + yzero for i in range(len(values))]
+        voltage = [ymult * (values[i] - yoff) + yzero for i in range(len(values))] # generate a list of the voltages according to Tektronix this is how a raw V is calculated
 
-        self.Waveform["Time"] = timeaxis
+        self.Waveform["Time"] = timeaxis # export the data to the class member
         self.Waveform["Voltage"] = voltage
 
-        self.scope.write("ACQUIRE:STOPAFTER RUNSTOP")
-        self.scope.write("ACQUIRE:STATE RUN")
+        self.scope.write("ACQUIRE:STOPAFTER RUNSTOP") # set the scope to start capture when a signal is sent
+        self.scope.write("ACQUIRE:STATE RUN") # start capture again
 
         return self.Waveform
 
     def WindowWaveform(self, initial_us: float = 0.0, window_size_us: float = 5.0) -> dict[str, list]:
+
         deltat = self.Waveform["Time"][1] - self.Waveform["Time"][0]
         t0 = self.Waveform["Time"][0]
 
-        n = int((initial_us * 1e-6 - t0) / deltat)
-        d = int(window_size_us * 1e-6 / deltat)
+        n = int((initial_us * 1e-6 - t0) / deltat) # we want to start the window as close to the start point as possible
+        d = int(window_size_us * 1e-6 / deltat) # we want to make the width of the window as close to the desired width as possible
 
-        if n < 0 or n + d >= len(self.Waveform["Time"]):
+        if n < 0 or n + d >= len(self.Waveform["Time"]): # if the start is out of the waveform or the windowed waveform extends out of the waveform throw an error
             print("Window Outside of Range")
             return self.Waveform
 
-        self.Waveform = { "Time": self.Waveform["Time"][n: n + d], 'Voltage': self.Waveform["Voltage"][n: n + d] }
+        self.Waveform = { "Time": self.Waveform["Time"][n: n + d], 'Voltage': self.Waveform["Voltage"][n: n + d] } # window the waveform and time axis
         return self.Waveform
 
     def GetWaveform(self) -> dict[str, list]:
@@ -106,7 +106,7 @@ class Oscilloscope:
 
     def WindowFFT(self, start_freq: float, window_size: float) -> dict[str, list[float]]:
 
-        deltaf = self.fft["Frequency"][1] - self.fft["Frequency"][0]
+        deltaf = self.fft["Frequency"][1] - self.fft["Frequency"][0] # we want to get the start as close to the desired star as possible
         f0 = self.fft["Frequency"][0]
 
         n = int((start_freq - f0) / deltaf)
