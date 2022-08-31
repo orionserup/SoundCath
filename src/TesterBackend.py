@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 # user edittable pass fail criterion
 # the number of channels we are testing
-max_channel = 64
+max_channel = 96
 
 # the upper threshhold of the capacitance for the dongle test, must be less than this
 dongle_upper_thresh = 340e-12    
@@ -210,23 +210,7 @@ class CatheterTester:
         if(channel < 0):
             return
 
-        relay_ch = (channel & 0x30) >> 4 # get the two bit relay channel 
-        channel &= ~0x30 # clear the bits of the relay channel
-        
-        # custom relay channel mapping, see Jesus
-        if relay_ch == 0x3:
-            relay_ch = 0x2
-        elif relay_ch == 0x2:
-            relay_ch = 0x3
-        elif relay_ch == 0x1:
-            relay_ch = 0x1
-        else:
-            relay_ch = 0x0
-
-        channel |= relay_ch << 4 # put the correct index in
-
         self.arduino.Write(channel.to_bytes(1, 'big'))
-
 
 if __name__ == "__main__":
     pass

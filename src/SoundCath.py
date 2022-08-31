@@ -79,22 +79,18 @@ class TesterFrontEnd:  # a GUI front end for the test
             
     def RunSingleChannelTest(self, channel, filename) -> None:
 
-        if(self.impedancetest.get() != 0 or self.dongletest.get() != 0 or self.pulseechotest.get() != 0): # repeat the same process with the impedance test/dongle test
-            channel &= ~vnachanneloffset
-        else:
-            channel |= vnachanneloffset     # if we are running a test then mark the box to connect to the VNA/scope
-
-        self.backend.SetChannel(channel - 1) # set the channel to be the 0 indexed channel vs the 1 indexed channel
-
         print(f"Running Test on Channel: {channel}")
     
         if self.pulseechotest.get() != 0:
+            self.backend.SetChannel((channel - 1) | 0x80) # set the MSB to throw the relay to the scope 
             self.passmap["PulseEcho"][channel - 1] = self.RunPulseEchoTest(channel, filename) # Run the Tests and record the Results
-
+        
         if self.impedancetest.get() != 0:
+            self.backend.SetChannel(channel - 1) # set the channel to be the 0 indexed channel vs the 1 indexed channel
             self.passmap["Impedance"][channel - 1] = self.RunImpedanceTest(channel, filename) 
 
         if self.dongletest.get() != 0:
+            self.backend.SetChannel(channel - 1) # set the channel to be the 0 indexed channel vs the 1 indexed channel
             self.passmap["Dongle"][channel - 1] =  self.RunDongleTest(channel, filename) 
     
     def RunTests(self) -> None:
