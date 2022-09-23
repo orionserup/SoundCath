@@ -1,12 +1,12 @@
 #include <stdint.h>
 
-#define SEL0 4 // all of the select pins for choosing a channel
-#define SEL1 5
+#define SEL0 17 // all of the select pins for choosing a channel
+#define SEL1 18
 #define SEL2 6
 #define SEL3 7
-#define SEL4 8
+#define SEL4 20
 #define SEL5 14
-#define SEL6 10
+#define SEL6 19
 #define SEL7 11
 
 #define EN 13 // enable pin
