@@ -11,16 +11,16 @@ import matplotlib.pyplot as plt
 max_channel = 96
 
 # the upper threshhold of the capacitance for the dongle test, must be less than this
-dongle_upper_thresh = 340e-12    
+dongle_upper_thresh = 315e-12    
 # the lower threshold of the capacitance for the dongle test, must be greater than this
-dongle_lower_thresh = 290e-12
+dongle_lower_thresh = 270e-12
 # the frequency to test the dongle at
 dongle_freq = 800e3
 
 # impedance test capacitance upper threshhold, must be less than this
-channel_upper_thresh = 750e-12
+channel_upper_thresh = 920e-12
 # impedance test capacitance lower threshold, must be greater than this
-channel_lower_thresh = 700e-12
+channel_lower_thresh = 750e-12
 # frequency to test the impedance at
 channel_freq = 800e3
 
@@ -35,9 +35,9 @@ fft_window_start = 2e6
 fft_window_width = 8e6
 
 # pulse echo vpp lower threshold, must be higher than this
-vpp_lower_thresh = 50.0e-3
+vpp_lower_thresh = 65.0e-3
 # pulse echo upper threshold, must be lower than this
-vpp_upper_thresh = 140.0e-3
+vpp_upper_thresh = 315.0e-3
 
 # pulse echo bandwidth lower threshold, must be greater than this
 bandwidth_lower_thresh = 0.0
