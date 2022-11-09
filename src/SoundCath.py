@@ -55,6 +55,12 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.dongletestbutton = ttk.Checkbutton(self.root, variable = self.dongletest, text = "Dongle Test")
         self.promptcapturebutton = ttk.Checkbutton(self.root, variable = self.promptcapture, text = "Prompt Capture")
 
+        self.channels = StringVar(self.root, "96")
+        self.channelselectlabel = ttk.Label(self.root, text="Channels")
+        self.channel32select = ttk.Radiobutton(self.root, variable = self.channels, text="32", value="32")
+        self.channel64select = ttk.Radiobutton(self.root, variable = self.channels, text="64", value="64")
+        self.channel96select = ttk.Radiobutton(self.root, variable = self.channels, text="96", value="96")
+
         self.runbutton = ttk.Button(self.root, text = "Run Tests", command = self.RunTests) # all of the buttons to actually run the tests and get results and stuff
         self.reportbutton = ttk.Button(self.root, text = "Generate Report", command = self.GenerateXLSXReport)
 
@@ -69,6 +75,11 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.allchannelsbutton.place(x = 400, y = 100)
         self.dongletestbutton.place(x = 50, y = 150)
         self.promptcapturebutton.place(x = 250, y = 150)
+
+        self.channelselectlabel.place(x = 50, y = 170)
+        self.channel32select.place(x = 50, y = 180)
+        self.channel64select.place(x = 90, y = 180)
+        self.channel96select.place(x = 130, y = 180)
 
         self.reportbutton.place(x = 50, y = 300)
         self.runbutton.place(x = 400, y = 300)
@@ -134,7 +145,7 @@ class TesterFrontEnd:  # a GUI front end for the test
 
     def RunImpedanceTest(self, channel, filename) -> tuple[bool, float, float, float]:
         print("Running Impedance Test")
-        return self.backend.ImpedanceTest(channel, filename) # run the test with the filename
+        return self.backend.ImpedanceTest(channel, int(self.channels.get()), filename) # run the test with the filename
 
     def RunPulseEchoTest(self, channel, filename) -> tuple[bool, float]:    
         if not self.promptcapture.get():
@@ -144,11 +155,11 @@ class TesterFrontEnd:  # a GUI front end for the test
             while not self.triggered.get(): # wait for the button to be pressed
                 pass
         print("Running Pulse Echo Test")
-        return self.backend.PulseEchoTest(1, channel, filename) # run the test on scope channel 1 with file name filename
+        return self.backend.PulseEchoTest(1, channel, int(self.channels.get()), filename) # run the test on scope channel 1 with file name filename
         
     def RunDongleTest(self, channel, filename) -> tuple[bool, float]:
         print("Running Dongle Test")
-        return self.backend.DongleTest(channel, filename) # Run the Dongle test with the Filename as its file name
+        return self.backend.DongleTest(channel, int(self.channels.get()), filename) # Run the Dongle test with the Filename as its file name
 
     def IncChannel(self) -> None: # increments the channel and displays the change
         if(self.channel < tb.max_channel):
@@ -169,35 +180,38 @@ class TesterFrontEnd:  # a GUI front end for the test
         filename = os.getcwd() + '\\' + self.filename.get() 
         channels = [i + 1 for i in range(tb.max_channel)]
 
-        with open(filename + 'PEReport.csv', 'w') as pefile:
-            pewriter = csv.writer(pefile)
-            
-            pewriter.writerow(["Channel", "Passed", "Vpp", "Bandwidth", "Center Frequency"])
-            for channel in channels:
-                print(self.passmap["PulseEcho"][channel - 1])
-                data = self.passmap["PulseEcho"][channel - 1]
-                data.insert(0, channel)
-                pewriter.writerow(data)
+        if self.pulseechotest.get():
+            with open(filename + 'PEReport.csv', 'w') as pefile:
+                pewriter = csv.writer(pefile)
+                
+                pewriter.writerow(["Channel", "Passed", "Vpp", "Bandwidth", "Center Frequency"])
+                for channel in channels:
+                    print(self.passmap["PulseEcho"][channel - 1])
+                    data = self.passmap["PulseEcho"][channel - 1]
+                    data.insert(0, channel)
+                    pewriter.writerow(data)
 
-        with open(filename + 'ZReport.csv', 'w') as zfile:
-            zwriter = csv.writer(zfile)
-            
-            zwriter.writerow(["Channel", "Passed", "Capacitance"])
-            for channel in channels:
-                print(self.passmap["Impedance"][channel - 1])
-                data = self.passmap["Impedance"][channel - 1]
-                data.insert(0, channel)
-                zwriter.writerow(data)
+        if self.impedancetest.get():
+            with open(filename + 'ZReport.csv', 'w') as zfile:
+                zwriter = csv.writer(zfile)
+                
+                zwriter.writerow(["Channel", "Passed", "Capacitance"])
+                for channel in channels:
+                    print(self.passmap["Impedance"][channel - 1])
+                    data = self.passmap["Impedance"][channel - 1]
+                    data.insert(0, channel)
+                    zwriter.writerow(data)
         
-        with open(filename + "DongleReport", 'w') as donglefile:
-            donglewriter = csv.writer(donglefile)
-            
-            donglewriter.writerow(["Channel", "Passed", "Capacitance"])
-            for channel in channels:
-                print(self.passmap["Dongle"][channel - 1])
-                data = self.passmap["Dongle"][channel - 1]
-                data.insert(0, channel)
-                donglewriter.writerow(data)
+        if self.dongletest.get():
+            with open(filename + "DongleReport", 'w') as donglefile:
+                donglewriter = csv.writer(donglefile)
+                
+                donglewriter.writerow(["Channel", "Passed", "Capacitance"])
+                for channel in channels:
+                    print(self.passmap["Dongle"][channel - 1])
+                    data = self.passmap["Dongle"][channel - 1]
+                    data.insert(0, channel)
+                    donglewriter.writerow(data)
 
     def GenerateXLSXReport(self) -> None:
 
@@ -205,76 +219,80 @@ class TesterFrontEnd:  # a GUI front end for the test
         
         # load all of the templates into sheets
         templatepath = os.path.dirname(os.path.abspath(__file__)) + "\\..\\docs\\"
-        donglereporttemplate = openpyxl.load_workbook(filename = templatepath + "DongleTemplate.xlsx")
-        impedancereporttemplate = openpyxl.load_workbook(filename = templatepath + "ImpedanceTemplate.xlsx")
-        pereporttemplate = openpyxl.load_workbook(filename = templatepath + "PETemplate.xlsx")
+        donglereporttemplate = openpyxl.load_workbook(filename = templatepath + "DongleTemplate" + self.channels.get() + ".xlsx")
+        impedancereporttemplate = openpyxl.load_workbook(filename = templatepath + "ImpedanceTemplate" + self.channels.get() + ".xlsx")
+        pereporttemplate = openpyxl.load_workbook(filename = templatepath + "PETemplate" + self.channels.get() + ".xlsx")
         
         # copy all of the templates into the new excel sheet and name the sheets accordingly
-        donglereport = report.active
-        donglereport.title = "Dongle"
-        copy_sheet(donglereporttemplate.active, donglereport)
-        impedancereport = report.create_sheet("Impedance")
-        copy_sheet(impedancereporttemplate.active, impedancereport)
-        pereport = report.create_sheet("Pulse Echo")
-        copy_sheet(pereporttemplate.active, pereport)
         
         red = colors.Color("00FF0000")
         green = colors.Color("0000FF00")
         failcolor = fills.PatternFill(patternType = 'solid', fgColor = red)
         passcolor = fills.PatternFill(patternType = 'solid', fgColor = green)
+
+        mc = int(self.channels.get())
         
         # fill out the sheet with the data from the pulse echo test results
-        for i in range(8, 8 + tb.max_channel):
-            
-            data = self.passmap["PulseEcho"][i - 8] # get the channel test results for PE
-            if None in data:
-                continue
-            
-            pereport["D" + str(i)] = f"{data[1] * 1e3: .2f}" # put the vpp in mV
-            pereport["E" + str(i)] = f"{data[3] * 1e-6: .2f}" # put the bandwidth in MHz
-            pereport["F" + str(i)] = "Pass" if data[0] else "Fail" # if the channel passed put "Pass"
-            pereport["G" + str(i)] = "True" if data[1] == 0 else "" # if the channel is dead say so
-            pereport["H" + str(i)] = f"{data[2] * 1e-6:.2f}" # put the center frequency in MHz
-            
-            color = passcolor if data[0] == True else failcolor # fill the rows with the correct color based on the pass or fail
-            rowcells = pereport.iter_cols(min_col = 3, max_col = 8, min_row = i, max_row = i)
-            for row in rowcells:
-                for cols in row: 
-                    cols.fill = color
-        
-        # fill out the sheet with the impedance test results 
-        for i in range(11, 11 + tb.max_channel):    
-
-            data = self.passmap["Impedance"][i - 11]
-            if None in data:
-                continue
-            
-            impedancereport["D" + str(i)] = f"{data[1] * 1e12: .2f}" # put the capacitance in pF
-            impedancereport["E" + str(i)] = "Pass" if data[0] else "Fail"  # put if the channel passed or failed
-            impedancereport["F" + str(i)] = "Open" if data[1] > 10e-12 and data[1] < 600e-12 else "Short" if data[1] < 0 else "" # Put if the channel is Open or Short based on criteria       
-            
-            color = passcolor if data[0] == True else failcolor # highlight the rows with the correct color based on if they passed or failed
-            rowcells = impedancereport.iter_cols(min_col = 3, max_col = 6, min_row = i, max_row = i)
-            for row in rowcells:
-                for cols in row: 
-                    cols.fill = color
-
-        # fill out the sheet with the dongle test results
-        for i in range(11, 11 + tb.max_channel):    
-            
-            data = self.passmap["Dongle"][i - 11]
-            if None in data:
-                continue
+        if self.pulseechotest.get():        
+            pereport = report.create_sheet("Pulse Echo")
+            copy_sheet(pereporttemplate.active, pereport)
+            for i in range(8, 8 + mc):
                 
-            donglereport["D" + str(i)] = f"{data[1] * 1e12: .2f}" # put the capacitance in pF
-            donglereport["E" + str(i)] = "Pass" if data[0] else "Fail" # mark if the channel passed or failed
-            donglereport["F" + str(i)] = "Open" if data[1] > 10e-12 and data[1] < 180e-12 else "Short" if data[1] < 0 else "" # mark if the channel is open or short based on criteria
+                data = self.passmap["PulseEcho"][i - 8] # get the channel test results for PE
+                if None in data:
+                    continue
+                
+                pereport["D" + str(i)] = f"{data[1] * 1e3: .2f}" # put the vpp in mV
+                pereport["E" + str(i)] = f"{data[3] * 1e-6: .2f}" # put the bandwidth in MHz
+                pereport["F" + str(i)] = "Pass" if data[0] else "Fail" # if the channel passed put "Pass"
+                pereport["G" + str(i)] = "True" if data[1] == 0 else "" # if the channel is dead say so
+                pereport["H" + str(i)] = f"{data[2] * 1e-6:.2f}" # put the center frequency in MHz
+                
+                color = passcolor if data[0] == True else failcolor # fill the rows with the correct color based on the pass or fail
+                rowcells = pereport.iter_cols(min_col = 3, max_col = 8, min_row = i, max_row = i)
+                for row in rowcells:
+                    for cols in row: 
+                        cols.fill = color
             
-            color = passcolor if data[0] == True else failcolor # color the rows according to passing or failing
-            rowcells = donglereport.iter_cols(min_col = 3, max_col = 6, min_row = i, max_row = i)
-            for row in rowcells:
-                for cols in row: 
-                    cols.fill = color
+        if self.impedancetest.get():
+            impedancereport = report.create_sheet("Impedance")
+            copy_sheet(impedancereporttemplate.active, impedancereport)
+            # fill out the sheet with the impedance test results 
+            for i in range(11, 11 + mc):    
+
+                data = self.passmap["Impedance"][i - 11]
+                if None in data:
+                    continue
+                
+                impedancereport["D" + str(i)] = f"{data[1] * 1e12: .2f}" # put the capacitance in pF
+                impedancereport["E" + str(i)] = "Pass" if data[0] else "Fail"  # put if the channel passed or failed
+                impedancereport["F" + str(i)] = "Open" if data[1] > 10e-12 and data[1] < 600e-12 else "Short" if data[1] < 0 else "" # Put if the channel is Open or Short based on criteria       
+                
+                color = passcolor if data[0] == True else failcolor # highlight the rows with the correct color based on if they passed or failed
+                rowcells = impedancereport.iter_cols(min_col = 3, max_col = 6, min_row = i, max_row = i)
+                for row in rowcells:
+                    for cols in row: 
+                        cols.fill = color
+
+        if self.dongletest.get():
+            donglereport = report.create_sheet("Dongle")
+            copy_sheet(donglereporttemplate.active, donglereport)
+            # fill out the sheet with the dongle test results
+            for i in range(11, 11 + mc):    
+                
+                data = self.passmap["Dongle"][i - 11]
+                if None in data:
+                    continue
+                    
+                donglereport["D" + str(i)] = f"{data[1] * 1e12: .2f}" # put the capacitance in pF
+                donglereport["E" + str(i)] = "Pass" if data[0] else "Fail" # mark if the channel passed or failed
+                donglereport["F" + str(i)] = "Open" if data[1] > 10e-12 and data[1] < 180e-12 else "Short" if data[1] < 0 else "" # mark if the channel is open or short based on criteria
+                
+                color = passcolor if data[0] == True else failcolor # color the rows according to passing or failing
+                rowcells = donglereport.iter_cols(min_col = 3, max_col = 6, min_row = i, max_row = i)
+                for row in rowcells:
+                    for cols in row: 
+                        cols.fill = color
                 
         filename = os.getcwd() + '\\' + self.filename.get() + "Report.xlsx" # save the report
         report.save(filename)
