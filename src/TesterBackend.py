@@ -212,12 +212,11 @@ class CatheterTester:
         if(channel < 0):
             return
 
-        if maxchannel == 96:
-            if channel > 64:
-                channel = channel & ~0x70
-                channel = channel | 0x60
-                
-            self.arduino.Write(channel.to_bytes(1, 'big'))
+        if channel > 64:
+            channel = channel & ~0x70
+            channel = channel | 0x60
+            
+        self.arduino.Write(channel.to_bytes(1, 'big'))
 
 if __name__ == "__main__":
     pass
