@@ -36,7 +36,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.text = StringVar(self.root, "Channel " + str(self.channel)) # the string to display the channel
 
         # Variable to Store the Results of all of the Tests
-        self.passmap = { "Impedance": [[False, None]] * tb.max_channel, "PulseEcho": [[False, None, None, None]] * tb.max_channel, "Dongle": [[False, None]] * tb.max_channel}
+        self.passmap = None
         self.backend = tb.CatheterTester() # Backend tester that does the actual work 
         self.triggered = IntVar(self.root, 0)
 
@@ -76,15 +76,15 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.dongletestbutton.place(x = 50, y = 150)
         self.promptcapturebutton.place(x = 250, y = 150)
 
-        self.channelselectlabel.place(x = 50, y = 170)
-        self.channel32select.place(x = 50, y = 180)
-        self.channel64select.place(x = 90, y = 180)
-        self.channel96select.place(x = 130, y = 180)
+        self.channelselectlabel.place(x = 50, y = 200)
+        self.channel32select.place(x = 50, y = 230)
+        self.channel64select.place(x = 250, y = 230)
+        self.channel96select.place(x = 400, y = 230)
 
-        self.reportbutton.place(x = 50, y = 300)
-        self.runbutton.place(x = 400, y = 300)
-        self.filenamelabel.place(x = 50, y = 200)
-        self.filename.place(x = 300, y = 200, height = 50, width = 250)
+        self.reportbutton.place(x = 50, y = 340)
+        self.runbutton.place(x = 400, y = 340)
+        self.filenamelabel.place(x = 50, y = 280)
+        self.filename.place(x = 300, y = 280, height = 50, width = 250)
 
         self.window.mainloop()
             
@@ -108,6 +108,9 @@ class TesterFrontEnd:  # a GUI front end for the test
         
         if(self.impedancetest.get() == 0 and self.dongletest.get() == 0 and self.pulseechotest.get() == 0): # repeat the same process with the impedance test/dongle test
             return
+        
+        mc = int(self.channels.get())
+        self.passmap = { "Impedance": [[False, None]] * mc, "PulseEcho": [[False, None, None, None]] * mc, "Dongle": [[False, None]] * mc }
     
         filename = os.getcwd() + '\\' + self.filename.get()
         path = "\\".join(filename.split("\\")[0:-1]) # create the path of the file if it wasn't already there
@@ -119,7 +122,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             window = self.CapturePopup()
         
         if self.allchannels.get() != 0:
-            for i in range(tb.max_channel):
+            for i in range(mc):
                 self.RunSingleChannelTest(i + 1, filename)  # run every channel
             
             self.GenerateXLSXReport() # after all channels have been run then generate a report of the findings

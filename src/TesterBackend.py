@@ -127,7 +127,7 @@ class CatheterTester:
         return [False, c] # if we didnt pass we failed
         
         
-    def PulseEchoTest(self, scopechannel: int = 1, channel: int, maxchannel: int = 96, filename: str = "cath.csv") -> list[bool, float, float, float]:
+    def PulseEchoTest(self, scopechannel: int = 1, channel: int = 1, maxchannel: int = 96, filename: str = "cath.csv") -> list[bool, float, float, float]:
         
         if not self.scope.IsConnected(): # if we aren't connected to the scope then we automatically fail
             return False, None, None, None
