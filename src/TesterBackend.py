@@ -18,9 +18,9 @@ dongle_lower_thresh = [None, None, 270e-12]
 dongle_freq = 800e3
 
 # impedance test capacitance upper threshhold, must be less than this
-channel_upper_thresh = [None, None, 920e-12]
+channel_upper_thresh = [None, 800e-12, 920e-12]
 # impedance test capacitance lower threshold, must be greater than this
-channel_lower_thresh = [None, None, 750e-12]
+channel_lower_thresh = [None, 715e-12, 750e-12]
 # frequency to test the impedance at
 channel_freq = 800e3
 
