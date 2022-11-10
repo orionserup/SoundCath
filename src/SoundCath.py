@@ -222,7 +222,8 @@ class TesterFrontEnd:  # a GUI front end for the test
         filename = os.getcwd() + '\\' + self.filename.get() + "Report.xlsx" # save the report
         
         append = os.path.isfile(filename) # we are adding overwriting an existing report
-        
+
+        report = None
         if append:
             report = openpyxl.load_workbook(filename)
         else:
