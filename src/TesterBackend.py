@@ -133,8 +133,9 @@ class CatheterTester:
             return False, None, None, None
         
         self.scope.CaptureWaveform(scopechannel) # capture the waveform from the screen
-        self.scope.WindowWaveform(scope_window_start_us, scope_window_width_us)
+        #self.scope.WindowWaveform(scope_window_start_us, scope_window_width_us)
         data = self.scope.GetWaveform()
+        print(f"Number of Data Points: {len(data['Time'])}")
 
         minimum = min(data["Voltage"]) # find the minimum voltage of the waveform
         maximum = max(data["Voltage"]) # find the maximum voltage of the waveform
@@ -142,7 +143,7 @@ class CatheterTester:
         vpp = maximum - minimum # get the peak to peak maximum 
 
         self.scope.CalculateFFT() # calculate the fft of the waveform      
-        self.scope.WindowFFT(fft_window_start, fft_window_width)
+        #self.scope.WindowFFT(fft_window_start, fft_window_width)
         fft = self.scope.GetFFT()
 
         #self.scope.WriteDataToCSVFile(filename + str(self.channel + 1)) # Save all of the Data to a CSV File
@@ -155,6 +156,7 @@ class CatheterTester:
         plt.close()
         
         dbamp = 20 * np.log10(fft["Amplitude"] / fft["Amplitude"].max())
+        print(f"FFT Length: {len(dbamp)}")
 
         plt.plot(fft["Frequency"], dbamp)
         plt.xlabel("Frequency")
@@ -185,7 +187,7 @@ class CatheterTester:
 
         bandwidth = fft["Frequency"][right] - fft["Frequency"][left] # bandwidth is the distance between the upper and lower bandedges
         peak = fft["Frequency"][maxindex] # the center frequency is where the maximum is
-        bandwidth = bandwidth / peak
+        # bandwidth = bandwidth / peak
 
         print(f"Vpp: {vpp} Bandwidth: {bandwidth} Peak Frequency: {peak}")        # debug message
         
@@ -199,7 +201,7 @@ class CatheterTester:
         if vpp < vpp_lower_thresh[idx] or vpp > vpp_upper_thresh[idx]:
             return [False, vpp, bandwidth, peak]
 
-        if bandwidth < bandwidth_lower_thresh[idx] or bandwidth > bandwidth_upper_threshp[idx]:
+        if bandwidth < bandwidth_lower_thresh[idx] or bandwidth > bandwidth_upper_thresh[idx]:
             return [False, vpp, bandwidth, peak]
 
         if peak < peak_freq_lower_thresh[idx] or peak > peak_freq_upper_thresh[idx]:
@@ -212,9 +214,8 @@ class CatheterTester:
         if(channel < 0):
             return
 
-        if channel > 64:
-            channel = channel & ~0x70
-            channel = channel | 0x60
+        if channel >= 80:
+            channel = (channel & 0x8f) | 0x60
             
         self.arduino.Write(channel.to_bytes(1, 'big'))
 
