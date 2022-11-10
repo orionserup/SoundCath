@@ -27,7 +27,7 @@ channel_freq = 800e3
 # pulse echo when to start the waveform capture
 scope_window_start_us = 49.6
 # pulse echo how wide of a window to examine
-scope_window_width_us = 50
+scope_window_width_us = 40
 
 # pulse echo fft when to start the window
 fft_window_start = 2e6
@@ -134,7 +134,7 @@ class CatheterTester:
         
         self.scope.CaptureWaveform(scopechannel) # capture the waveform from the screen
         self.scope.WindowWaveform(scope_window_start_us, scope_window_width_us)
-        data = self.scope.GetWaveform()
+        data = self.scope.GetWaveform()       
         print(f"Number of Data Points: {len(data['Time'])}")
 
         minimum = min(data["Voltage"]) # find the minimum voltage of the waveform
@@ -145,7 +145,7 @@ class CatheterTester:
         self.scope.CalculateFFT() # calculate the fft of the waveform      
         self.scope.WindowFFT(fft_window_start, fft_window_width)
         fft = self.scope.GetFFT()
-
+        
         #self.scope.WriteDataToCSVFile(filename + str(self.channel + 1)) # Save all of the Data to a CSV File
 
         # plot the waveform and fft and save it
