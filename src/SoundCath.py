@@ -165,7 +165,8 @@ class TesterFrontEnd:  # a GUI front end for the test
         return self.backend.DongleTest(channel, int(self.channels.get()), filename) # Run the Dongle test with the Filename as its file name
 
     def IncChannel(self) -> None: # increments the channel and displays the change
-        if(self.channel < tb.max_channel):
+        mc = int(self.channels.get())
+        if(self.channel < mc):
             self.channel += 1
             self.text.set("Channel " + str(self.channel))
             self.backend.SetChannel(self.channel - 1)
@@ -218,7 +219,14 @@ class TesterFrontEnd:  # a GUI front end for the test
 
     def GenerateXLSXReport(self) -> None:
 
-        report = openpyxl.Workbook() # create a new excel sheet with multiple pages
+        filename = os.getcwd() + '\\' + self.filename.get() + "Report.xlsx" # save the report
+        
+        append = os.path.isfile(filename) # we are adding overwriting an existing report
+        
+        if append:
+            report = openpyxl.load_workbook(filename)
+        else:
+            report = openpyxl.Workbook() # create a new excel sheet with multiple pages
         
         # load all of the templates into sheets
         templatepath = os.path.dirname(os.path.abspath(__file__)) + "\\..\\docs\\"
@@ -237,8 +245,13 @@ class TesterFrontEnd:  # a GUI front end for the test
         
         # fill out the sheet with the data from the pulse echo test results
         if self.pulseechotest.get():        
-            pereport = report.create_sheet("Pulse Echo")
-            copy_sheet(pereporttemplate.active, pereport)
+            pereport = None
+            if "Pulse Echo" in report.sheetnames:
+                pereport = report["Pulse Echo"]
+            else:
+                pereport = report.create_sheet("Pulse Echo")
+                copy_sheet(pereporttemplate.active, pereport)
+
             for i in range(8, 8 + mc):
                 
                 data = self.passmap["PulseEcho"][i - 8] # get the channel test results for PE
@@ -258,8 +271,12 @@ class TesterFrontEnd:  # a GUI front end for the test
                         cols.fill = color
             
         if self.impedancetest.get():
-            impedancereport = report.create_sheet("Impedance")
-            copy_sheet(impedancereporttemplate.active, impedancereport)
+            impedancereport = None
+            if "Impedance" in report.sheetnames:
+                impedancereport = report["Impedance"]
+            else:
+                impedancereport = report.create_sheet("Impedance")
+                copy_sheet(impedancereporttemplate.active, impedancereport)
             # fill out the sheet with the impedance test results 
             for i in range(11, 11 + mc):    
 
@@ -278,8 +295,12 @@ class TesterFrontEnd:  # a GUI front end for the test
                         cols.fill = color
 
         if self.dongletest.get():
-            donglereport = report.create_sheet("Dongle")
-            copy_sheet(donglereporttemplate.active, donglereport)
+            donglereport = None
+            if "Dongle" in report.sheetnames:
+                dongleresport = report["Dongle"]
+            else:
+                donglereport = report.create_sheet("Dongle")
+                copy_sheet(donglereporttemplate.active, donglereport)
             # fill out the sheet with the dongle test results
             for i in range(11, 11 + mc):    
                 
@@ -297,7 +318,6 @@ class TesterFrontEnd:  # a GUI front end for the test
                     for cols in row: 
                         cols.fill = color
                 
-        filename = os.getcwd() + '\\' + self.filename.get() + "Report.xlsx" # save the report
         report.save(filename)
 
 
