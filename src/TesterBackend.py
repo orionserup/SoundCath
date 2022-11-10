@@ -27,12 +27,12 @@ channel_freq = 800e3
 # pulse echo when to start the waveform capture
 scope_window_start_us = 49.6
 # pulse echo how wide of a window to examine
-scope_window_width_us = 40
+scope_window_width_us = 10
 
 # pulse echo fft when to start the window
 fft_window_start = 2e6
 # pulse echo fft the window of the fft we want to look at
-fft_window_width = 8e6
+fft_window_width = 6e6
 
 # pulse echo vpp lower threshold, must be higher than this
 vpp_lower_thresh = [None, None, 65.0e-3]
