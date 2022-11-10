@@ -5,6 +5,7 @@ import numpy as np
 import VNA
 import math
 import matplotlib.pyplot as plt
+from scipy.signal import butter, filtfilt
 
 # user edittable pass fail criterion
 # the number of channels we are testing
@@ -27,7 +28,7 @@ channel_freq = 800e3
 # pulse echo when to start the waveform capture
 scope_window_start_us = 49.6
 # pulse echo how wide of a window to examine
-scope_window_width_us = 5
+scope_window_width_us = 20
 
 # pulse echo fft when to start the window
 fft_window_start = 2e6
@@ -155,7 +156,10 @@ class CatheterTester:
         plt.savefig(filename + "wave" + str(channel) + ".png")
         plt.close()
         
-        dbamp = 20 * np.log10(fft["Amplitude"] / fft["Amplitude"].max())
+        b, a = butter(3, .1)        
+        sig = filtfilt(b, a, data["Amplitude"])
+        
+        dbamp = 20 * np.log10(sig / max(sig))
         print(f"FFT Length: {len(dbamp)}")
 
         plt.plot(fft["Frequency"], dbamp)
