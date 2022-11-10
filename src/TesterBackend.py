@@ -133,7 +133,7 @@ class CatheterTester:
             return False, None, None, None
         
         self.scope.CaptureWaveform(scopechannel) # capture the waveform from the screen
-        #self.scope.WindowWaveform(scope_window_start_us, scope_window_width_us)
+        self.scope.WindowWaveform(scope_window_start_us, scope_window_width_us)
         data = self.scope.GetWaveform()
         print(f"Number of Data Points: {len(data['Time'])}")
 
