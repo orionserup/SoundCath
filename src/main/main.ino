@@ -4,7 +4,7 @@
 #define SEL1 18
 #define SEL2 6
 #define SEL3 7
-#define SEL4 20
+#define SEL4 22
 #define SEL5 14
 #define SEL6 19
 #define SEL7 11
