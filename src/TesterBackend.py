@@ -28,7 +28,7 @@ channel_freq = 800e3
 # pulse echo when to start the waveform capture
 scope_window_start_us = 49.6
 # pulse echo how wide of a window to examine
-scope_window_width_us = 20
+scope_window_width_us = 10
 
 # pulse echo fft when to start the window
 fft_window_start = 2e6
@@ -98,7 +98,7 @@ class CatheterTester:
 
         return [False, 0]
         
-    def ImpedanceTest(self, channel: int, maxchannnel: int = 96, filename: str = None) -> list[bool, float]:
+    def ImpedanceTest(self, channel: int, maxchannel: int = 96, filename: str = None) -> list[bool, float]:
 
         if self.vna is None:
             return False # if the VNA wasn't initialized we can't pass the test
@@ -157,7 +157,7 @@ class CatheterTester:
         plt.close()
         
         b, a = butter(3, .1)        
-        sig = filtfilt(b, a, data["Amplitude"])
+        sig = filtfilt(b, a, fft["Amplitude"])
         
         dbamp = 20 * np.log10(sig / max(sig))
         print(f"FFT Length: {len(dbamp)}")
