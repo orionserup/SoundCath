@@ -19,9 +19,9 @@ dongle_lower_thresh = [None, None, 270e-12]
 dongle_freq = 800e3
 
 # impedance test capacitance upper threshhold, must be less than this
-channel_upper_thresh = [None, 800e-12, 920e-12]
+channel_upper_thresh = [800e-12, 800e-12, 920e-12]
 # impedance test capacitance lower threshold, must be greater than this
-channel_lower_thresh = [None, 715e-12, 750e-12]
+channel_lower_thresh = [700e-12, 715e-12, 750e-12]
 # frequency to test the impedance at
 channel_freq = 800e3
 
@@ -36,19 +36,19 @@ fft_window_start = 2e6
 fft_window_width = 6e6
 
 # pulse echo vpp lower threshold, must be higher than this
-vpp_lower_thresh = [None, None, 65.0e-3]
+vpp_lower_thresh = [65.0e-3, 65.0e-3, 65.0e-3]
 # pulse echo upper threshold, must be lower than this
-vpp_upper_thresh = [None, None, 315.0e-3]
+vpp_upper_thresh = [315.0e-3, 315.0e-3, 315.0e-3]
 
 # pulse echo bandwidth lower threshold, must be greater than this
-bandwidth_lower_thresh = [None, None, 0.0]
+bandwidth_lower_thresh = [0.0, 0.0, 0.0]
 # pulse echo bandwidth upper threshold, must be less than this
-bandwidth_upper_thresh = [None, None, 10e6]
+bandwidth_upper_thresh = [10e6, 10e6, 10e6]
 
 # center frequency lower threshold, must be greater than this
-peak_freq_lower_thresh = [None, None, 5e6]
+peak_freq_lower_thresh = [5e6, 5e6, 5e6]
 # center frequency upper threshold, must be less than this
-peak_freq_upper_thresh = [None, None, 8e6]
+peak_freq_upper_thresh = [8e6, 8e6, 8e6]
 
 # do not edit past here #
 
