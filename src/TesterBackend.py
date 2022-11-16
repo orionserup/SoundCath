@@ -161,7 +161,7 @@ class CatheterTester:
         print(f"FFT Length: {len(dbamp)}")
 
         b, a = butter(4, .1)        
-        dbamp = filtfilt(b, a, dbamp)
+        dbamp = filtfilt(b, a, dbamp)   
 
         plt.plot(fft["Frequency"], dbamp)
         plt.xlabel("Frequency")
