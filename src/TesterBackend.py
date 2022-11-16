@@ -178,12 +178,12 @@ class CatheterTester:
         left = maxindex # start the bandedges at the center frequency
         right = maxindex 
 
-        while fft["Amplitude"][left] > thresh: # we go until we hit -3db going left
+        while dbamp[left] > thresh: # we go until we hit -3db going left
             if left <= 0:
                 break
             left -= 1
 
-        while fft["Amplitude"][right] > thresh: # we go until we hit -3db going right
+        while dbamp[right] > thresh: # we go until we hit -3db going right
             if right >= len(dbamp) - 1:
                 break 
             right += 1
