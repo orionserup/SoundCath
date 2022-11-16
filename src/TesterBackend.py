@@ -158,7 +158,7 @@ class CatheterTester:
         
         sig = fft["Amplitude"]        
         
-        b, a = butter(4, .3)        
+        b, a = butter(6, .3)        
         sig = filtfilt(b, a, sig)   
         
         dbamp = 20 * np.log10(sig / max(sig))
