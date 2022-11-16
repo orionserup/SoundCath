@@ -65,8 +65,7 @@ class Oscilloscope:
         values = self.scope.query_binary_values('CURV?', datatype='b') # get the captured waveform
 
         timeaxis = [i * xinc for i in range(len(values))] # generate a list to represent the time access
-
-        voltage = [ymult * (values[i] - yoff) + yzero for i in range(len(values))] # generate a list of the voltages according to Tektronix this is how a raw V is calculated
+        voltage = [ymult * (val - yoff) + yzero for val in values] # generate a list of the voltages according to Tektronix this is how a raw V is calculated
 
         self.Waveform["Time"] = timeaxis # export the data to the class member
         self.Waveform["Voltage"] = voltage

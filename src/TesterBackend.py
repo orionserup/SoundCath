@@ -28,7 +28,7 @@ channel_freq = 800e3
 # pulse echo when to start the waveform capture
 scope_window_start_us = 49.6
 # pulse echo how wide of a window to examine
-scope_window_width_us = 10
+scope_window_width_us = 5
 
 # pulse echo fft when to start the window
 fft_window_start = 2e6
@@ -156,11 +156,12 @@ class CatheterTester:
         plt.savefig(filename + "wave" + str(channel) + ".png")
         plt.close()
         
-        b, a = butter(3, .1)        
-        sig = filtfilt(b, a, fft["Amplitude"])
-        
+        sig = fft["Amplitude"]
         dbamp = 20 * np.log10(sig / max(sig))
         print(f"FFT Length: {len(dbamp)}")
+
+        b, a = butter(4, .1)        
+        dbamp = filtfilt(b, a, dbamp)
 
         plt.plot(fft["Frequency"], dbamp)
         plt.xlabel("Frequency")
@@ -169,8 +170,8 @@ class CatheterTester:
         plt.close()
 
         # Get the FFT
-        maxamp = fft["Amplitude"].max() # find the maximum amplitude over the spectrum
-        maxindex = np.where(fft['Amplitude'] == maxamp)[0][0] # find where the maximum amplitude is at
+        maxamp = dbamp.max() # find the maximum amplitude over the spectrum
+        maxindex = np.where(dbamp == maxamp)[0][0] # find where the maximum amplitude is at
 
         thresh = -6 # -6db cutoff
         
