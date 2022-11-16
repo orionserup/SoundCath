@@ -156,12 +156,13 @@ class CatheterTester:
         plt.savefig(filename + "wave" + str(channel) + ".png")
         plt.close()
         
-        sig = fft["Amplitude"]
+        sig = fft["Amplitude"]        
+        
+        b, a = butter(4, .3)        
+        sig = filtfilt(b, a, sig)   
+        
         dbamp = 20 * np.log10(sig / max(sig))
         print(f"FFT Length: {len(dbamp)}")
-
-        b, a = butter(4, .3)        
-        dbamp = filtfilt(b, a, dbamp)   
 
         plt.plot(fft["Frequency"], dbamp)
         plt.xlabel("Frequency")
