@@ -160,7 +160,7 @@ class CatheterTester:
         dbamp = 20 * np.log10(sig / max(sig))
         print(f"FFT Length: {len(dbamp)}")
 
-        b, a = butter(6, .2)        
+        b, a = butter(6, .14)        
         dbamp = filtfilt(b, a, dbamp)   
 
         plt.plot(fft["Frequency"], dbamp)
