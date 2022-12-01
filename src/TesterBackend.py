@@ -158,11 +158,14 @@ class CatheterTester:
         
         sig = fft["Amplitude"]        
         
-        b, a = butter(6, .3)        
-        sig = filtfilt(b, a, sig)   
-        
         dbamp = 20 * np.log10(sig / max(sig))
-        print(f"FFT Length: {len(dbamp)}")
+        print(f"FFT Length: {len(dbamp)}")        
+        
+        b, a = butter(3, .1)        
+        dbamp = filtfilt(b, a, dbamp)           
+        
+        maxamp = dbamp.max() # find the maximum amplitude over the spectrum
+        dbamp -= maxamp
 
         plt.plot(fft["Frequency"], dbamp)
         plt.xlabel("Frequency")
@@ -171,8 +174,8 @@ class CatheterTester:
         plt.close()
 
         # Get the FFT
-        maxamp = dbamp.max() # find the maximum amplitude over the spectrum
-        maxindex = np.where(dbamp == maxamp)[0][0] # find where the maximum amplitude is at
+
+        maxindex = np.where(dbamp == 0)[0][0] # find where the maximum amplitude is at
 
         thresh = -6 # -6db cutoff
         
@@ -220,7 +223,7 @@ class CatheterTester:
         if(channel < 0):
             return
 
-        if channel >= 80:
+        if channel & 0x7f >= 80:
             channel = (channel & 0x8f) | 0x60
             
         self.arduino.Write(channel.to_bytes(1, 'big'))
