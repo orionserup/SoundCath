@@ -2,6 +2,7 @@
 from tkinter import StringVar, ttk, Tk, IntVar, Toplevel
 import time
 import TesterBackend as tb
+from concurrent import futures
 import csv
 import os
 import threading
@@ -10,6 +11,7 @@ from openpyxl.styles import fills, colors
 from copy import copy
 
 pulseecho_trigger_delay = 5.0 # The delay between the starting and capture of the waveform
+channel_delay = 1.0 # time between channels in all channels
 
 class TesterFrontEnd:  # a GUI front end for the test
 
@@ -41,9 +43,12 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.stopped = IntVar(self.root, 0)
 
         self.window = ttk.Frame(self.root)  # All widget elements
+        self.pool = futures.ThreadPoolExecutor(max_workers=1)
         
         self.upbutton = ttk.Button(self.root, text = "Up", command = self.IncChannel) # the up button
         self.downbutton = ttk.Button(self.root, text = "Down", command = self.DecChannel) # the down button
+        self.stopbutton = ttk.Button(self.root, text = "Stop", command = lambda: self.stopped.set(1))
+        self.capturebutton = ttk.Button(self.root, text = "Capture", command = lambda: self.triggered.set(1))
         
         self.label = ttk.Label(self.root, textvariable = self.text, width = 11) # Label to draw the Channel Number
         self.filenamelabel = ttk.Label(self.root, text = "File Name to Save:") # Entry box to put the filename into
@@ -55,13 +60,13 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.dongletestbutton = ttk.Checkbutton(self.root, variable = self.dongletest, text = "Dongle Test")
         self.promptcapturebutton = ttk.Checkbutton(self.root, variable = self.promptcapture, text = "Prompt Capture")
 
-        self.channels = StringVar(self.root, "96")
+        self.channels = StringVar(self.root, "64")
         self.channelselectlabel = ttk.Label(self.root, text="Channels")
         self.channel32select = ttk.Radiobutton(self.root, variable = self.channels, text="32", value="32")
         self.channel64select = ttk.Radiobutton(self.root, variable = self.channels, text="64", value="64")
         self.channel96select = ttk.Radiobutton(self.root, variable = self.channels, text="96", value="96")
 
-        self.runbutton = ttk.Button(self.root, text = "Run Tests", command = self.RunTests) # all of the buttons to actually run the tests and get results and stuff
+        self.runbutton = ttk.Button(self.root, text = "Run Tests", command = self.run_button_cb) # all of the buttons to actually run the tests and get results and stuff
         self.reportbutton = ttk.Button(self.root, text = "Generate Report", command = self.GenerateXLSXReport)
 
     def Draw(self) -> None: # positions and draws all of the widgets in the frame
@@ -69,7 +74,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.upbutton.place(x = 400, y = 50)
         self.label.place(x = 240 , y = 50)
         self.downbutton.place(x = 50, y = 50)
-
+        
         self.impedancetestbutton.place(x = 50, y = 100)
         self.pulseechotestbutton.place(x = 250, y = 100)
         self.allchannelsbutton.place(x = 400, y = 100)
@@ -85,9 +90,11 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.runbutton.place(x = 400, y = 340)
         self.filenamelabel.place(x = 50, y = 280)
         self.filename.place(x = 300, y = 280, height = 50, width = 250)
-
         self.window.mainloop()
-            
+    
+    def run_button_cb(self):
+        self.pool.submit(self.RunTests)
+    
     def RunSingleChannelTest(self, channel, filename) -> None:
 
         print(f"Running Test on Channel: {channel}")
@@ -103,34 +110,48 @@ class TesterFrontEnd:  # a GUI front end for the test
     
     def RunTests(self) -> None:
         
+        print("Running Tests")
         if(self.impedancetest.get() == 0 and self.dongletest.get() == 0 and self.pulseechotest.get() == 0): # repeat the same process with the impedance test/dongle test
             return
         
         mc = int(self.channels.get())
-        self.passmap = { "Impedance": [[False, None]] * mc, "PulseEcho": [[False, None, None, None]] * mc, "Dongle": [[False, None]] * mc }
+        self.passmap = { "Impedance": [[False, None, None]] * mc, "PulseEcho": [[False, None, None, None]] * mc, "Dongle": [[False, None, None]] * mc }
     
         filename = os.getcwd() + '\\' + self.filename.get()
         path = "\\".join(filename.split("\\")[0:-1]) # create the path of the file if it wasn't already there
 
         os.makedirs(path, exist_ok=True) # if the directory isn't there create it
 
-        window = None
         if self.promptcapture.get() and self.pulseechotest.get():   # if we want to prompt capture then open up a capture window
-            window = self.CapturePopup()
+            self.root.after(0, lambda: self.capturebutton.place(x = 200, y = 340))
         
         if self.allchannels.get() != 0:
             
-            stopbutton = self.StopPopUp()
-            for i in range(mc):
-                self.RunSingleChannelTest(i + 1, filename)  # run every channel
+            print("Testing All Channels")
             
-            self.GenerateXLSXReport() # after all channels have been run then generate a report of the findings
+            self.root.after(0, lambda: self.stopbutton.place(x = 280, y = 340))
+   
+            for i in range(mc):
+                if self.stopped.get():
+                    break
+                self.RunSingleChannelTest(i + 1, filename)
+                time.sleep(channel_delay)   
 
+            self.root.after(0, lambda: self.stopbutton.place_forget())
+            self.stopped.set(0)
+            
+            try: 
+                self.GenerateXLSXReport() # after all channels have been run then generate a report of the findings
+            except Exception as e:
+                print(e)
+                
         else:
             self.RunSingleChannelTest(self.channel, filename) # run only one channel
 
         if self.promptcapture.get() and self.pulseechotest.get(): # after we are done destroy the capture window if we are using it
-            window.destroy()
+            self.root.after(0, lambda: self.capturebutton.place_forget())
+            
+        print("Done Running Tests")
             
     def CapturePopup(self) -> Toplevel: 
         
@@ -142,19 +163,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         button = ttk.Button(window, text = "Capture", command = CaptureButtonCB) # create a button, when pushed trigger the scope to capture
         button.pack() # place the button in the window
         button.wait_variable(self.triggered) # wait for the button to be pressed
-
-        return window
-    
-    def StopPopup(self) -> Toplevel: 
-        
-        window = Toplevel() # a secondary window
-        
-        def StopButtonCB() -> None:
-            self.stopped.set(1) # mark the channel is triggered
-                
-        button = ttk.Button(window, text = "Stop Sweep", command = StopButtonCB) # create a button, when pushed trigger the scope to capture
-        button.pack() # place the button in the window
-        button.wait_variable(self.stopped) # wait for the button to be pressed
+        self.triggered.set(0)
 
         return window
 
@@ -193,6 +202,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             
     def GenerateCSVReport(self) -> None: # Generates a CSV Report with all of the results
 
+        print("Generating CSV Report")
         filename = os.getcwd() + '\\' + self.filename.get() 
         channels = [i + 1 for i in range(tb.max_channel)]
 
@@ -231,6 +241,7 @@ class TesterFrontEnd:  # a GUI front end for the test
 
     def GenerateXLSXReport(self) -> None:
 
+        print("Generating Excel Report")
         filename = os.getcwd() + '\\' + self.filename.get() + "Report.xlsx" # save the report
         
         append = os.path.isfile(filename) # we are adding overwriting an existing report
@@ -248,15 +259,12 @@ class TesterFrontEnd:  # a GUI front end for the test
         pereporttemplate = openpyxl.load_workbook(filename = templatepath + "PETemplate" + self.channels.get() + ".xlsx")
         
         # copy all of the templates into the new excel sheet and name the sheets accordingly
-        
         red = colors.Color("00FF0000")
         green = colors.Color("0000FF00")
         failcolor = fills.PatternFill(patternType = 'solid', fgColor = red)
         passcolor = fills.PatternFill(patternType = 'solid', fgColor = green)
 
         mc = int(self.channels.get())
-        
-        
         
         # fill out the sheet with the data from the pulse echo test results
         if self.pulseechotest.get():        
@@ -300,9 +308,6 @@ class TesterFrontEnd:  # a GUI front end for the test
                 pereport["E" + str(9 + mc)] = f"{ave_bandwidth / num_samples: .2f}" # put the bandwidth in MHz
                 pereport["H" + str(9 + mc)] = f"{ave_center * 1e-6 / num_samples:.2f}" # put the center frequency in MHz
             
-                        
-            
-            
         if self.impedancetest.get():
             impedancereport = None
             if "Impedance" in report.sheetnames:
@@ -318,11 +323,12 @@ class TesterFrontEnd:  # a GUI front end for the test
                     continue
                 
                 impedancereport["D" + str(i)] = f"{data[1] * 1e12: .2f}" # put the capacitance in pF
+                impedancereport["E" + str(i)] = f"{data[2]}" # put the impedance in ohms
                 impedancereport["E" + str(i)] = "Pass" if data[0] else "Fail"  # put if the channel passed or failed
                 impedancereport["F" + str(i)] = "Open" if data[1] > 10e-12 and data[1] < 600e-12 else "Short" if data[1] < 0 else "" # Put if the channel is Open or Short based on criteria       
                 
                 color = passcolor if data[0] == True else failcolor # highlight the rows with the correct color based on if they passed or failed
-                rowcells = impedancereport.iter_cols(min_col = 3, max_col = 6, min_row = i, max_row = i)
+                rowcells = impedancereport.iter_cols(min_col = 3, max_col = 7, min_row = i, max_row = i)
                 for row in rowcells:
                     for cols in row: 
                         cols.fill = color
@@ -342,16 +348,18 @@ class TesterFrontEnd:  # a GUI front end for the test
                     continue
                     
                 donglereport["D" + str(i)] = f"{data[1] * 1e12: .2f}" # put the capacitance in pF
-                donglereport["E" + str(i)] = "Pass" if data[0] else "Fail" # mark if the channel passed or failed
-                donglereport["F" + str(i)] = "Open" if data[1] > 10e-12 and data[1] < 180e-12 else "Short" if data[1] < 0 else "" # mark if the channel is open or short based on criteria
+                donglereport["E" + str(i)] = f"{data[2]}" # impedance in ohms
+                donglereport["F" + str(i)] = "Pass" if data[0] else "Fail" # mark if the channel passed or failed
+                donglereport["G" + str(i)] = "Open" if data[1] > 10e-12 and data[1] < 180e-12 else "Short" if data[1] < 0 else "" # mark if the channel is open or short based on criteria
                 
                 color = passcolor if data[0] == True else failcolor # color the rows according to passing or failing
-                rowcells = donglereport.iter_cols(min_col = 3, max_col = 6, min_row = i, max_row = i)
+                rowcells = donglereport.iter_cols(min_col = 3, max_col = 7, min_row = i, max_row = i)
                 for row in rowcells:
                     for cols in row: 
                         cols.fill = color
                 
         report.save(filename)
+        print(f"Saved Report as {filename}")
 
 
 # Straight from SO on copying whole sheets
@@ -412,6 +420,7 @@ if __name__ == "__main__":
 
     import atexit
     atexit.register(input, "Press Any Key To Continue")
+
 
     gui = TesterFrontEnd()
     gui.Draw()

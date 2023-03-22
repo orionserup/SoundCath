@@ -62,15 +62,15 @@ class CatheterTester:
         self.vna = VNA.VNA() # and a VNA
         self.channel = -1 # start with no channel being connected 
 
-        if not self.arduino.IsConnected():  # if could not connect to the arduino
-            print("Could Not Connect To the Arduino, Exiting")
-            input("Press Any Key To Exit")
-            exit() # leave the program
+        # if not self.arduino.IsConnected():  # if could not connect to the arduino
+        #     print("Could Not Connect To the Arduino, Exiting")
+        #     input("Press Any Key To Exit")
+        #     exit() # leave the program
             
     def DongleTest(self, channel: int , maxchannel: int = 96, filename: str = None) -> list[bool, float]:
         
         if self.vna is None:  # if we didnt initialze the VNA we can't run the test
-            return False
+            return [False, 0, 0]
         
         self.SetChannel(channel, maxchannel, True)
         
@@ -81,29 +81,34 @@ class CatheterTester:
   
         self.vna.SetFileName(filename + str(channel + 1) + "dongle") # set the filename to what was provided as well as the channel and dongle indicator 
             
-        self.vna.Sweep() # run the sweep 
-  
-        data = VNA.GrabS1PData(filename + str(channel + 1) + "dongles11.s1p") # pull the data from the s1p file, write it to CSV
-
-        print(data)
-
-        i = data["Frequency"].index(dongle_freq) # find the index from the data with the test frequency
-        idx = max_channel.index(maxchannel)
-
-        if i is not None:
-            c = -1 / (2 * math.pi * data["Z"][i].imag * dongle_freq) # if there is an entry with the test frequency calculate the capacitance
-            print(f"Capacitance: {c * 1e12: .2f}pF")
-            if c < dongle_upper_thresh[idx] and c > dongle_lower_thresh[idx]: # 1 / wC = im(Z)  # if we are within the thresholds then we are good
-                return [True, c] # Passed the test
+        try:
                 
-            return [False, c] # Failed the Test
+            self.vna.Sweep() # run the sweep 
+    
+            data = VNA.GrabS1PData(filename + str(channel + 1) + "dongles11.s1p") # pull the data from the s1p file, write it to CSV
 
-        return [False, 0]
+            print(data)
+
+            i = data["Frequency"].index(dongle_freq) # find the index from the data with the test frequency
+            idx = max_channel.index(maxchannel)
+
+            if i is not None:
+                c = -1 / (2 * math.pi * data["Z"][i].imag * dongle_freq) # if there is an entry with the test frequency calculate the capacitance
+                print(f"Capacitance: {c * 1e12: .2f}pF")
+                if c < dongle_upper_thresh[idx] and c > dongle_lower_thresh[idx]: # 1 / wC = im(Z)  # if we are within the thresholds then we are good
+                    return [True, c, data["Z"][i]] # Passed the test
+                else:
+                    return [False, c, data["Z"][i]] # Failed the Test
+                
+        except Exception as e:
+            print(e)
+
+        return [False, 0, 0]
         
     def ImpedanceTest(self, channel: int, maxchannel: int = 96, filename: str = None) -> list[bool, float]:
 
         if self.vna is None:
-            return False # if the VNA wasn't initialized we can't pass the test
+            return [False, 0, 0] # if the VNA wasn't initialized we can't pass the test
         
         self.SetChannel(channel, maxchannel, True)
         
@@ -114,28 +119,35 @@ class CatheterTester:
         self.vna.SetNumPoints(1)
         self.vna.SetSweepParameters(["s11"]) # we are looking for impedance
         
-        self.vna.Sweep() # sweep and save the values to an s1p file
+        try:
         
-        data = VNA.GrabS1PData(filename + str(channel) + "s11.s1p") # convert the generated csv file and pull the data
+            self.vna.Sweep() # sweep and save the values to an s1p file
+            
+            data = VNA.GrabS1PData(filename + str(channel) + "s11.s1p") # convert the generated csv file and pull the data
 
-        print(data)
+            print(data)
 
-        i = data["Frequency"].index(channel_freq) # if we find the frequency we wanted in the data set
-        idx = max_channel.index(maxchannel)
+            i = data["Frequency"].index(channel_freq) # if we find the frequency we wanted in the data set
+            idx = max_channel.index(maxchannel)
 
-        if i is not None:
-            c = -1 / (2 * math.pi * data["Z"][i].imag * channel_freq) # if there is an entry with the test frequency calculate the capacitance
-            print(f"Capacitance: {c * 1e12: .2f} pF")
-            if c < channel_upper_thresh[idx] and c > channel_lower_thresh[idx]: # 1 / wC = im(Z)  # if we are within the thresholds then we are good
-                return [True, c] # Passed the test
+            if i is not None:
+                c = -1 / (2 * math.pi * data["Z"][i].imag * channel_freq) # if there is an entry with the test frequency calculate the capacitance
+                print(f"Capacitance: {c * 1e12: .2f} pF")
+                if c < channel_upper_thresh[idx] and c > channel_lower_thresh[idx]: # 1 / wC = im(Z)  # if we are within the thresholds then we are good
+                    return [True, c, data["Z"][i]] # Passed the test
+                else:
+                    return [False, c, data["Z"][i]] # Passed the test
                 
-        return [False, c] # if we didnt pass we failed
+        except Exception as e:
+            print(e)
+                
+        return [False, 0, 0] # if we didnt pass we failed
         
         
     def PulseEchoTest(self, scopechannel: int = 1, channel: int = 1, maxchannel: int = 96, filename: str = "cath.csv") -> list[bool, float, float, float]:
         
         if not self.scope.IsConnected(): # if we aren't connected to the scope then we automatically fail
-            return False, None, None, None
+            return [False, None, None, None]
         
         self.SetChannel(channel, maxchannel, False)
         
