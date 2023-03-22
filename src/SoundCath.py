@@ -9,8 +9,7 @@ import openpyxl
 from openpyxl.styles import fills, colors
 from copy import copy
 
-vnachanneloffset = 1 << 7
-scopechanneloffset = 1 << 6
+pulseecho_trigger_delay = 5.0 # The delay between the starting and capture of the waveform
 
 class TesterFrontEnd:  # a GUI front end for the test
 
@@ -39,6 +38,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.passmap = None
         self.backend = tb.CatheterTester() # Backend tester that does the actual work 
         self.triggered = IntVar(self.root, 0)
+        self.stopped = IntVar(self.root, 0)
 
         self.window = ttk.Frame(self.root)  # All widget elements
         
@@ -93,15 +93,12 @@ class TesterFrontEnd:  # a GUI front end for the test
         print(f"Running Test on Channel: {channel}")
     
         if self.pulseechotest.get() != 0:
-            self.backend.SetChannel((channel - 1) | 0x80) # set the MSB to throw the relay to the scope 
             self.passmap["PulseEcho"][channel - 1] = self.RunPulseEchoTest(channel, filename) # Run the Tests and record the Results
         
         if self.impedancetest.get() != 0:
-            self.backend.SetChannel(channel - 1) # set the channel to be the 0 indexed channel vs the 1 indexed channel
             self.passmap["Impedance"][channel - 1] = self.RunImpedanceTest(channel, filename) 
 
         if self.dongletest.get() != 0:
-            self.backend.SetChannel(channel - 1) # set the channel to be the 0 indexed channel vs the 1 indexed channel
             self.passmap["Dongle"][channel - 1] =  self.RunDongleTest(channel, filename) 
     
     def RunTests(self) -> None:
@@ -122,6 +119,8 @@ class TesterFrontEnd:  # a GUI front end for the test
             window = self.CapturePopup()
         
         if self.allchannels.get() != 0:
+            
+            stopbutton = self.StopPopUp()
             for i in range(mc):
                 self.RunSingleChannelTest(i + 1, filename)  # run every channel
             
@@ -145,6 +144,19 @@ class TesterFrontEnd:  # a GUI front end for the test
         button.wait_variable(self.triggered) # wait for the button to be pressed
 
         return window
+    
+    def StopPopup(self) -> Toplevel: 
+        
+        window = Toplevel() # a secondary window
+        
+        def StopButtonCB() -> None:
+            self.stopped.set(1) # mark the channel is triggered
+                
+        button = ttk.Button(window, text = "Stop Sweep", command = StopButtonCB) # create a button, when pushed trigger the scope to capture
+        button.pack() # place the button in the window
+        button.wait_variable(self.stopped) # wait for the button to be pressed
+
+        return window
 
     def RunImpedanceTest(self, channel, filename) -> tuple[bool, float, float, float]:
         print("Running Impedance Test")
@@ -152,7 +164,7 @@ class TesterFrontEnd:  # a GUI front end for the test
 
     def RunPulseEchoTest(self, channel, filename) -> tuple[bool, float]:    
         if not self.promptcapture.get():
-            time.sleep(5)
+            time.sleep(pulseecho_trigger_delay)
         else:
             self.triggered.set(0) # mark the the channel as untriggered
             while not self.triggered.get(): # wait for the button to be pressed
@@ -244,6 +256,8 @@ class TesterFrontEnd:  # a GUI front end for the test
 
         mc = int(self.channels.get())
         
+        
+        
         # fill out the sheet with the data from the pulse echo test results
         if self.pulseechotest.get():        
             pereport = None
@@ -253,6 +267,11 @@ class TesterFrontEnd:  # a GUI front end for the test
                 pereport = report.create_sheet("Pulse Echo")
                 copy_sheet(pereporttemplate.active, pereport)
 
+            ave_vpp = 0
+            ave_bandwidth = 0
+            ave_center = 0
+            num_samples = 0
+
             for i in range(8, 8 + mc):
                 
                 data = self.passmap["PulseEcho"][i - 8] # get the channel test results for PE
@@ -260,16 +279,29 @@ class TesterFrontEnd:  # a GUI front end for the test
                     continue
                 
                 pereport["D" + str(i)] = f"{data[1] * 1e3: .2f}" # put the vpp in mV
-                pereport["E" + str(i)] = f"{data[3] * 1e-6: .2f}" # put the bandwidth in MHz
+                pereport["E" + str(i)] = f"{data[3]/data[2] * 100: .2f}" # put the bandwidth in MHz
                 pereport["F" + str(i)] = "Pass" if data[0] else "Fail" # if the channel passed put "Pass"
                 pereport["G" + str(i)] = "True" if data[1] == 0 else "" # if the channel is dead say so
                 pereport["H" + str(i)] = f"{data[2] * 1e-6:.2f}" # put the center frequency in MHz
+                
+                if data[0]:
+                    ave_vpp += data[1]
+                    ave_bandwidth += data[3]/data[2] * 100
+                    ave_center += data[2] * 1e-6
+                    num_samples += 1
                 
                 color = passcolor if data[0] == True else failcolor # fill the rows with the correct color based on the pass or fail
                 rowcells = pereport.iter_cols(min_col = 3, max_col = 8, min_row = i, max_row = i)
                 for row in rowcells:
                     for cols in row: 
                         cols.fill = color
+            
+                pereport["D" + str(9 + mc)] = f"{ave_vpp * 1e3 / num_samples: .2f}" # put the vpp in mV
+                pereport["E" + str(9 + mc)] = f"{ave_bandwidth / num_samples: .2f}" # put the bandwidth in MHz
+                pereport["H" + str(9 + mc)] = f"{ave_center * 1e-6 / num_samples:.2f}" # put the center frequency in MHz
+            
+                        
+            
             
         if self.impedancetest.get():
             impedancereport = None

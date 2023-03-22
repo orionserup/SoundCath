@@ -72,6 +72,8 @@ class CatheterTester:
         if self.vna is None:  # if we didnt initialze the VNA we can't run the test
             return False
         
+        self.SetChannel(channel, maxchannel, True)
+        
         self.vna.SetStartFreq(dongle_freq) # we only want to test one frequency
         self.vna.SetStopFreq(dongle_freq)
         self.vna.SetNumPoints(1)
@@ -103,6 +105,8 @@ class CatheterTester:
         if self.vna is None:
             return False # if the VNA wasn't initialized we can't pass the test
         
+        self.SetChannel(channel, maxchannel, True)
+        
         self.vna.SetFileName(filename + str(channel)) # set the filename to "{filename} {channel} s11.s1p"
         
         self.vna.SetStartFreq(channel_freq) # we only want to test one frequency
@@ -132,6 +136,8 @@ class CatheterTester:
         
         if not self.scope.IsConnected(): # if we aren't connected to the scope then we automatically fail
             return False, None, None, None
+        
+        self.SetChannel(channel, maxchannel, False)
         
         self.scope.CaptureWaveform(scopechannel) # capture the waveform from the screen
         self.scope.WindowWaveform(scope_window_start_us, scope_window_width_us)
@@ -218,15 +224,36 @@ class CatheterTester:
         
         return [True, vpp, bandwidth, peak]
 
-    def SetChannel(self, channel: int, maxchannel: int = 96):
+    def SetChannel(self, channel: int, maxchannel: int = 96, vna: bool = True):
+        
+        index = 0
 
-        if(channel < 0):
-            return
-
-        if channel & 0x7f >= 80:
-            channel = (channel & 0x8f) | 0x60
+        if maxchannel == 32:
             
-        self.arduino.Write(channel.to_bytes(1, 'big'))
+            mapping_32 = [2, 8, 16, 22, 23, 24, 27, 28, 
+                          33, 34, 36, 37, 38, 44, 45, 46,
+                          47, 48, 49, 53, 57, 58, 59, 60, 
+                          65, 79, 81, 82, 83, 84, 89, 91]
+            
+            index = mapping_32[channel - 1]
+        
+        if maxchannel == 64:        
+            
+            mapping_64 = [2, 6, 7, 8, 15, 16, 21, 22, 23, 
+                      24, 27, 28, 33, 34, 36, 37, 38, 
+                      40, 42, 43, 44, 45, 46, 47, 48,
+                      49, 50, 51, 52, 53, 57, 58, 59,
+                      60, 61, 62, 63, 64, 65, 69, 70,
+                      71, 72, 73, 74, 75, 76, 77, 78, 
+                      79, 80, 81, 82, 83, 84, 85, 86,
+                      87, 88, 89, 90, 91, 92, 93, 94]
+            
+            index = mapping_64[channel - 1]
+            
+        if not vna:
+            index = index | 0x80
+            
+        self.arduino.Write(index.to_bytes(1, 'big'))
 
 if __name__ == "__main__":
     pass
