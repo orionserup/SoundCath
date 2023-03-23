@@ -22,10 +22,10 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.root.geometry("600x400")
 
         self.style = ttk.Style()
-        self.style.configure("TCheckbutton", font = ("Arial", 16))
-        self.style.configure("TButton", font = ("Arial", 18))
+        self.style.configure("TCheckbutton", font = ("Arial", 12))
+        self.style.configure("TButton", font = ("Arial", 12))
         self.style.configure("TEntry", font = ("Arial", 24))
-        self.style.configure("TLabel", font = ("Arial", 18))
+        self.style.configure("TLabel", font = ("Arial", 12))
 
         # All of the Internal Variables
         self.channel = 0 # the channel we are in
@@ -123,13 +123,13 @@ class TesterFrontEnd:  # a GUI front end for the test
         os.makedirs(path, exist_ok=True) # if the directory isn't there create it
 
         if self.promptcapture.get() and self.pulseechotest.get():   # if we want to prompt capture then open up a capture window
-            self.root.after(0, lambda: self.capturebutton.place(x = 200, y = 340))
+            self.root.after(0, lambda: self.capturebutton.place(x =180, y = 340))
         
         if self.allchannels.get() != 0:
             
             print("Testing All Channels")
             
-            self.root.after(0, lambda: self.stopbutton.place(x = 280, y = 340))
+            self.root.after(0, lambda: self.stopbutton.place(x = 290, y = 340))
    
             for i in range(mc):
                 if self.stopped.get():
@@ -421,9 +421,6 @@ if __name__ == "__main__":
     import atexit
     atexit.register(input, "Press Any Key To Continue")
 
-
     gui = TesterFrontEnd()
     gui.Draw()
 
-    
-    
