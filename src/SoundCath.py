@@ -190,14 +190,14 @@ class TesterFrontEnd:  # a GUI front end for the test
         if(self.channel < mc):
             self.channel += 1
             self.text.set("Channel " + str(self.channel))
-            self.backend.SetChannel(self.channel - 1)
+            self.backend.SetChannel(self.channel - 1, mc)
             print(self.backend.arduino.ReadLine())
 
     def DecChannel(self) -> None: # Decrements the channel and display the change
         if(self.channel > 0):
             self.channel -= 1
             self.text.set("Channel " + str(self.channel))
-            self.backend.SetChannel(self.channel - 1)
+            self.backend.SetChannel(self.channel - 1, mc)
             print(self.backend.arduino.ReadLine())
             
     def GenerateCSVReport(self) -> None: # Generates a CSV Report with all of the results
