@@ -238,7 +238,7 @@ class CatheterTester:
 
     def SetChannel(self, channel: int, maxchannel: int = 96, vna: bool = True):
         
-        index = 0
+        index = channel
 
         if maxchannel == 32:
             
@@ -261,12 +261,11 @@ class CatheterTester:
                       87, 88, 89, 90, 91, 92, 93, 94]
             
             index = mapping_64[channel - 1]
-
-        else:
-            index = channel - 1
             
         if not vna:
             index = index | 0x80
+
+        print(f"Setting Channel to: {index}")
             
         self.arduino.Write(index.to_bytes(1, 'big'))
 

@@ -60,11 +60,11 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.dongletestbutton = ttk.Checkbutton(self.root, variable = self.dongletest, text = "Dongle Test")
         self.promptcapturebutton = ttk.Checkbutton(self.root, variable = self.promptcapture, text = "Prompt Capture")
 
-        self.channels = StringVar(self.root, "64")
+        self.channels = IntVar(self.root, 64)
         self.channelselectlabel = ttk.Label(self.root, text="Channels")
-        self.channel32select = ttk.Radiobutton(self.root, variable = self.channels, text="32", value="32")
-        self.channel64select = ttk.Radiobutton(self.root, variable = self.channels, text="64", value="64")
-        self.channel96select = ttk.Radiobutton(self.root, variable = self.channels, text="96", value="96")
+        self.channel32select = ttk.Radiobutton(self.root, variable = self.channels, text="32", value=32)
+        self.channel64select = ttk.Radiobutton(self.root, variable = self.channels, text="64", value=64)
+        self.channel96select = ttk.Radiobutton(self.root, variable = self.channels, text="96", value=96)
 
         self.runbutton = ttk.Button(self.root, text = "Run Tests", command = self.run_button_cb) # all of the buttons to actually run the tests and get results and stuff
         self.reportbutton = ttk.Button(self.root, text = "Generate Report", command = self.GenerateXLSXReport)
@@ -186,7 +186,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         return self.backend.DongleTest(channel, int(self.channels.get()), filename) # Run the Dongle test with the Filename as its file name
 
     def IncChannel(self) -> None: # increments the channel and displays the change
-        mc = int(self.channels.get())
+        mc = self.channels.get()
         if(self.channel < mc):
             self.channel += 1
             self.text.set("Channel " + str(self.channel))
@@ -194,7 +194,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             print(self.backend.arduino.ReadLine())
 
     def DecChannel(self) -> None: # Decrements the channel and display the change
-        mc = int(self.channels.get())
+        mc = self.channels.get()
         if(self.channel > 0):
             self.channel -= 1
             self.text.set("Channel " + str(self.channel))
