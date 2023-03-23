@@ -261,6 +261,9 @@ class CatheterTester:
                       87, 88, 89, 90, 91, 92, 93, 94]
             
             index = mapping_64[channel - 1]
+
+        else:
+            index = channel - 1
             
         if not vna:
             index = index | 0x80
