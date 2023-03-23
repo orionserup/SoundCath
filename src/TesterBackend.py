@@ -265,7 +265,7 @@ class CatheterTester:
         if not vna:
             index = index | 0x80
 
-        print(f"Setting Channel to: {index}")
+        print(f"Setting Channel to: {index + 1}")
             
         self.arduino.Write(index.to_bytes(1, 'big'))
 

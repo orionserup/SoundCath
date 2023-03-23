@@ -255,9 +255,9 @@ class TesterFrontEnd:  # a GUI front end for the test
         
         # load all of the templates into sheets
         templatepath = os.path.dirname(os.path.abspath(__file__)) + "\\..\\docs\\"
-        donglereporttemplate = openpyxl.load_workbook(filename = templatepath + "DongleTemplate" + self.channels.get() + ".xlsx")
-        impedancereporttemplate = openpyxl.load_workbook(filename = templatepath + "ImpedanceTemplate" + self.channels.get() + ".xlsx")
-        pereporttemplate = openpyxl.load_workbook(filename = templatepath + "PETemplate" + self.channels.get() + ".xlsx")
+        donglereporttemplate = openpyxl.load_workbook(filename = templatepath + f"DongleTemplate{self.channels.get()}.xlsx")
+        impedancereporttemplate = openpyxl.load_workbook(filename = templatepath + f"ImpedanceTemplate{self.channels.get()}.xlsx")
+        pereporttemplate = openpyxl.load_workbook(filename = templatepath + f"PETemplate{self.channels.get()}.xlsx")
         
         # copy all of the templates into the new excel sheet and name the sheets accordingly
         red = colors.Color("00FF0000")
@@ -265,7 +265,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         failcolor = fills.PatternFill(patternType = 'solid', fgColor = red)
         passcolor = fills.PatternFill(patternType = 'solid', fgColor = green)
 
-        mc = int(self.channels.get())
+        mc = self.channels.get()
         
         # fill out the sheet with the data from the pulse echo test results
         if self.pulseechotest.get():        
