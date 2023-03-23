@@ -229,7 +229,7 @@ class CatheterTester:
             return [False, vpp, bandwidth, peak]
 
         if bandwidth < bandwidth_lower_thresh[idx] or bandwidth > bandwidth_upper_thresh[idx]:
-            return [False, vpp, bandwidth, peak]
+            return [False, vpp, bandwidth, peak]    
 
         if peak < peak_freq_lower_thresh[idx] or peak > peak_freq_upper_thresh[idx]:
             return [False, vpp, bandwidth, peak]
@@ -247,7 +247,7 @@ class CatheterTester:
                           47, 48, 49, 53, 57, 58, 59, 60, 
                           65, 79, 81, 82, 83, 84, 89, 91]
             
-            index = mapping_32[channel - 1]
+            index = mapping_32[channel - 1] - 1
         
         if maxchannel == 64:        
             
@@ -260,7 +260,7 @@ class CatheterTester:
                       79, 80, 81, 82, 83, 84, 85, 86,
                       87, 88, 89, 90, 91, 92, 93, 94]
             
-            index = mapping_64[channel - 1]
+            index = mapping_64[channel - 1] - 1
             
         if not vna:
             index = index | 0x80
