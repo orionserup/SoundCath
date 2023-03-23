@@ -194,6 +194,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             print(self.backend.arduino.ReadLine())
 
     def DecChannel(self) -> None: # Decrements the channel and display the change
+        mc = int(self.channels.get())
         if(self.channel > 0):
             self.channel -= 1
             self.text.set("Channel " + str(self.channel))
