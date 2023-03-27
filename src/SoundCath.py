@@ -316,6 +316,11 @@ class TesterFrontEnd:  # a GUI front end for the test
             else:
                 impedancereport = report.create_sheet("Impedance")
                 copy_sheet(impedancereporttemplate.active, impedancereport)
+                
+            ave_cap = 0
+            ave_z = 0
+            num_samples = 0
+            
             # fill out the sheet with the impedance test results 
             for i in range(11, 11 + mc):    
 
@@ -328,11 +333,19 @@ class TesterFrontEnd:  # a GUI front end for the test
                 impedancereport["E" + str(i)] = "Pass" if data[0] else "Fail"  # put if the channel passed or failed
                 impedancereport["F" + str(i)] = "Open" if data[1] > 10e-12 and data[1] < 600e-12 else "Short" if data[1] < 0 else "" # Put if the channel is Open or Short based on criteria       
                 
+                if data[0]:
+                    ave_cap += data[1]
+                    ave_z += data[2]
+                    num_samples += 1
+                    
                 color = passcolor if data[0] == True else failcolor # highlight the rows with the correct color based on if they passed or failed
                 rowcells = impedancereport.iter_cols(min_col = 3, max_col = 7, min_row = i, max_row = i)
                 for row in rowcells:
                     for cols in row: 
                         cols.fill = color
+                        
+                pereport["D" + str(12 + mc)] = f"{ave_cap * 1e12 / num_samples: .2f}" # put the vpp in mV
+                pereport["E" + str(12 + mc)] = f"{ave_z / num_samples: .2f}" # put the bandwidth in MHz
 
         if self.dongletest.get():
             donglereport = None
@@ -341,23 +354,35 @@ class TesterFrontEnd:  # a GUI front end for the test
             else:
                 donglereport = report.create_sheet("Dongle")
                 copy_sheet(donglereporttemplate.active, donglereport)
+                
+            ave_cap = 0
+            ave_z = 0
+            num_samples = 0
             # fill out the sheet with the dongle test results
             for i in range(11, 11 + mc):    
                 
                 data = self.passmap["Dongle"][i - 11]
                 if None in data:
                     continue
-                    
+            
                 donglereport["D" + str(i)] = f"{data[1] * 1e12: .2f}" # put the capacitance in pF
                 donglereport["E" + str(i)] = f"{data[2]}" # impedance in ohms
                 donglereport["F" + str(i)] = "Pass" if data[0] else "Fail" # mark if the channel passed or failed
                 donglereport["G" + str(i)] = "Open" if data[1] > 10e-12 and data[1] < 180e-12 else "Short" if data[1] < 0 else "" # mark if the channel is open or short based on criteria
                 
+                if data[0]:
+                    ave_cap += data[1]
+                    ave_z += data[2]
+                    num_samples += 1
+                    
                 color = passcolor if data[0] == True else failcolor # color the rows according to passing or failing
                 rowcells = donglereport.iter_cols(min_col = 3, max_col = 7, min_row = i, max_row = i)
                 for row in rowcells:
                     for cols in row: 
                         cols.fill = color
+                        
+                pereport["D" + str(12 + mc)] = f"{ave_cap * 1e12 / num_samples: .2f}" # put the vpp in mV
+                pereport["E" + str(12 + mc)] = f"{ave_z / num_samples: .2f}" # put the bandwidth in MHz
                 
         report.save(filename)
         print(f"Saved Report as {filename}")
