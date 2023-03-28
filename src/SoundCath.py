@@ -26,15 +26,16 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.style.configure("TButton", font = ("Arial", 12))
         self.style.configure("TEntry", font = ("Arial", 24))
         self.style.configure("TLabel", font = ("Arial", 12))
+        self.style.configure("Green.TLabel", foreground="green", font = ("Arial", 14))
 
         # All of the Internal Variables
-        self.channel = 0 # the channel we are in
+        self.channel = -1 # the channel we are in
         self.promptcapture = IntVar(self.root, 1)
         self.impedancetest = IntVar(self.root, 0) # bool for if we are gonna run the impedance test
         self.allchannels = IntVar(self.root, 0) # bool if we are gonna test all channels
         self.pulseechotest = IntVar(self.root, 0) # bool if we are gonna run the pulse echo test
         self.dongletest = IntVar(self.root, 0) # bool if we are gonna run a dongle test
-        self.text = StringVar(self.root, "Channel " + str(self.channel)) # the string to display the channel
+        self.text = StringVar(self.root, "Channel " + str(self.channel + 1)) # the string to display the channel
 
         # Variable to Store the Results of all of the Tests
         self.passmap = None
@@ -52,6 +53,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         
         self.label = ttk.Label(self.root, textvariable = self.text, width = 11) # Label to draw the Channel Number
         self.filenamelabel = ttk.Label(self.root, text = "File Name to Save:") # Entry box to put the filename into
+        self.readylabel = ttk.Label(self.root, text = "Ready", style="Green.TLabel")
         self.filename = ttk.Entry(self.root)
 
         self.impedancetestbutton = ttk.Checkbutton(self.root, variable = self.impedancetest, text = "Impedance Test") # all of the check boxes
@@ -80,6 +82,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.allchannelsbutton.place(x = 400, y = 100)
         self.dongletestbutton.place(x = 50, y = 150)
         self.promptcapturebutton.place(x = 250, y = 150)
+        self.readylabel.place(x = 400, y = 150)
 
         self.channelselectlabel.place(x = 50, y = 200)
         self.channel32select.place(x = 50, y = 230)
@@ -97,7 +100,7 @@ class TesterFrontEnd:  # a GUI front end for the test
     
     def RunSingleChannelTest(self, channel, filename) -> None:
 
-        print(f"Running Test on Channel: {channel}")
+        print(f"Running Test on Channel: {channel + 1}")
     
         if self.pulseechotest.get() != 0:
             self.passmap["PulseEcho"][channel - 1] = self.RunPulseEchoTest(channel, filename) # Run the Tests and record the Results
@@ -113,6 +116,8 @@ class TesterFrontEnd:  # a GUI front end for the test
         print("Running Tests")
         if(self.impedancetest.get() == 0 and self.dongletest.get() == 0 and self.pulseechotest.get() == 0): # repeat the same process with the impedance test/dongle test
             return
+        
+        self.root.after(0, lambda: self.readylabel.place_forget())
         
         mc = int(self.channels.get())
         self.passmap = { "Impedance": [[False, None, None]] * mc, "PulseEcho": [[False, None, None, None]] * mc, "Dongle": [[False, None, None]] * mc }
@@ -131,10 +136,10 @@ class TesterFrontEnd:  # a GUI front end for the test
             
             self.root.after(0, lambda: self.stopbutton.place(x = 290, y = 340))
    
-            for i in range(mc):
+            for i in range(0, mc):
                 if self.stopped.get():
                     break
-                self.RunSingleChannelTest(i + 1, filename)
+                self.RunSingleChannelTest(i, filename)
                 time.sleep(channel_delay)   
 
             self.root.after(0, lambda: self.stopbutton.place_forget())
@@ -150,7 +155,8 @@ class TesterFrontEnd:  # a GUI front end for the test
 
         if self.promptcapture.get() and self.pulseechotest.get(): # after we are done destroy the capture window if we are using it
             self.root.after(0, lambda: self.capturebutton.place_forget())
-            
+        
+        self.root.after(0, lambda: self.readylabel.place(x = 400, y = 150))
         print("Done Running Tests")
             
     def CapturePopup(self) -> Toplevel: 
@@ -178,6 +184,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             self.triggered.set(0) # mark the the channel as untriggered
             while not self.triggered.get(): # wait for the button to be pressed
                 pass
+            
         print("Running Pulse Echo Test")
         return self.backend.PulseEchoTest(1, channel, int(self.channels.get()), filename) # run the test on scope channel 1 with file name filename
         
@@ -189,15 +196,15 @@ class TesterFrontEnd:  # a GUI front end for the test
         mc = self.channels.get()
         if(self.channel < mc):
             self.channel += 1
-            self.text.set("Channel " + str(self.channel))
+            self.text.set("Channel " + str(self.channel + 1))
             self.backend.SetChannel(self.channel, mc)
             print(self.backend.arduino.ReadLine())
 
     def DecChannel(self) -> None: # Decrements the channel and display the change
         mc = self.channels.get()
-        if(self.channel > 0):
+        if(self.channel >= 0):
             self.channel -= 1
-            self.text.set("Channel " + str(self.channel))
+            self.text.set("Channel " + str(self.channel + 1))
             self.backend.SetChannel(self.channel, mc)
             print(self.backend.arduino.ReadLine())
             

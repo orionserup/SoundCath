@@ -146,10 +146,10 @@ class CatheterTester:
         
     def PulseEchoTest(self, scopechannel: int = 1, channel: int = 1, maxchannel: int = 96, filename: str = "cath.csv") -> list[bool, float, float, float]:
         
+        self.SetChannel(channel, maxchannel, False)
+        
         if not self.scope.IsConnected(): # if we aren't connected to the scope then we automatically fail
             return [False, None, None, None]
-        
-        self.SetChannel(channel, maxchannel, False)
         
         self.scope.CaptureWaveform(scopechannel) # capture the waveform from the screen
         self.scope.WindowWaveform(scope_window_start_us, scope_window_width_us)
@@ -247,25 +247,29 @@ class CatheterTester:
                           47, 48, 49, 53, 57, 58, 59, 60, 
                           65, 79, 81, 82, 83, 84, 89, 91]
             
-            index = mapping_32[channel - 1] - 1
+            index = mapping_32[index] - 1
         
-        if maxchannel == 64:        
+        elif maxchannel == 64:        
             
-            mapping_64 = [2, 6, 7, 8, 15, 16, 21, 22, 23, 
-                      24, 27, 28, 33, 34, 36, 37, 38, 
-                      40, 42, 43, 44, 45, 46, 47, 48,
-                      49, 50, 51, 52, 53, 57, 58, 59,
-                      60, 61, 62, 63, 64, 65, 69, 70,
-                      71, 72, 73, 74, 75, 76, 77, 78, 
-                      79, 80, 81, 82, 83, 84, 85, 86,
-                      87, 88, 89, 90, 91, 92, 93, 94]
+            mapping_64 = [  2, 6, 7, 8, 15, 16, 18, 22, 
+                            23, 24, 31, 32, 33, 34, 36, 37,  
+                            38, 40, 42, 43, 44, 45, 46, 47, 
+                            48, 49, 50, 52, 53, 54, 56, 58, 
+                            59, 60, 61, 62, 63, 64, 65, 69, 
+                            70, 71, 72, 74, 75, 76, 77, 78,  
+                            79, 80, 81, 82, 83, 84, 85, 86,
+                            87, 88, 89, 90, 91, 92, 93, 94]
             
-            index = mapping_64[channel - 1] - 1
+            index = mapping_64[index] - 1
             
         if not vna:
             index = index | 0x80
+            
+        if index & 0x70 == 0x50:
+            index = index & ~0x70
+            index = index & 0x60
 
-        print(f"Setting Channel to: {index + 1}")
+        print(f"Writing {index & 0xff} to Relays")
             
         self.arduino.Write(index.to_bytes(1, 'big'))
 
