@@ -10,8 +10,8 @@ import openpyxl
 from openpyxl.styles import fills, colors
 from copy import copy
 
-pulseecho_trigger_delay = 5.0 # The delay between the starting and capture of the waveform
-channel_delay = 1.0 # time between channels in all channels
+pulseecho_trigger_delay = 1.0 # The delay between the starting and capture of the waveform
+channel_delay =  .25 # time between channels in all channels
 
 class TesterFrontEnd:  # a GUI front end for the test
 
