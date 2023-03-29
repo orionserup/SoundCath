@@ -267,7 +267,7 @@ class CatheterTester:
             
         if index & 0x70 == 0x50:
             index = index & ~0x70
-            index = index & 0x60
+            index = index | 0x60
 
         print(f"Writing {index & 0xff} to Relays")
             
