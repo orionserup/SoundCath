@@ -275,7 +275,8 @@ class TesterFrontEnd:  # a GUI front end for the test
         mc = self.channels.get()
         
         # fill out the sheet with the data from the pulse echo test results
-        if self.pulseechotest.get():        
+        if self.pulseechotest.get():
+            print("Generating Pulse Echo Report")
             pereport = None
             if "Pulse Echo" in report.sheetnames:
                 pereport = report["Pulse Echo"]
@@ -295,7 +296,7 @@ class TesterFrontEnd:  # a GUI front end for the test
                     continue
                 
                 pereport["D" + str(i)] = f"{data[1] * 1e3: .2f}" # put the vpp in mV
-                pereport["E" + str(i)] = f"{data[3]/data[2] * 100: .2f}" # put the bandwidth in MHz
+                pereport["E" + str(i)] = f"{data[3] / data[2] * 100: .2f}" # put the bandwidth in MHz
                 pereport["F" + str(i)] = "Pass" if data[0] else "Fail" # if the channel passed put "Pass"
                 pereport["G" + str(i)] = "True" if data[1] == 0 else "" # if the channel is dead say so
                 pereport["H" + str(i)] = f"{data[2] * 1e-6:.2f}" # put the center frequency in MHz
@@ -311,12 +312,18 @@ class TesterFrontEnd:  # a GUI front end for the test
                 for row in rowcells:
                     for cols in row: 
                         cols.fill = color
+                        
+                try:
             
-                pereport["D" + str(9 + mc)] = f"{ave_vpp * 1e3 / num_samples: .2f}" # put the vpp in mV
-                pereport["E" + str(9 + mc)] = f"{ave_bandwidth / num_samples: .2f}" # put the bandwidth in MHz
-                pereport["H" + str(9 + mc)] = f"{ave_center * 1e-6 / num_samples:.2f}" # put the center frequency in MHz
+                    pereport["D" + str(9 + mc)] = f"{ave_vpp * 1e3 / num_samples: .2f}" # put the vpp in mV
+                    pereport["E" + str(9 + mc)] = f"{ave_bandwidth / num_samples: .2f}" # put the bandwidth in MHz
+                    pereport["H" + str(9 + mc)] = f"{ave_center * 1e-6 / num_samples:.2f}" # put the center frequency in MHz
+                    
+                except Exception as e:
+                    print(e)
             
         if self.impedancetest.get():
+            print("Generating Impedance Report")
             impedancereport = None
             if "Impedance" in report.sheetnames:
                 impedancereport = report["Impedance"]
@@ -350,11 +357,14 @@ class TesterFrontEnd:  # a GUI front end for the test
                 for row in rowcells:
                     for cols in row: 
                         cols.fill = color
-                        
-                pereport["D" + str(12 + mc)] = f"{ave_cap * 1e12 / num_samples: .2f}" # put the vpp in mV
-                pereport["E" + str(12 + mc)] = f"{ave_z / num_samples: .2f}" # put the bandwidth in MHz
-
+                try:
+                    pereport["D" + str(12 + mc)] = f"{ave_cap * 1e12 / num_samples: .2f}" # put the vpp in mV
+                    pereport["E" + str(12 + mc)] = f"{ave_z / num_samples: .2f}" # put the bandwidth in MHz
+                except Exception as e:
+                    print(e)
+                    
         if self.dongletest.get():
+            print("Generating Dongle Report")
             donglereport = None
             if "Dongle" in report.sheetnames:
                 dongleresport = report["Dongle"]
@@ -387,10 +397,12 @@ class TesterFrontEnd:  # a GUI front end for the test
                 for row in rowcells:
                     for cols in row: 
                         cols.fill = color
-                        
-                pereport["D" + str(12 + mc)] = f"{ave_cap * 1e12 / num_samples: .2f}" # put the vpp in mV
-                pereport["E" + str(12 + mc)] = f"{ave_z / num_samples: .2f}" # put the bandwidth in MHz
-                
+                try:
+                    pereport["D" + str(12 + mc)] = f"{ave_cap * 1e12 / num_samples: .2f}" # put the vpp in mV
+                    pereport["E" + str(12 + mc)] = f"{ave_z / num_samples: .2f}" # put the bandwidth in MHz
+                except Exception as e:
+                    print(e)
+                     
         report.save(filename)
         print(f"Saved Report as {filename}")
 
