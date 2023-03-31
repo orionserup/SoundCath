@@ -315,9 +315,9 @@ class TesterFrontEnd:  # a GUI front end for the test
                         
                 try:
             
-                    pereport["D" + str(9 + mc)] = f"{ave_vpp * 1e3 / num_samples: .2f}" # put the vpp in mV
-                    pereport["E" + str(9 + mc)] = f"{ave_bandwidth / num_samples: .2f}" # put the bandwidth in MHz
-                    pereport["H" + str(9 + mc)] = f"{ave_center * 1e-6 / num_samples:.2f}" # put the center frequency in MHz
+                    pereport["D" + str(8 + mc)] = f"{ave_vpp * 1e3 / num_samples: .2f}" # put the vpp in mV
+                    pereport["E" + str(8 + mc)] = f"{ave_bandwidth / num_samples: .2f}" # put the bandwidth in MHz
+                    pereport["H" + str(8 + mc)] = f"{ave_center * 1e-6 / num_samples:.2f}" # put the center frequency in MHz
                     
                 except Exception as e:
                     print(e)
@@ -358,8 +358,8 @@ class TesterFrontEnd:  # a GUI front end for the test
                     for cols in row: 
                         cols.fill = color
                 try:
-                    pereport["D" + str(12 + mc)] = f"{ave_cap * 1e12 / num_samples: .2f}" # put the vpp in mV
-                    pereport["E" + str(12 + mc)] = f"{ave_z / num_samples: .2f}" # put the bandwidth in MHz
+                    pereport["D" + str(11 + mc)] = f"{ave_cap * 1e12 / num_samples: .2f}" # put the vpp in mV
+                    pereport["E" + str(11 + mc)] = f"{ave_z / num_samples: .2f}" # put the bandwidth in MHz
                 except Exception as e:
                     print(e)
                     
@@ -398,8 +398,8 @@ class TesterFrontEnd:  # a GUI front end for the test
                     for cols in row: 
                         cols.fill = color
                 try:
-                    pereport["D" + str(12 + mc)] = f"{ave_cap * 1e12 / num_samples: .2f}" # put the vpp in mV
-                    pereport["E" + str(12 + mc)] = f"{ave_z / num_samples: .2f}" # put the bandwidth in MHz
+                    pereport["D" + str(11 + mc)] = f"{ave_cap * 1e12 / num_samples: .2f}" # put the vpp in mV
+                    pereport["E" + str(11 + mc)] = f"{ave_z / num_samples: .2f}" # put the bandwidth in MHz
                 except Exception as e:
                     print(e)
                      
