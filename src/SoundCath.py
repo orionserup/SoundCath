@@ -295,32 +295,32 @@ class TesterFrontEnd:  # a GUI front end for the test
                 if None in data:
                     continue
                 
-                pereport["D" + str(i)] = f"{data[1] * 1e3: .2f}" # put the vpp in mV
-                pereport["E" + str(i)] = f"{data[3] / data[2] * 100: .2f}" # put the bandwidth in MHz
-                pereport["F" + str(i)] = "Pass" if data[0] else "Fail" # if the channel passed put "Pass"
-                pereport["G" + str(i)] = "True" if data[1] == 0 else "" # if the channel is dead say so
-                pereport["H" + str(i)] = f"{data[2] * 1e-6:.2f}" # put the center frequency in MHz
+                passed = data[0]
+                vpp = data[1]
+                center = data[2]
+                bw = data[3]
                 
-                if data[0]:
-                    ave_vpp += data[1]
-                    ave_bandwidth += data[3]/data[2] * 100
-                    ave_center += data[2] * 1e-6
+                pereport["D" + str(i)] = f"{vpp * 1e3: .2f}" # put the vpp in mV
+                pereport["E" + str(i)] = f"{bw * 100 / center: .2f}" # put the bandwidth in MHz
+                pereport["F" + str(i)] = "Pass" if passed else "Fail" # if the channel passed put "Pass"
+                pereport["G" + str(i)] = "True" if vpp == 0 else "" # if the channel is dead say so
+                pereport["H" + str(i)] = f"{center * 1e-6:.2f}" # put the center frequency in MHz
+                
+                if passed:
+                    ave_vpp += vpp
+                    ave_bandwidth += bw
+                    ave_center += center
                     num_samples += 1
                 
-                color = passcolor if data[0] == True else failcolor # fill the rows with the correct color based on the pass or fail
+                color = passcolor if passed else failcolor # fill the rows with the correct color based on the pass or fail
                 rowcells = pereport.iter_cols(min_col = 3, max_col = 8, min_row = i, max_row = i)
                 for row in rowcells:
                     for cols in row: 
                         cols.fill = color
                         
-                try:
-            
-                    pereport["D" + str(8 + mc)] = f"{ave_vpp * 1e3 / num_samples: .2f}" # put the vpp in mV
-                    pereport["E" + str(8 + mc)] = f"{ave_bandwidth / num_samples: .2f}" # put the bandwidth in MHz
-                    pereport["H" + str(8 + mc)] = f"{ave_center * 1e-6 / num_samples:.2f}" # put the center frequency in MHz
-                    
-                except Exception as e:
-                    print(e)
+                pereport["D" + str(8 + mc)] = f"{ave_vpp * 1e3 / num_samples: .2f}" # put the vpp in mV
+                pereport["E" + str(8 + mc)] = f"{ave_bandwidth * 100 / ave_center: .2f}" # put the bandwidth in MHz
+                pereport["H" + str(8 + mc)] = f"{ave_center * 1e-6 / num_samples:.2f}" # put the center frequency in MHz
             
         if self.impedancetest.get():
             print("Generating Impedance Report")
@@ -342,26 +342,29 @@ class TesterFrontEnd:  # a GUI front end for the test
                 if None in data:
                     continue
                 
-                impedancereport["D" + str(i)] = f"{data[1] * 1e12: .2f}" # put the capacitance in pF
-                impedancereport["E" + str(i)] = f"{data[2]}" # put the impedance in ohms
-                impedancereport["E" + str(i)] = "Pass" if data[0] else "Fail"  # put if the channel passed or failed
-                impedancereport["F" + str(i)] = "Open" if data[1] > 10e-12 and data[1] < 600e-12 else "Short" if data[1] < 0 else "" # Put if the channel is Open or Short based on criteria       
+                cap = data[1]
+                z = data[2]
+                passed = data[0]
                 
-                if data[0]:
-                    ave_cap += data[1]
-                    ave_z += data[2]
+                impedancereport["D" + str(i)] = f"{cap * 1e12: .2f}" # put the capacitance in pF
+                impedancereport["E" + str(i)] = f"{z}" # put the impedance in ohms
+                impedancereport["E" + str(i)] = "Pass" if passed else "Fail"  # put if the channel passed or failed
+                impedancereport["F" + str(i)] = "Open" if cap > 10e-12 and cap < 600e-12 else "Short" if cap < 0 else "" # Put if the channel is Open or Short based on criteria       
+                
+                if passed:
+                    ave_cap += cap
+                    ave_z += z
                     num_samples += 1
                     
-                color = passcolor if data[0] == True else failcolor # highlight the rows with the correct color based on if they passed or failed
+                color = passcolor if passed else failcolor # highlight the rows with the correct color based on if they passed or failed
                 rowcells = impedancereport.iter_cols(min_col = 3, max_col = 7, min_row = i, max_row = i)
                 for row in rowcells:
                     for cols in row: 
                         cols.fill = color
-                try:
-                    pereport["D" + str(11 + mc)] = f"{ave_cap * 1e12 / num_samples: .2f}" # put the vpp in mV
-                    pereport["E" + str(11 + mc)] = f"{ave_z / num_samples: .2f}" # put the bandwidth in MHz
-                except Exception as e:
-                    print(e)
+                        
+                pereport["D" + str(11 + mc)] = f"{ave_cap * 1e12 / num_samples: .2f}" # put the vpp in mV
+                pereport["E" + str(11 + mc)] = f"{ave_z / num_samples: .2f}" # put the bandwidth in MHz
+ 
                     
         if self.dongletest.get():
             print("Generating Dongle Report")
@@ -381,27 +384,30 @@ class TesterFrontEnd:  # a GUI front end for the test
                 data = self.passmap["Dongle"][i - 11]
                 if None in data:
                     continue
-            
-                donglereport["D" + str(i)] = f"{data[1] * 1e12: .2f}" # put the capacitance in pF
-                donglereport["E" + str(i)] = f"{data[2]}" # impedance in ohms
-                donglereport["F" + str(i)] = "Pass" if data[0] else "Fail" # mark if the channel passed or failed
-                donglereport["G" + str(i)] = "Open" if data[1] > 10e-12 and data[1] < 180e-12 else "Short" if data[1] < 0 else "" # mark if the channel is open or short based on criteria
                 
-                if data[0]:
-                    ave_cap += data[1]
-                    ave_z += data[2]
+                passed = data[0]
+                cap = data[1]
+                z = data[2]
+            
+                donglereport["D" + str(i)] = f"{cap * 1e12: .2f}" # put the capacitance in pF
+                donglereport["E" + str(i)] = f"{z}" # impedance in ohms
+                donglereport["F" + str(i)] = "Pass" if passed else "Fail" # mark if the channel passed or failed
+                donglereport["G" + str(i)] = "Open" if cap > 10e-12 and cap < 180e-12 else "Short" if cap < 0 else "" # mark if the channel is open or short based on criteria
+                
+                if passed:
+                    ave_cap += cap
+                    ave_z += z
                     num_samples += 1
                     
-                color = passcolor if data[0] == True else failcolor # color the rows according to passing or failing
+                color = passcolor if passed else failcolor # color the rows according to passing or failing
                 rowcells = donglereport.iter_cols(min_col = 3, max_col = 7, min_row = i, max_row = i)
                 for row in rowcells:
                     for cols in row: 
                         cols.fill = color
-                try:
-                    pereport["D" + str(11 + mc)] = f"{ave_cap * 1e12 / num_samples: .2f}" # put the vpp in mV
-                    pereport["E" + str(11 + mc)] = f"{ave_z / num_samples: .2f}" # put the bandwidth in MHz
-                except Exception as e:
-                    print(e)
+                        
+                pereport["D" + str(11 + mc)] = f"{(ave_cap / num_samples) * 1e12: .2f}" # put the vpp in mV
+                pereport["E" + str(11 + mc)] = f"{ave_z / num_samples: .2f}" # put the bandwidth in MHz
+
                      
         report.save(filename)
         print(f"Saved Report as {filename}")
