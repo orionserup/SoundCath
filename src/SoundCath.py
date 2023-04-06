@@ -362,7 +362,7 @@ class TesterFrontEnd:  # a GUI front end for the test
                     for cols in row: 
                         cols.fill = color
                         
-                pereport["D" + str(11 + mc)] = f"{ave_cap * 1e12 / num_samples: .2f}" # put the vpp in mV
+                pereport["D" + str(11 + mc)] = f"{(ave_cap / num_samples) * 1e12: .2f}" # put the vpp in mV
                 pereport["E" + str(11 + mc)] = f"{ave_z / num_samples: .2f}" # put the bandwidth in MHz
  
                     
