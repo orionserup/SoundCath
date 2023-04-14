@@ -12,9 +12,9 @@ from scipy.signal import butter, filtfilt
 max_channel = [32, 64, 96]
 
 # the upper threshhold of the capacitance for the dongle test, must be less than this
-dongle_upper_thresh = [None, None, 315e-12]    
+dongle_upper_thresh = [315e-12, 315e-12, 315e-12]    
 # the lower threshold of the capacitance for the dongle test, must be greater than this
-dongle_lower_thresh = [None, None, 270e-12]
+dongle_lower_thresh = [270e-12, 270e-12, 270e-12]
 # the frequency to test the dongle at
 dongle_freq = 800e3
 
