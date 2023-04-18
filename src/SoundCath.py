@@ -145,10 +145,7 @@ class TesterFrontEnd:  # a GUI front end for the test
             self.root.after(0, lambda: self.stopbutton.place_forget())
             self.stopped.set(0)
             
-            try: 
-                self.GenerateXLSXReport() # after all channels have been run then generate a report of the findings
-            except Exception as e:
-                print(e)
+            self.GenerateXLSXReport() # after all channels have been run then generate a report of the findings
                 
         else:
             self.RunSingleChannelTest(self.channel, filename) # run only one channel
@@ -362,10 +359,9 @@ class TesterFrontEnd:  # a GUI front end for the test
                     for cols in row: 
                         cols.fill = color
                         
-                pereport["D" + str(11 + mc)] = f"{(ave_cap / num_samples) * 1e12: .2f}" # put the vpp in mV
-                pereport["E" + str(11 + mc)] = f"{ave_z / num_samples: .2f}" # put the bandwidth in MHz
- 
-                    
+                impedancereport["D" + str(11 + mc)] = f"{(ave_cap / num_samples) * 1e12: .2f}" # put the vpp in mV
+                impedancereport["E" + str(11 + mc)] = f"{ave_z / num_samples: .2f}" # put the bandwidth in MHz
+   
         if self.dongletest.get():
             print("Generating Dongle Report")
             donglereport = None
@@ -405,8 +401,8 @@ class TesterFrontEnd:  # a GUI front end for the test
                     for cols in row: 
                         cols.fill = color
                         
-                pereport["D" + str(11 + mc)] = f"{(ave_cap / num_samples) * 1e12: .2f}" # put the vpp in mV
-                pereport["E" + str(11 + mc)] = f"{ave_z / num_samples: .2f}" # put the bandwidth in MHz
+                donglereport["D" + str(11 + mc)] = f"{(ave_cap / num_samples) * 1e12: .2f}" # put the vpp in mV
+                donglereport["E" + str(11 + mc)] = f"{ave_z / num_samples: .2f}" # put the bandwidth in MHz
 
                      
         report.save(filename)
