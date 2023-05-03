@@ -74,20 +74,28 @@ class CatheterTester:
         
         self.SetChannel(channel, maxchannel, True)
         
-        self.vna.SetStartFreq(dongle_freq) # we only want to test one frequency
-        self.vna.SetStopFreq(dongle_freq)
-        self.vna.SetNumPoints(1)
-        self.vna.SetSweepParameters(["s11"]) # we want to test for impedance, which is calculated from S11
-  
-        self.vna.SetFileName(filename + str(channel + 1) + "dongle") # set the filename to what was provided as well as the channel and dongle indicator 
-            
+        self.vna.SetStartFreq(0) # we only want to test one frequency
+        self.vna.SetStopFreq(100e6)
+        self.vna.SetNumPoints(10000)
+        self.vna.SetSweepParameters(["s11"]) # we are looking for impedance
+        self.vna.SetScale("lin")
+        
         try:
+        
+            self.vna.Sweep() # sweep and save the values to an s1p file
+            
+            data = VNA.GrabS1PData(filename + str(channel) + "s11.s1p") # convert the generated csv file and pull the data
+            
+            char_z = 0
+            char_freq = 0
+            for i, z in enumerate(data["Z"]):
+                if np.imag(z) < .01 or np.imag(z) > -.01:
+                    char_z = data["Z"][i / 2]
+                    char_freq = data["Frequency"][i]
+                    break
                 
-            self.vna.Sweep() # run the sweep 
-    
-            data = VNA.GrabS1PData(filename + str(channel + 1) + "dongles11.s1p") # pull the data from the s1p file, write it to CSV
-
-            print(data)
+            print(f"Crossing Frequency: {char_freq}")
+            print(f"Characteristic Impedance: {char_z}")
 
             i = data["Frequency"].index(dongle_freq) # find the index from the data with the test frequency
             idx = max_channel.index(maxchannel)
@@ -96,9 +104,9 @@ class CatheterTester:
                 c = -1 / (2 * math.pi * data["Z"][i].imag * dongle_freq) # if there is an entry with the test frequency calculate the capacitance
                 print(f"Capacitance: {c * 1e12: .2f}pF")
                 if c < dongle_upper_thresh[idx] and c > dongle_lower_thresh[idx]: # 1 / wC = im(Z)  # if we are within the thresholds then we are good
-                    return [True, c, data["Z"][i]] # Passed the test
+                    return [True, c, char_z] # Passed the test
                 else:
-                    return [False, c, data["Z"][i]] # Failed the Test
+                    return [False, c, char_z] # Failed the Test
                 
         except Exception as e:
             print(e)
@@ -114,18 +122,28 @@ class CatheterTester:
         
         self.vna.SetFileName(filename + str(channel)) # set the filename to "{filename} {channel} s11.s1p"
         
-        self.vna.SetStartFreq(channel_freq) # we only want to test one frequency
-        self.vna.SetStopFreq(channel_freq)
-        self.vna.SetNumPoints(1)
+        self.vna.SetStartFreq(0) # we only want to test one frequency
+        self.vna.SetStopFreq(100e6)
+        self.vna.SetNumPoints(10000)
         self.vna.SetSweepParameters(["s11"]) # we are looking for impedance
+        self.vna.SetScale("lin")
         
         try:
         
             self.vna.Sweep() # sweep and save the values to an s1p file
             
             data = VNA.GrabS1PData(filename + str(channel) + "s11.s1p") # convert the generated csv file and pull the data
-
-            print(data)
+            
+            char_z = 0
+            char_freq = 0
+            for i, z in enumerate(data["Z"]):
+                if np.imag(z) < .01 or np.imag(z) > -.01:
+                    char_z = data["Z"][i / 2]
+                    char_freq = data["Frequency"][i]
+                    break
+                
+            print(f"Crossing Frequency: {char_freq}")
+            print(f"Characteristic Impedance: {char_z}")
 
             i = data["Frequency"].index(channel_freq) # if we find the frequency we wanted in the data set
             idx = max_channel.index(maxchannel)
@@ -134,14 +152,14 @@ class CatheterTester:
                 c = -1 / (2 * math.pi * data["Z"][i].imag * channel_freq) # if there is an entry with the test frequency calculate the capacitance
                 print(f"Capacitance: {c * 1e12: .2f} pF")
                 if c < channel_upper_thresh[idx] and c > channel_lower_thresh[idx]: # 1 / wC = im(Z)  # if we are within the thresholds then we are good
-                    return [True, c, data["Z"][i]] # Passed the test
+                    return [True, c, char_z] # Passed the test
                 else:
-                    return [False, c, data["Z"][i]] # Passed the test
+                    return [False, c, char_z] # Passed the test
                 
         except Exception as e:
             print(e)
                 
-        return [False, 0, 0] # if we didnt pass we failed
+        return [False, 0, 0, 0] # if we didnt pass we failed
         
         
     def PulseEchoTest(self, scopechannel: int = 1, channel: int = 1, maxchannel: int = 96, filename: str = "cath.csv") -> list[bool, float, float, float]:
