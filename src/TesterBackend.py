@@ -4,7 +4,7 @@ import os
 import numpy as np
 import VNA
 import math
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plot
 from scipy.signal import butter, filtfilt
 
 # user edittable pass fail criterion
@@ -186,11 +186,11 @@ class CatheterTester:
         #self.scope.WriteDataToCSVFile(filename + str(self.channel + 1)) # Save all of the Data to a CSV File
 
         # plot the waveform and fft and save it
-        plt.plot(data["Time"], data["Voltage"])
-        plt.xlabel("Time")
-        plt.ylabel("Voltage")
-        plt.savefig(filename + "wave" + str(channel) + ".png")
-        plt.close()
+        plot.plot(data["Time"], data["Voltage"])
+        plot.xlabel("Time")
+        plot.ylabel("Voltage")
+        plot.savefig(filename + "wave" + str(channel) + ".png")
+        plot.close()
         
         sig = fft["Amplitude"]        
         
@@ -203,11 +203,11 @@ class CatheterTester:
         maxamp = dbamp.max() # find the maximum amplitude over the spectrum
         dbamp -= maxamp
 
-        plt.plot(fft["Frequency"], dbamp)
-        plt.xlabel("Frequency")
-        plt.ylabel("Amplitude (dB)")
-        plt.savefig(filename + "fft" + str(channel) + ".png")
-        plt.close()
+        plot.plot(fft["Frequency"], dbamp)
+        plot.xlabel("Frequency")
+        plot.ylabel("Amplitude (dB)")
+        plot.savefig(filename + "fft" + str(channel) + ".png")
+        plot.close()
 
         # Get the FFT
 
