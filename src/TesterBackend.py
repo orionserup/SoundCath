@@ -76,7 +76,7 @@ class CatheterTester:
         
         self.vna.SetStartFreq(0) # we only want to test one frequency
         self.vna.SetStopFreq(100e6)
-        self.vna.SetNumPoints(10000)
+        self.vna.SetNumPoints(500)
         self.vna.SetSweepParameters(["s11"]) # we are looking for impedance
         self.vna.SetScale("lin")
         
@@ -89,7 +89,7 @@ class CatheterTester:
             char_z = 0
             char_freq = 0
             for i, z in enumerate(data["Z"]):
-                if np.imag(z) < .01 or np.imag(z) > -.01:
+                if np.imag(z) < .05 and np.imag(z) > -.05:
                     char_z = data["Z"][i / 2]
                     char_freq = data["Frequency"][i]
                     break
@@ -124,7 +124,7 @@ class CatheterTester:
         
         self.vna.SetStartFreq(0) # we only want to test one frequency
         self.vna.SetStopFreq(100e6)
-        self.vna.SetNumPoints(10000)
+        self.vna.SetNumPoints(500)
         self.vna.SetSweepParameters(["s11"]) # we are looking for impedance
         self.vna.SetScale("lin")
         
@@ -137,7 +137,7 @@ class CatheterTester:
             char_z = 0
             char_freq = 0
             for i, z in enumerate(data["Z"]):
-                if np.imag(z) < .01 or np.imag(z) > -.01:
+                if np.imag(z) < .05 and np.imag(z) > -.05:
                     char_z = data["Z"][i / 2]
                     char_freq = data["Frequency"][i]
                     break
