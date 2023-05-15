@@ -90,7 +90,7 @@ class CatheterTester:
             char_freq = 0
             for i, z in enumerate(data["Z"]):
                 if np.imag(z) < .05 and np.imag(z) > -.05:
-                    char_z = data["Z"][i / 2]
+                    char_z = np.imag(data["Z"][i / 2])
                     char_freq = data["Frequency"][i]
                     break
                 
@@ -138,7 +138,7 @@ class CatheterTester:
             char_freq = 0
             for i, z in enumerate(data["Z"]):
                 if np.imag(z) < .05 and np.imag(z) > -.05:
-                    char_z = data["Z"][i / 2]
+                    char_z = np.imag(data["Z"][i / 2])
                     char_freq = data["Frequency"][i]
                     break
                 
