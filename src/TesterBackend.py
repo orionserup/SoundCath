@@ -126,6 +126,7 @@ class CatheterTester:
         self.vna.SetStartFreq(0) # we only want to test one frequency
         self.vna.SetStopFreq(100e6)
         self.vna.SetNumPoints(500)
+        self.vna.SetTimePerPoint(5)
         self.vna.SetSweepParameters(["s11"]) # we are looking for impedance
         self.vna.SetScale("lin")
         
