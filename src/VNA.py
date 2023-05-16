@@ -59,6 +59,7 @@ class VNA:
 
     # Writes and Executes a Script File According to the Class Parameters
     def Sweep(self):
+
         with open(self.scriptfile, "w") as file: # open the Script for writing
             
             # see VNWA Handbook 
@@ -85,7 +86,10 @@ class VNA:
                 file.write("\n")                
                 
                 for param in self.parameters: # for each of the meausured parameters write the data to a file
-                    file.write(f"writes1p {self.filename + param}.s1p {param}\n")
+                    filename = f"{self.filename + param}.s1p"
+                    file.write(f"writes1p {filename} {param}\n")
+                    print(f"Writing Sweep Data File to {filename}")
+
             
             file.write("exitVNWA") # leave the VNA app so you can do this again
 
