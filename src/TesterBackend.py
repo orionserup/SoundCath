@@ -75,9 +75,9 @@ class CatheterTester:
         self.SetChannel(channel, maxchannel, True)
 
         self.vna.SetFileName(filename + str(channel))
-        self.vna.SetStartFreq(200e3) # we only want to test one frequency
+        self.vna.SetStartFreq(100e3) # we only want to test one frequency
         self.vna.SetStopFreq(50e6)
-        self.vna.SetNumPoints(498)
+        self.vna.SetNumPoints(500)
         self.vna.SetTimePerPoint(5)
         self.vna.SetSweepParameters(["s11"]) # we are looking for impedance
         self.vna.SetScale("lin")
@@ -100,8 +100,10 @@ class CatheterTester:
             print(f"Crossing Frequency: {char_freq}")
             print(f"Characteristic Impedance: {char_z}")
 
-            i = data["Frequency"].index(dongle_freq) # find the index from the data with the test frequency
             idx = max_channel.index(maxchannel)
+            
+            lst = np.asarray(data["Frequency"])
+            i = (np.abs(lst - dongle_freq)).argmin()
 
             if i is not None:
                 c = -1 / (2 * math.pi * data["Z"][i].imag * dongle_freq) # if there is an entry with the test frequency calculate the capacitance
