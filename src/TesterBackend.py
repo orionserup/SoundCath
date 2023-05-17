@@ -122,7 +122,6 @@ class CatheterTester:
         self.SetChannel(channel, maxchannel, True)
         
         self.vna.SetFileName(filename + str(channel)) # set the filename to "{filename} {channel} s11.s1p"
-        
         self.vna.SetStartFreq(0) # we only want to test one frequency
         self.vna.SetStopFreq(100e6)
         self.vna.SetNumPoints(500)

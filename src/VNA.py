@@ -86,7 +86,7 @@ class VNA:
                 file.write("\n")                
                 
                 for param in self.parameters: # for each of the meausured parameters write the data to a file
-                    filename = f"{self.filename + param}.s1p"
+                    filename = self.filename + "s11.s1p"
                     file.write(f"writes1p {filename} {param}\n")
                     print(f"Writing Sweep Data File to {filename}")
 
