@@ -67,7 +67,7 @@ class CatheterTester:
         #     input("Press Any Key To Exit")
         #     exit() # leave the program
             
-    def DongleTest(self, channel: int , maxchannel: int = 96, filename: str = None) -> list[bool, float]:
+    def DongleTest(self, channel: int , maxchannel: int = 96, filename: str = None) -> list[bool, float, float]:
         
         if self.vna is None:  # if we didnt initialze the VNA we can't run the test
             return [False, 0, 0]
@@ -76,7 +76,7 @@ class CatheterTester:
 
         self.vna.SetFileName(filename + str(channel))
         self.vna.SetStartFreq(100e3) # we only want to test one frequency
-        self.vna.SetStopFreq(50e6)
+        self.vna.SetStopFreq(100e6)
         self.vna.SetNumPoints(1000)
         self.vna.SetTimePerPoint(5)
         self.vna.SetSweepParameters(["s11"]) # we are looking for impedance
@@ -118,7 +118,7 @@ class CatheterTester:
 
         return [False, 0, 0]
         
-    def ImpedanceTest(self, channel: int, maxchannel: int = 96, filename: str = None) -> list[bool, float]:
+    def ImpedanceTest(self, channel: int, maxchannel: int = 96, filename: str = None) -> list[bool, float, float]:
 
         return self.DongleTest(channel, maxchannel, filename)
         
