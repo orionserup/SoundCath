@@ -96,7 +96,7 @@ class TesterFrontEnd:  # a GUI front end for the test
         self.window.mainloop()
     
     def run_button_cb(self):
-        self.pool.submit(self.RunTests)
+        self.RunTests()
     
     def RunSingleChannelTest(self, channel, filename) -> None:
 

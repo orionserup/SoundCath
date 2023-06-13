@@ -120,8 +120,42 @@ class CatheterTester:
         
     def ImpedanceTest(self, channel: int, maxchannel: int = 96, filename: str = None) -> list[bool, float, float]:
 
-        return self.DongleTest(channel, maxchannel, filename)
+        if self.vna is None:  # if we didnt initialze the VNA we can't run the test
+            return [False, 0, 0]
         
+        self.SetChannel(channel, maxchannel, True)
+
+        self.vna.SetFileName(filename + str(channel))
+        self.vna.SetStartFreq(100e3) # we only want to test one frequency
+        self.vna.SetStopFreq(100e6)
+        self.vna.SetNumPoints(1000)
+        self.vna.SetTimePerPoint(5)
+        self.vna.SetSweepParameters(["s11"]) # we are looking for impedance
+        self.vna.SetScale("lin")
+        
+        try:
+        
+            self.vna.Sweep() # sweep and save the values to an s1p file
+            
+            data = VNA.GrabS1PData(filename + str(channel) + "s11.s1p") # convert the generated csv file and pull the data
+
+            idx = max_channel.index(maxchannel)
+            
+            lst = np.asarray(data["Frequency"])
+            i = (np.abs(lst - dongle_freq)).argmin()
+
+            if i is not None:
+                c = -1 / (2 * math.pi * data["Z"][i].imag * dongle_freq) # if there is an entry with the test frequency calculate the capacitance
+                print(f"Capacitance: {c * 1e12: .2f}pF")
+                if c < dongle_upper_thresh[idx] and c > dongle_lower_thresh[idx]: # 1 / wC = im(Z)  # if we are within the thresholds then we are good
+                    return [True, c, 0] # Passed the test
+                else:
+                    return [False, c, 0] # Failed the Test
+                
+        except Exception as e:
+            print(e)
+
+        return [False, 0, 0]
         
     def PulseEchoTest(self, scopechannel: int = 1, channel: int = 1, maxchannel: int = 96, filename: str = "cath.csv") -> list[bool, float, float, float]:
         
