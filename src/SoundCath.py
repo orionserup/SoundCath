@@ -270,6 +270,11 @@ class TesterFrontEnd:  # a GUI front end for the test
         passcolor = fills.PatternFill(patternType = 'solid', fgColor = green)
 
         mc = self.channels.get()
+
+        try:
+            del report['Sheet1']
+        except:
+            pass
         
         # fill out the sheet with the data from the pulse echo test results
         if self.pulseechotest.get():
