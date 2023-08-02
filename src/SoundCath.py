@@ -315,9 +315,9 @@ class TesterFrontEnd:  # a GUI front end for the test
                     for cols in row: 
                         cols.fill = color
                         
-                pereport["D" + str(8 + mc)] = f"{ave_vpp * 1e3 / num_samples: .2f}" # put the vpp in mV
-                pereport["E" + str(8 + mc)] = f"{ave_bandwidth * 100 / ave_center: .2f}" # put the bandwidth in MHz
-                pereport["H" + str(8 + mc)] = f"{ave_center * 1e-6 / num_samples:.2f}" # put the center frequency in MHz
+            pereport["D" + str(8 + mc)] = f"{ave_vpp * 1e3 / num_samples: .2f}" if num_samples > 0 else "Inf" # put the vpp in mV
+            pereport["E" + str(8 + mc)] = f"{ave_bandwidth * 100 / ave_center: .2f}" if num_samples > 0 else "Inf" # put the bandwidth in MHz
+            pereport["H" + str(8 + mc)] = f"{ave_center * 1e-6 / num_samples:.2f}" if num_samples > 0 else "Inf" # put the center frequency in MHz
             
         if self.impedancetest.get():
             print("Generating Impedance Report")
@@ -359,8 +359,8 @@ class TesterFrontEnd:  # a GUI front end for the test
                     for cols in row: 
                         cols.fill = color
                         
-                impedancereport["D" + str(11 + mc)] = f"{(ave_cap / num_samples) * 1e12: .2f}" # put the vpp in mV
-                impedancereport["E" + str(11 + mc)] = f"{ave_z / num_samples: .2f}" # put the bandwidth in MHz
+            impedancereport["D" + str(11 + mc)] = f"{(ave_cap / num_samples) * 1e12: .2f}" if num_samples > 0 else "Inf" # put the vpp in mV
+            impedancereport["E" + str(11 + mc)] = f"{ave_z / num_samples: .2f}" if num_samples > 0 else "Inf" # put the bandwidth in MHz
    
         if self.dongletest.get():
             print("Generating Dongle Report")
@@ -373,7 +373,7 @@ class TesterFrontEnd:  # a GUI front end for the test
                 
             ave_cap = 0
             ave_z = 0
-            num_samples = 0
+            num_samples = 1
             # fill out the sheet with the dongle test results
             for i in range(11, 11 + mc):    
                 
@@ -390,21 +390,20 @@ class TesterFrontEnd:  # a GUI front end for the test
                 donglereport["F" + str(i)] = "Pass" if passed else "Fail" # mark if the channel passed or failed
                 donglereport["G" + str(i)] = "Open" if cap > 10e-12 and cap < 180e-12 else "Short" if cap < 0 else "" # mark if the channel is open or short based on criteria
                 
-                if passed:
-                    ave_cap += cap
-                    ave_z += z
-                    num_samples += 1
-                    
                 color = passcolor if passed else failcolor # color the rows according to passing or failing
                 rowcells = donglereport.iter_cols(min_col = 3, max_col = 7, min_row = i, max_row = i)
                 for row in rowcells:
                     for cols in row: 
-                        cols.fill = color
+                        cols.fill = color                
                         
-                donglereport["D" + str(11 + mc)] = f"{(ave_cap / num_samples) * 1e12: .2f}" # put the vpp in mV
-                donglereport["E" + str(11 + mc)] = f"{ave_z / num_samples: .2f}" # put the bandwidth in MHz
+                if passed:
+                    ave_cap += cap
+                    ave_z += z
+                    num_samples += 1
+                        
+            donglereport["D" + str(11 + mc)] = f"{(ave_cap / num_samples) * 1e12: .2f}" if num_samples > 0 else "Inf" # put the vpp in mV
+            donglereport["E" + str(11 + mc)] = f"{ave_z / num_samples: .2f}" if num_samples > 0 else "Inf" # put the bandwidth in MHz
 
-                     
         report.save(filename)
         print(f"Saved Report as {filename}")
 
